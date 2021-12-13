@@ -19,7 +19,8 @@ INSERT INTO def_Erfasser (Name) VALUES
 	('Kirsten Krepelin'),
 	('Barbara Kuendiger'),
 	('Kaja Teschner'),
-	('Stefan Krug')
+	('Stefan Krug'),
+	('Tanja Trittel')
 ;
 ```
 
