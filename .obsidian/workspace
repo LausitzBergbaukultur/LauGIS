@@ -1,0 +1,95 @@
+{
+  "main": {
+    "id": "cd82118dc67bfa23",
+    "type": "split",
+    "children": [
+      {
+        "id": "d6db2501042b4890",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "create/CREATE_TABLE_obj_Anlage.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "28d4fc8b942c3b98",
+    "type": "split",
+    "children": [
+      {
+        "id": "260b2a1ab8f55f87",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e512e9448489f57c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "3bf22736e96de412",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "fcd6bf1046244bdf",
+    "type": "split",
+    "children": [
+      {
+        "id": "99a39664645cc6b6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6411cfc820d1c22f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "create/CREATE_TABLE_obj_Anlage.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "d6db2501042b4890",
+  "lastOpenFiles": [
+    "create/CREATE_TABLE_obj_Anlage.md",
+    "create/CREATE_FUNCTION_fn_create_objectnr.md",
+    "update/UPDATE_20210916.md"
+  ]
+}
