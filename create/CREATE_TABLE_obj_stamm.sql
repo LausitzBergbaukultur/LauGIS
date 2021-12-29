@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS obj_stamm
     sorbisch text,                  -- 5115
     strasse text,                   -- 5116
     hausnummer text,                -- 5117
-    gem_flur text,                  -- 5120
+    gem_flur text                  -- 5120
 
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)

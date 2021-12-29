@@ -1,8 +1,8 @@
 -- In der Tabelle obj_base werden die Metadaten und Deskriptoren sämtlicher Objekte abgelegt.
 -- Die explizite Beschreibung der einzelnen Objekte findet durch Erweiterungstabellen statt. 
 
-DROP TABLE IF EXISTS obj_basis;
-CREATE TABLE IF NOT EXISTS obj_basis
+DROP TABLE IF EXISTS development.obj_basis;
+CREATE TABLE IF NOT EXISTS development.obj_basis
 (     
     -- # Metadaten
     objekt_id integer PRIMARY KEY generated always as identity, -- PK
@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS obj_basis
     objekt_nr text,                 -- 5000
     erfassungsdatum date,           -- 9580
     aenderungsdatum date,           -- 9950
+    letzte_aenderung timestamp,     -- meta zur Filterung
+    geloescht bool,                 -- meta zur Filterung
     -- erfasser -> ref
 
     -- # Deskriptoren
@@ -30,7 +32,7 @@ CREATE TABLE IF NOT EXISTS obj_basis
 
 -- Referenz zu übergeordneten Objekten
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
-    REFERENCES "obj_basis" (objekt_id) MATCH SIMPLE
+    REFERENCES development.obj_basis (objekt_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );
