@@ -2,7 +2,7 @@
 -- Objektbereiche bestehen aus zusammenhängenden Einträgen in obj_base und obj_stamm. 
 
 DROP TABLE IF EXISTS obj_stamm;
-CREATE TABLE IF NOT EXISTS obj_stamm
+CREATE TABLE IF NOT EXISTS development.obj_stamm
 (     
     -- # Metadaten
     stammdaten_id integer PRIMARY KEY generated always as identity, -- PK
@@ -25,27 +25,27 @@ CREATE TABLE IF NOT EXISTS obj_stamm
     sorbisch text,                  -- 5115
     strasse text,                   -- 5116
     hausnummer text,                -- 5117
-    gem_flur text                  -- 5120
+    gem_flur text,                  -- 5120
 
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
-    REFERENCES "obj_basis" (objekt_id) MATCH SIMPLE
+    REFERENCES development.obj_basis (objekt_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 CONSTRAINT fkey_erhaltungszustand FOREIGN KEY (erhaltungszustand)
-    REFERENCES "def_erhaltungszustand" (id) MATCH SIMPLE
+    REFERENCES development.def_erhaltungszustand (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 CONSTRAINT fkey_kategorie FOREIGN KEY (kategorie)
-    REFERENCES "def_kategorie" (id) MATCH SIMPLE
+    REFERENCES development.def_kategorie (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 CONSTRAINT fkey_nachnutzung FOREIGN KEY (nachnutzungspotential)
-    REFERENCES "def_nachnutzung" (id) MATCH SIMPLE
+    REFERENCES development.def_nachnutzung (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 CONSTRAINT fkey_schutzstatus FOREIGN KEY (schutzstatus)
-    REFERENCES "def_schutzstatus" (id) MATCH SIMPLE
+    REFERENCES development.def_schutzstatus (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 
