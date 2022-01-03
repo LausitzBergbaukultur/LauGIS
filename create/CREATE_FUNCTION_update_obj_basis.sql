@@ -22,16 +22,24 @@ CREATE OR REPLACE FUNCTION development.update_obj_basis(
   _hida_nr text,                   -- 5000
 
   -- # Geometrie
-  geom geometry                   -- 
+  _geom geometry                   -- undefined geometry
   ) 
 RETURNS INTEGER AS $$
 
 DECLARE 
   _ob_id integer = _objekt_id;
+  _is_update bool = NULL;
 BEGIN
 
   -- check if UPDATE or INSERT
   IF (_objekt_id IS NOT NULL) THEN
+    _is_update = TRUE;
+  ELSE
+    _is_update = FALSE;
+  END IF;
+
+  -- handle obj_basis entries
+  IF (_is_update) THEN
     UPDATE development.obj_basis
     SET
         ref_objekt_id = _ref_objekt_id,
@@ -80,20 +88,58 @@ BEGIN
       RETURNING obj_basis.objekt_id INTO _ob_id;
   END IF;
 
-  -- check geometry type and insert accordingly
-  IF (TRUE)
-  THEN 
-    INSERT INTO development.geo_poly(
-        ref_objekt_id,
-        geom
-        )
-      VALUES (
-        _ob_id,
-        geom);
-  ELSE 
-    RAISE NOTICE 'geht nicht';
+  -- handle geometry entries
+  IF (ST_GeometryType(_geom) = 'ST_MultiPolygon') THEN 
+    
+    IF (_is_update) THEN
+        UPDATE development.geo_poly
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;  
+    ELSE 
+        INSERT INTO development.geo_poly(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF;  
+  
+  ELSEIF (ST_GeometryType(_geom) = 'ST_MultiLineString') THEN
+    
+    IF (_is_update) THEN
+        UPDATE development.geo_line
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;    
+    ELSE  
+        INSERT INTO development.geo_line(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF;  
+
+  ELSEIF (ST_GeometryType(_geom) = 'ST_MultiPoint') THEN
+    
+    IF (_is_update) THEN
+        UPDATE development.geo_point
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;
+    ELSE 
+        INSERT INTO development.geo_point(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF;  
+
   END IF;
 
+-- return (inserted) object id
 RETURN _ob_id;
 
 END;

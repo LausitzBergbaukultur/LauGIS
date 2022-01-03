@@ -57,5 +57,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tr_instead_objektbereich
-INSTEAD OF INSERT OR UPDATE OR DELETE ON development.show_objektbereich_poly
+INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_poly
+    FOR EACH ROW EXECUTE FUNCTION development.trf_show_objektbereich();
+	
+CREATE TRIGGER tr_instead_objektbereich
+INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_line
     FOR EACH ROW EXECUTE FUNCTION development.trf_show_objektbereich();
