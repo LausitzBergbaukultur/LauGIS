@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION development.trf_show_objektbereich()
+CREATE OR REPLACE FUNCTION development.trf_objektbereich()
 RETURNS TRIGGER AS $$
 DECLARE
 	_ob_id integer;
 BEGIN 
+
+	raise notice 'Value: %', NEW.nullcolumn;
+
 	-- inkorrekte ID-Übernahme abfangen
 	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
 		
@@ -58,8 +61,12 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tr_instead_objektbereich
 INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_poly
-    FOR EACH ROW EXECUTE FUNCTION development.trf_show_objektbereich();
+    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();
 	
 CREATE TRIGGER tr_instead_objektbereich
 INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_line
-    FOR EACH ROW EXECUTE FUNCTION development.trf_show_objektbereich();
+    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();
+
+CREATE TRIGGER tr_instead_objektbereich
+INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_gesamt
+    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();
