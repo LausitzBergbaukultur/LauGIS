@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>895</width>
+    <height>828</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QPushButton" name="btn_addstamp">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>791</y>
+     <width>110</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>AddTimestamp</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>20</y>
+     <width>258</width>
+     <height>541</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QCheckBox" name="in_bearbeitung">
+      <property name="text">
+       <string>in Bearbeitung</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="lbl_objnr_2">
+      <property name="text">
+       <string>Erfassungsdatum</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QgsDateTimeEdit" name="erfassungsdatum"/>
+    </item>
+    <item>
+     <widget class="QLabel" name="lbl_objnr_3">
+      <property name="text">
+       <string>Aenderungsdatum</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QgsDateTimeEdit" name="aenderungsdatum"/>
+    </item>
+    <item>
+     <widget class="QLabel" name="lbl_eigenname_2">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Erfasser:innen</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="listWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>2</width>
+        <height>192</height>
+       </size>
+      </property>
+      <property name="locale">
+       <locale language="German" country="Germany"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>20</y>
+     <width>551</width>
+     <height>541</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="layout_stamm">
+    <item row="0" column="0">
+     <widget class="QLabel" name="lbl_objnr">
+      <property name="text">
+       <string>Objektnummer</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="objekt_nr"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="lbl_bezeichnung">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Bezeichnung</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="bezeichnung"/>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="lbl_beschreibung">
+      <property name="text">
+       <string>Beschreibung</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QTextEdit" name="beschreibung"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Beschreibung&lt;/p&gt;&lt;p&gt;(ergänzend)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="beschreibung_ergaenzung"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTableView" name="tableView">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>600</y>
+     <width>531</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::NoContextMenu</enum>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="showGrid">
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsDateTimeEdit</class>
+   <extends>QDateTimeEdit</extends>
+   <header>qgsdatetimeedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

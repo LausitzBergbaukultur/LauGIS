@@ -4,7 +4,7 @@ DECLARE
 	_ob_id integer;
 BEGIN 
 
-	raise notice 'Value: %', NEW.nullcolumn;
+	raise notice 'Value: %', NEW.return_erfasser;
 
 	-- inkorrekte ID-Übernahme abfangen
 	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
