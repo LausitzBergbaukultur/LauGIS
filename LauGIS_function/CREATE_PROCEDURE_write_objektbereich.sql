@@ -7,6 +7,7 @@ CREATE OR REPLACE PROCEDURE development.write_objektbereich(
   objekt_nr text,                 -- 5000
   erfassungsdatum date,           -- 9580
   aenderungsdatum date,           -- 9950
+  erfasser text[],
 
   -- # Deskriptoren
   in_bearbeitung bool,            -- default 1
@@ -84,6 +85,14 @@ BEGIN
     strasse,                    -- 5116
     hausnummer,                 -- 5117
     gem_flur                    -- 5120
+  );
+
+  -- zugehörige Relation Erfasser anpassen
+  PERFORM development.update_erfasser(
+    erfasser[1]::integer,    --_relation_id integer,            -- pk IF NOT NULL -> UPDATE
+    erfasser[2]::integer,  --_ref_objekt_id integer,          -- fk
+    erfasser[3]::integer,  --_ref_erfasser_id integer,        -- fk
+    erfasser[4]::bool  --_is_creator bool
   );
 END;
 $$;

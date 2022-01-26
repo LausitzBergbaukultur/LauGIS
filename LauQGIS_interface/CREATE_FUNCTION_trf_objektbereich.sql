@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION development.trf_objektbereich()
 RETURNS TRIGGER AS $$
 DECLARE
 	_ob_id integer;
+	_erfasser text[];
 BEGIN 
 
 	raise notice 'Value: %', NEW.return_erfasser;
@@ -17,14 +18,20 @@ BEGIN
 
 	END IF;
 
+	-- QGIS gibt das Array als TEXT zurück
+	SELECT string_to_array(trim(both '()' from NEW.return_erfasser[1]), ',', 'NULL')
+	INTO _erfasser;
+
     IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 
-       CALL development.write_objektbereich(
+    	-- Prozedur zur Verwaltung des Objektes
+        CALL development.write_objektbereich(
        	_ob_id,
 			NEW.ref_objekt_id, 
 			NEW.objekt_nr, 
 			NEW.erfassungsdatum, 
 			NEW.aenderungsdatum, 
+			_erfasser,				
 			NEW.in_bearbeitung, 
 			NEW.beschreibung, 
 			NEW.beschreibung_ergaenzung, 
@@ -61,12 +68,4 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tr_instead_objektbereich
 INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_poly
-    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();
-	
-CREATE TRIGGER tr_instead_objektbereich
-INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_line
-    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();
-
-CREATE TRIGGER tr_instead_objektbereich
-INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_gesamt
     FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();

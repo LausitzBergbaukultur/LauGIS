@@ -55,16 +55,17 @@ def get_rel_erfasser(return_erfasser):
         new['is_creator'] = None
         rel_erfasser.append(new)
     
-    # um Status aus übergebener Liste ergänzen
-    for entry in return_erfasser:
-        attributes = entry.strip('()').split(',')
-        # in erfasser-liste eintragen
-        for rel in rel_erfasser:
-            if int(rel['erfasser_id']) == int(attributes[2]):
-                rel['id'] = attributes[0]
-                rel['is_creator'] = (True if attributes[3] == 't' else False)
-            # ObjektId wird immer übernommen: entspricht Attribut
-            rel['objekt'] = attributes[1]
+    if return_erfasser is not None:
+        # um Status aus übergebener Liste ergänzen
+        for entry in return_erfasser:
+            attributes = entry.strip('()').split(',')
+            # in erfasser-liste eintragen
+            for rel in rel_erfasser:
+                if int(rel['erfasser_id']) == int(attributes[2]):
+                    rel['id'] = attributes[0]
+                    rel['is_creator'] = (True if attributes[3] == 't' else False)
+                # ObjektId wird immer übernommen: entspricht Attribut
+                rel['objekt'] = attributes[1]
     return rel_erfasser
 
 ###############################################################################

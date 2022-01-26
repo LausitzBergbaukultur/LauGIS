@@ -3,7 +3,6 @@
 DROP TABLE IF EXISTS development.rel_erfasser;
 CREATE TABLE IF NOT EXISTS development.rel_erfasser
 (     
-    -- # Metadaten
     relation_id integer PRIMARY KEY generated always as identity, -- PK
     ref_objekt_id integer,          -- fk NOT NULL
     ref_erfasser_id integer,        -- fk NOT NULL

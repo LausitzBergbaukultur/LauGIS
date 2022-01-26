@@ -38,7 +38,7 @@ FROM "Erfassung"."obj_Einzelobjekt" AS eo
 	LEFT JOIN "Erfassung"."def_Nachnutzung" AS nn ON eo.nachnutzungspotential = nn.id
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
-WHERE eo.in_bearbeitung IS false
+WHERE eo.in_bearbeitung IS NOT false
 	AND eo.foerderfaehig IS true
 UNION
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
@@ -79,7 +79,7 @@ FROM "Erfassung"."obj_Einzelobjekt_line" AS eo
 	LEFT JOIN "Erfassung"."def_Nachnutzung" AS nn ON eo.nachnutzungspotential = nn.id
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
-WHERE eo.in_bearbeitung IS false
+WHERE eo.in_bearbeitung IS NOT false
 	AND eo.foerderfaehig IS true
 UNION
 -- Förderliste Objektbereich
@@ -115,5 +115,5 @@ FROM "Erfassung"."obj_Objektbereich" AS eo
 	LEFT JOIN "Erfassung"."def_Nachnutzung" AS nn ON eo.nachnutzungspotential = nn.id
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
-WHERE eo.in_bearbeitung IS false
+WHERE eo.in_bearbeitung IS NOT false
 	AND eo.foerderfaehig IS true
