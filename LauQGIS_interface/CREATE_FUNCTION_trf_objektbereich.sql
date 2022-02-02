@@ -1,68 +1,115 @@
 CREATE OR REPLACE FUNCTION development.trf_objektbereich()
 RETURNS TRIGGER AS $$
 DECLARE
-	_ob_id integer;
-	_erfasser text[];
+	_obj_id integer;
+	_relation text[];
 BEGIN 
 
-	raise notice 'Value: %', NEW.return_erfasser;
-
-	-- inkorrekte ID-Übernahme abfangen
+---------------------------------------------------------------------------------------------------------------
+-- inkorrekte ID-Übernahme abfangen
+---------------------------------------------------------------------------------------------------------------
+	
 	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
 		
-		_ob_id = OLD.objekt_id;
+		_obj_id = OLD.objekt_id;
 
 	ELSIF (TG_OP = 'INSERT') THEN
 	
-		_ob_id = NULL;
+		_obj_id = NULL;
 
 	END IF;
 
-	-- QGIS gibt das Array als TEXT zurück
-	SELECT string_to_array(trim(both '()' from NEW.return_erfasser[1]), ',', 'NULL')
-	INTO _erfasser;
+---------------------------------------------------------------------------------------------------------------
+-- Löschprüfung. Bei Erfolg werden Objekte als gelöscht markiert.
+---------------------------------------------------------------------------------------------------------------
 
-    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+IF (TG_OP = 'DELETE') THEN
 
-    	-- Prozedur zur Verwaltung des Objektes
-        CALL development.write_objektbereich(
-       	_ob_id,
-			NEW.ref_objekt_id, 
-			NEW.objekt_nr, 
-			NEW.erfassungsdatum, 
-			NEW.aenderungsdatum, 
-			_erfasser,				
-			NEW.in_bearbeitung, 
-			NEW.beschreibung, 
-			NEW.beschreibung_ergaenzung, 
-			NEW.lagebeschreibung, 
-			NEW.quellen_literatur, 
-			NEW.notiz_intern,
-			NEW.hida_nr, 
-			NEW.sachbegriff, 
-			NEW.bezeichnung, 
-			NEW.bauwerksname_eigenname, 
-			NEW.kategorie, 
-			NEW.erhaltungszustand, 
-			NEW.schutzstatus, 
-			NEW.nachnutzungspotential, 
-			NEW.kreis, 
-			NEW.gemeinde, 
-			NEW.ort, 
-			NEW.sorbisch, 
-			NEW.strasse, 
-			NEW.hausnummer, 
-			NEW.gem_flur, 
-			NEW.geom
+	PERFORM development.delete_objekt(_ob_id);
+    RETURN NULL;
+    
+ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+
+---------------------------------------------------------------------------------------------------------------
+-- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
+---------------------------------------------------------------------------------------------------------------
+
+	SELECT development.update_obj_basis(
+	    -- # Metadaten
+	    _obj_id,				-- pk IF NOT NULL -> UPDATE
+		NEW.ref_objekt_id, 
+		NEW.objekt_nr, 
+		NEW.erfassungsdatum, 
+		NEW.aenderungsdatum,
+
+	    -- # Deskriptoren
+		NEW.in_bearbeitung, 
+		NEW.beschreibung, 
+		NEW.beschreibung_ergaenzung, 
+		NEW.lagebeschreibung, 
+		NEW.quellen_literatur, 
+		NEW.notiz_intern,
+		NEW.hida_nr,
+	    
+	  	-- # Geometrie
+		NEW.geom
+	)
+	INTO _obj_id;
+
+---------------------------------------------------------------------------------------------------------------
+-- zugehöriges Stammdaten-Objekt anlegen/updaten
+---------------------------------------------------------------------------------------------------------------
+
+  	PERFORM development.update_obj_stamm(
+	    _obj_id,                   -- fk zu angelegter Objekt-Basis, NOT NULL
+	    -- # Stammdaten
+		NEW.sachbegriff, 
+		NEW.bezeichnung, 
+		NEW.bauwerksname_eigenname, 
+		NEW.kategorie, 
+		NEW.erhaltungszustand, 
+		NEW.schutzstatus, 
+		NEW.nachnutzungspotential,
+
+	    -- # Lokalisatoren
+		NEW.kreis, 
+		NEW.gemeinde, 
+		NEW.ort, 
+		NEW.sorbisch, 
+		NEW.strasse, 
+		NEW.hausnummer, 
+		NEW.gem_flur
+  	);
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Erfasser
+---------------------------------------------------------------------------------------------------------------
+
+	-- TODO Abgleich OLD. und NEW.
+	-- for ID not in NEW -> delete
+		FOREACH _relation SLICE 1 IN ARRAY OLD.return_erfasser
+		LOOP
+			-- IF _relation[1] NOT <@ NEW.return_erfasser[:][1] as contained
+			-- PERFORM development.remove_erfasser(id)
+		END LOOP;
+
+  	-- erfasser = {{rel_id, obj_id (obsolet), erf_id, is_erfasser::bool}}
+  	IF array_length(NEW.return_erfasser, 1) > 0 THEN
+		FOREACH _relation SLICE 1 IN ARRAY NEW.return_erfasser
+		LOOP
+			-- Funktion für aktuellen Slice aufrufen
+			PERFORM development.update_erfasser(
+			_relation[1]::integer,
+			_obj_id,
+			_relation[3]::integer,
+			_relation[4]::bool
 			);
-        RETURN NEW;
-    
-    ELSIF (TG_OP = 'DELETE') THEN
+		END LOOP;
+ 	END IF;   
 
-    	PERFORM development.delete_objekt(_ob_id);
-    	RETURN NULL;
-    
-    END IF;
+    RETURN NEW;
+
+END IF;
 END;
 $$ LANGUAGE plpgsql;
 

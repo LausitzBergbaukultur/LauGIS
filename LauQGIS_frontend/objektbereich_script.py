@@ -39,7 +39,7 @@ def formOpen(dialog,layer,feature):
 
 # Ermittelt def_erfasser Liste und ergänzt diese Liste um die übergebenen Werte
 def get_rel_erfasser(return_erfasser):
-    rel_erfasser = []
+    rel_erfasser = list()
     # get def_table
     project = QgsProject.instance()
     # TODO unscharfe namen ermöglichen
@@ -54,16 +54,21 @@ def get_rel_erfasser(return_erfasser):
         new['erfasser_name'] = entry.attribute('name')
         new['is_creator'] = None
         rel_erfasser.append(new)
-    
+        
+    # TODO die müsste doch auch bei neuem Feature erzeugt werden?
     if return_erfasser is not None:
         # um Status aus übergebener Liste ergänzen
         for entry in return_erfasser:
-            attributes = entry.strip('()').split(',')
+            if type(entry) == str:
+                attributes = entry.strip('{}').split(',')
+            else:
+                attributes = entry
+            #print(attributes)
             # in erfasser-liste eintragen
             for rel in rel_erfasser:
                 if int(rel['erfasser_id']) == int(attributes[2]):
                     rel['id'] = attributes[0]
-                    rel['is_creator'] = (True if attributes[3] == 't' else False)
+                    rel['is_creator'] = (True if attributes[3] == 'true' else False)
                 # ObjektId wird immer übernommen: entspricht Attribut
                 rel['objekt'] = attributes[1]
     return rel_erfasser
@@ -138,22 +143,33 @@ def edit_erfasser_accept(dlg_erfasser):
     # find data table
     table = dlg_erfasser.findChild(QTableWidget, 'tableWidget')
     return_erfasser = list()
-        
+    return_erfasser.clear()
+    
     for row in range(table.rowCount()):
         # checkstate selected
         if table.item(row, 1).checkState() > 0:
-            relid = (table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL')
-            objid = (table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL')
-            erfid = (table.item(row, 3).text() if table.item(row, 3).text().isnumeric() else 'NULL')
-            is_creator = ('t' if table.item(row, 5).checkState() > 0 else 'f') 
-            
-            # TODO das muss schöner gehen
-            return_erfasser.append("(" + relid + "," + objid + "," + erfid + "," + is_creator + ")")
+            # QGIS->PGSQL expects explicit string notation for arrays
+            #  beyond the first dimension
+            new = list()
+            new.append('{')
+            new.append(table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL')            
+            new.append(',')
+            new.append(table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL')
+            new.append(',')
+            new.append(table.item(row, 3).text() if table.item(row, 3).text().isnumeric() else 'NULL')
+            new.append(',')
+            new.append('true' if table.item(row, 5).checkState() > 0 else 'false') 
+            new.append('}')
+            return_erfasser.append(''.join(new))
+    print(return_erfasser)
     
     # TODO "with" prüfen       
-    #with edit(local_layer):
+    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
     local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_erfasser'), return_erfasser)
-      
+    local_feature['return_erfasser'] = return_erfasser
+    # TODO Aktualisierung des Dialogs erzwingen
+    
 ###############################################################################    
     
     

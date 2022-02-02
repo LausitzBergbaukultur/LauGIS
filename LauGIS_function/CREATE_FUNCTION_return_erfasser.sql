@@ -7,13 +7,12 @@ DECLARE
   _ar text[];
 BEGIN
 
-SELECT ARRAY( 
-  -- SELECT def.name || '|' || def.id::text || '|' || COALESCE(rel.is_creator::text, '0')
-  SELECT row(rel.relation_id, rel.ref_objekt_id, rel.ref_erfasser_id, rel.is_creator)::development.rel_erfasser
+SELECT ARRAY(
+  SELECT ARRAY(SELECT (json_each_text(to_json(rel))).value) AS row_value
     FROM development.obj_basis AS obb
-    JOIN development.rel_erfasser AS rel ON rel.ref_objekt_id = obb.objekt_id
-    JOIN development.def_erfasser AS def ON rel.ref_erfasser_id = def.id
-    WHERE obb.objekt_id = _objekt_id)
+        JOIN development.rel_erfasser AS rel ON rel.ref_objekt_id = obb.objekt_id
+        JOIN development.def_erfasser AS def ON rel.ref_erfasser_id = def.id
+        WHERE obb.objekt_id = _objekt_id)
 INTO _ar;
 
 RETURN _ar;
