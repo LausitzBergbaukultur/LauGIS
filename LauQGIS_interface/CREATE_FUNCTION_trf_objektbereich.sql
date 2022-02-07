@@ -3,6 +3,7 @@ RETURNS TRIGGER AS $$
 DECLARE
 	_obj_id integer;
 	_relation text[];
+	_rel_id integer;
 BEGIN 
 
 ---------------------------------------------------------------------------------------------------------------
@@ -25,7 +26,7 @@ BEGIN
 
 IF (TG_OP = 'DELETE') THEN
 
-	PERFORM development.delete_objekt(_ob_id);
+	PERFORM development.delete_objekt(_obj_id);
     RETURN NULL;
     
 ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
@@ -84,16 +85,17 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: Erfasser
 ---------------------------------------------------------------------------------------------------------------
+	-- erfasser = {{rel_id, obj_id (obsolet), erf_id, is_erfasser::bool}}
 
-	-- TODO Abgleich OLD. und NEW.
-	-- for ID not in NEW -> delete
-		FOREACH _relation SLICE 1 IN ARRAY OLD.return_erfasser
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+				FROM unnest(OLD.return_erfasser[:][1]) AS erf_old
+				WHERE erf_old NOT IN (SELECT erf_new FROM unnest(NEW.return_erfasser[:][1]) as erf_new)
 		LOOP
-			-- IF _relation[1] NOT <@ NEW.return_erfasser[:][1] as contained
-			-- PERFORM development.remove_erfasser(id)
+			PERFORM development.remove_erfasser(_rel_id);
 		END LOOP;
-
-  	-- erfasser = {{rel_id, obj_id (obsolet), erf_id, is_erfasser::bool}}
+	
+	-- update for new
   	IF array_length(NEW.return_erfasser, 1) > 0 THEN
 		FOREACH _relation SLICE 1 IN ARRAY NEW.return_erfasser
 		LOOP

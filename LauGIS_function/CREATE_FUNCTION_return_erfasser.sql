@@ -1,3 +1,6 @@
+-- Gibt für ein Objekt die Erfasserliste gem rel_erfasser zurück
+-- Format: {{rel_id, obj_id, erf_id, is_erfasser}}
+
 CREATE OR REPLACE FUNCTION development.return_erfasser(
   _objekt_id integer              -- pk
   ) 
