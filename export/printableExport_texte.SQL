@@ -39,8 +39,9 @@ FROM "Erfassung"."obj_Einzelobjekt" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-12-10')
-	-- AND eo.erfasser =  -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
+	AND eo.aenderungsdatum > date('2021-11-26')
+	AND eo.aenderungsdatum != date('2021-12-10')
+	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
 UNION
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
 || E'\nErfassung:\t\t' || COALESCE(bea.name, '')
@@ -81,8 +82,9 @@ FROM "Erfassung"."obj_Einzelobjekt_line" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-12-10')
-	-- AND eo.erfasser =  -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
+	AND eo.aenderungsdatum > date('2021-11-26')
+	AND eo.aenderungsdatum != date('2021-12-10')
+	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
 UNION
 -- Textprüfung Objektbereich
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
@@ -118,6 +120,7 @@ FROM "Erfassung"."obj_Objektbereich" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-12-10')
-	-- AND eo.erfasser =  -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
+	AND eo.aenderungsdatum > date('2021-11-26')
+	AND eo.aenderungsdatum != date('2021-12-10')
+	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
 
