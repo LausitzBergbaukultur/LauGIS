@@ -1,49 +1,70 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QDialog, QToolButton, QListWidget, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QDialog, QToolButton, QListWidget, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QRadioButton, QErrorMessage
+#from PyQt5.QtWidgets import *
+import json
 
-isInit = False
+error_dialog = QErrorMessage()
 local_feature = None
 local_layer = None
+local_dialog = None
 
 def formOpen(dialog,layer,feature):
-    global isInit
+    # Scope: Zugriff auf relevante Ressourcen ermöglichen
     global local_feature
     global local_layer
+    global local_dialog
+    global error_dialog
     local_feature = feature
     local_layer = layer
+    local_dialog = dialog
+    
     ## not initialised but has actual feature?
     ## mitigates multiple calls
-    if not isInit and len(feature.attributes()) > 0:
+    if len(feature.attributes()) > 0:
         
-        ## interface übersetzen    
-        rel_erfasser = get_rel_erfasser(feature.attribute('return_erfasser')) 
         ## Button für Erfasser-Dialog
-        dlg_erfasser = QDialog() 
+        load_erfasser_control()
+        dlg_erfasser = QDialog()
+        
         btn_erfasser = dialog.findChild(QToolButton, 'btn_erfasser')
+        
         try:
             btn_erfasser.disconnect()
         except:
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-            print('Überzählige Instanziierung abgefangen')
-        btn_erfasser.clicked.connect(lambda: edit_erfasser(dlg_erfasser, rel_erfasser))
-        ### Erfasser Liste
-        listWidget = dialog.findChild(QListWidget, 'listWidget')
-        listWidget.clear()    
-        for rel in rel_erfasser:
-            if rel['id'] is not None:
-                listWidget.addItem(rel['erfasser_name'] + ' (Ersteller:in)' if rel['is_creator'] else rel['erfasser_name'])
+            True
+        btn_erfasser.clicked.connect(lambda: dlg_edit_erfasser(dlg_erfasser))
 
 ##############################################################################
+# Feld: Erfasser:in
+##############################################################################
 
+# refresh list on primary dialog
+def load_erfasser_control():
+    # control ermitteln
+    # TODO eindeutigen namen vergeben
+    listWidget = local_dialog.findChild(QListWidget, 'listWidget')
+    listWidget.clear()
+    # relation list ermitteln
+    for rel in get_rel_erfasser():
+        if rel['id'] is not None:
+            listWidget.addItem(rel['erfasser_name'] + ' (Ersteller:in)' if rel['is_creator'] else rel['erfasser_name'])
+
+##############################################################################
+            
 # Ermittelt def_erfasser Liste und ergänzt diese Liste um die übergebenen Werte
-def get_rel_erfasser(return_erfasser):
+def get_rel_erfasser():
+    # return variable to fill
     rel_erfasser = list()
-    # get def_table
+    
+    # load list with base data via definition layer
     project = QgsProject.instance()
-    # TODO unscharfe namen ermöglichen
-    def_erfasser = project.mapLayersByName('def_erfasser')[0]
+    def_erfasser = QgsVectorLayer()
+    try:
+        def_erfasser = project.mapLayersByName('def_erfasser')[0]
+    except:
+        error_dialog.showMessage('Der Definitionslayer *def_erfasser* konnte nicht gefunden werden.')
     
     # def_erfasser als Basis übernehmen
     for entry in def_erfasser.getFeatures():
@@ -54,30 +75,33 @@ def get_rel_erfasser(return_erfasser):
         new['erfasser_name'] = entry.attribute('name')
         new['is_creator'] = None
         rel_erfasser.append(new)
-        
-    # TODO die müsste doch auch bei neuem Feature erzeugt werden?
-    if return_erfasser is not None:
-        # um Status aus übergebener Liste ergänzen
+    
+    return_erfasser = None
+    # check if object isnt none
+    if isinstance(local_feature.attribute('return_erfasser'), str):
+        return_erfasser = json.loads(local_feature.attribute('return_erfasser'))
+        # combine base data in rel_erfasser and this list
         for entry in return_erfasser:
-            if type(entry) == str:
-                attributes = entry.strip('{}').split(',')
-            else:
-                attributes = entry
-            #print(attributes)
-            # in erfasser-liste eintragen
             for rel in rel_erfasser:
-                if int(rel['erfasser_id']) == int(attributes[2]):
-                    rel['id'] = attributes[0]
-                    rel['is_creator'] = (True if attributes[3] == 'true' else False)
-                # ObjektId wird immer übernommen: entspricht Attribut
-                rel['objekt'] = attributes[1]
+                if int(rel['erfasser_id']) == int(entry['ref_erfasser_id']):
+                    rel['id'] = entry['relation_id']
+                    rel['is_creator'] = (True if entry['is_creator'] else False)
+                rel['objekt'] = entry['ref_objekt_id']
+    
+    # return combined list
     return rel_erfasser
 
 ###############################################################################
 
 # defines and opens a dialog to edit the creator list
-def edit_erfasser(dlg_erfasser, rel_erfasser):
-    # define controls   
+def dlg_edit_erfasser(dlg_erfasser):#, rel_erfasser):
+    # check edit state    
+    if local_layer.isEditable():
+        dlg_erfasser.setDisabled(False)
+    else:
+        dlg_erfasser.setDisabled(True)
+    
+    # define controls        
     layout = QFormLayout()
     table = QTableWidget()
     table.setObjectName('tableWidget') # for identification
@@ -89,15 +113,22 @@ def edit_erfasser(dlg_erfasser, rel_erfasser):
         dlg_erfasser.disconnect()
     except:
         # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-        print('Überzählige Instanziierung abgefangen')
+        True
     dlg_erfasser.accepted.connect(lambda: edit_erfasser_accept(dlg_erfasser))
     
-    # TODO editable abfragen
     # setup table    
     row = 0
     table.setColumnCount(6)
     table.setHorizontalHeaderLabels(['ID', 'Ausgewählt', 'Objekt_ID', 'Erfasser_ID', 'Name', 'Ist Ersteller:in'])
-    #table.setColumnHidden(2, True)
+    
+    # hide irrelevant columns
+    table.setColumnHidden(0, True)
+    table.setColumnHidden(2, True)
+    table.setColumnHidden(3, True)
+    
+    # Erfasserliste 
+    rel_erfasser = None
+    rel_erfasser = get_rel_erfasser()
     table.setRowCount(len(rel_erfasser))
     for person in rel_erfasser:
         # by columns:
@@ -140,135 +171,29 @@ def edit_erfasser(dlg_erfasser, rel_erfasser):
     
 # accept methode zur Übernahme geänderter Werte
 def edit_erfasser_accept(dlg_erfasser):
-    # find data table
+    # find data table and prepare list
     table = dlg_erfasser.findChild(QTableWidget, 'tableWidget')
     return_erfasser = list()
     return_erfasser.clear()
     
+    # parse table entries into return list
     for row in range(table.rowCount()):
-        # checkstate selected
-        if table.item(row, 1).checkState() > 0:
-            # QGIS->PGSQL expects explicit string notation for arrays
-            #  beyond the first dimension
-            new = list()
-            new.append('{')
-            new.append(table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL')            
-            new.append(',')
-            new.append(table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL')
-            new.append(',')
-            new.append(table.item(row, 3).text() if table.item(row, 3).text().isnumeric() else 'NULL')
-            new.append(',')
-            new.append('true' if table.item(row, 5).checkState() > 0 else 'false') 
-            new.append('}')
-            return_erfasser.append(''.join(new))
-    print(return_erfasser)
-    
-    # TODO "with" prüfen       
+        # checkstate selected -> write data into list
+        if table.item(row, 1).checkState() > 0:                     
+            return_erfasser.append({
+                    'relation_id' : table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL',
+                    'ref_objekt_id' : table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL',
+                    'ref_erfasser_id' : table.item(row, 3).text() if table.item(row, 3).text().isnumeric() else 'NULL',
+                    'is_creator' : True if table.item(row, 5).checkState() > 0 else False
+                    })
+                       
     # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_erfasser'), json.dumps(return_erfasser))
     # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
-    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_erfasser'), return_erfasser)
-    local_feature['return_erfasser'] = return_erfasser
-    # TODO Aktualisierung des Dialogs erzwingen
+    local_feature['return_erfasser'] = json.dumps(return_erfasser)
+    # Aktualisierung des Dialogs erzwingen
+    load_erfasser_control()
     
 ###############################################################################    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        ## initialise custom controls    
-        
-        # build layout
-        #liste = [{1,2,3,}, {4,5,6,}, {7,8,9,0}]
-        #liste = ["(1,2,3,)", "(4,5,6,)", "(7,8,9,0)"]
-        
-    
-        # build table inventory
-    
-        # initialise layout
-
-
-
- #layout.addWidget(table)
-        
-        #for r, (entry, obj, erfasser, flag) in enumerate(feature.attribute('return_erfasser')):
-        #for r, entry in enumerate(feature.attribute('return_erfasser')):
-        #for entry in feature.attribute('return_erfasser'):
-         #   print(entry)
-          #  it_1 = QTableWidgetItem()
-           # it_1.setFlags(it_1.flags() | QtCore.Qt.ItemIsUserCheckable)
-            #it_1.setCheckState(QtCore.Qt.Unchecked)
-            #it_2 = QTableWidgetItem(entry)
-            #table.insertRow(table.rowCount())
-            #table.insertRow(entry)
-            #for c, item in enumerate([it_1, it_2]):
-            #    table.setItem(r, c, item)     
-    
-## Initialise form and controls        
-#def init():
-    #print('initialising form...')
-    #isInit = True
-    
-    
-    #print(myFeature.attribute('return_erfasser'))
-    #global listWidget
-    # clear values
-    
-    
-    #listWidget.addItems(['stuff2','2'])
-    
-    
-    #global tableView
-    #global lineEdit_id
-    #global lineEdit_user
-    
-    #print(myLayer.dataProvider.attributes)
-        
-    
-    #tableView = myDialog.findChild(QTableView, 'tableView')
-    
-    #lineEdit_id = myDialog.findChild(QLineEdit, 'lineEdit_id')
-    #lineEdit_user = myDialog.findChild(QLineEdit, 'lineEdit_user')
-    
-    #btn_add = myDialog.findChild(QPushButton, 'btn_addstamp')
-    #btn_add.clicked.connect(addStamp)
-    #bezLabel = dialog.findChild(QLabel, 'lbl_bezeichnung')
-        
-    #btn = dialog.findChild(QPushButton, 'pushButton')
-    #btn.clicked.connect(buttonClick)
-    
-    #print(bezLabel.text())
-    #bezLabel.setText('geaendert')
-    #bezLabel.text = "Bez123"
-    #bezLabel.enabled = False
-    
-    #le = myDialog.findChild(QLineEdit, 'lneEdit')
-   # le.text = "123"
-    #le.setStyleSheet("background-color: rgba(255, 107, 107, 150);")
-    
-    #bezField = dialog.findChild(QLineEdit, "bezeichnung")
-    #bezField.setStyleSheet("background-color: rgba(255, 107, 107, 150);")
-     
-    
-###############################################################################
-
-#def addStamp():
-    
-    #form2 = QDialog()
-    #form2.show()
-    
-    #fk_doc = lineEdit_id.text()
-    #fk_erf = lineEdit_user.text()
-    #query = con.exec('INSERT INTO development.ref_edithistory(fk_doc, fk_erf, "timestamp") VALUES (' + fk_doc + ', ' + fk_erf + ', NOW());')    
-    #print(query)
-    #query = None
-
-###############################################################################
+      
     

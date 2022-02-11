@@ -1,6 +1,7 @@
 -- Die View repräsentiert die Struktur "Objektbereich"
 -- Die zugehörigen Geometrie ist Multipolygon
 -- Es werden die zusammenhängenden Datensätze der Tabellen obj_basis und obj_stamm angezeigt.
+-- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
 CREATE OR REPLACE VIEW development.objektbereich_poly AS
@@ -10,3 +11,7 @@ SELECT objekt_id, ob.ref_objekt_id, objekt_nr, erfassungsdatum, aenderungsdatum,
 	JOIN development.geo_poly AS geo ON ob.objekt_id = geo.ref_objekt_id
 	JOIN development.obj_stamm AS os ON ob.objekt_id = os.ref_objekt_id
 	WHERE ob.geloescht IS NOT TRUE;
+
+CREATE TRIGGER tr_instead_objektbereich
+INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_poly
+    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();

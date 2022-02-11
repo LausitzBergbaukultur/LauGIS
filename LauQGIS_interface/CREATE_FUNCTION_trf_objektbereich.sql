@@ -2,8 +2,13 @@ CREATE OR REPLACE FUNCTION development.trf_objektbereich()
 RETURNS TRIGGER AS $$
 DECLARE
 	_obj_id integer;
-	_relation text[];
-	_rel_id integer;
+
+	-- relation handling
+	_rel_new text[];		-- text[] to store entries as json
+	_rel_old_ids text[]; 	-- id list, type 'text' to handle literal 'NULL'
+	_rel_new_ids text[];	-- -"-
+	_rel_id text;			-- iterator and temp variable
+	_rel json;				-- iterator
 BEGIN 
 
 ---------------------------------------------------------------------------------------------------------------
@@ -85,36 +90,52 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: Erfasser
 ---------------------------------------------------------------------------------------------------------------
-	-- erfasser = {{rel_id, obj_id (obsolet), erf_id, is_erfasser::bool}}
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
+   	INTO _rel_new_ids;
 
 	-- delete diff old/new
 	FOR _rel_id in SELECT erf_old
-				FROM unnest(OLD.return_erfasser[:][1]) AS erf_old
-				WHERE erf_old NOT IN (SELECT erf_new FROM unnest(NEW.return_erfasser[:][1]) as erf_new)
-		LOOP
-			PERFORM development.remove_erfasser(_rel_id);
-		END LOOP;
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_erfasser(_rel_id::integer);
+	END LOOP;
 	
-	-- update for new
-  	IF array_length(NEW.return_erfasser, 1) > 0 THEN
-		FOREACH _relation SLICE 1 IN ARRAY NEW.return_erfasser
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
 		LOOP
-			-- Funktion für aktuellen Slice aufrufen
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
 			PERFORM development.update_erfasser(
-			_relation[1]::integer,
+			_rel_id::integer,
 			_obj_id,
-			_relation[3]::integer,
-			_relation[4]::bool
+			(_rel->>'ref_erfasser_id')::integer,
+			(_rel->>'is_creator')::bool
 			);
 		END LOOP;
  	END IF;   
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: TODO
+---------------------------------------------------------------------------------------------------------------
 
     RETURN NEW;
 
 END IF;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER tr_instead_objektbereich
-INSTEAD OF INSERT OR UPDATE OR DELETE ON development.objektbereich_poly
-    FOR EACH ROW EXECUTE FUNCTION development.trf_objektbereich();

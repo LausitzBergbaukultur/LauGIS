@@ -25,7 +25,7 @@
      <x>397</x>
      <y>20</y>
      <width>421</width>
-     <height>261</height>
+     <height>271</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -79,6 +79,9 @@
     </item>
     <item>
      <widget class="QListWidget" name="listWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="minimumSize">
        <size>
         <width>2</width>
