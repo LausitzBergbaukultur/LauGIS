@@ -75,7 +75,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.kategorie, 
 		NEW.erhaltungszustand, 
 		NEW.schutzstatus, 
-		NEW.nachnutzungspotential,
+		NEW.foerderfaehig,
 
 	    -- # Lokalisatoren
 		NEW.kreis, 
@@ -128,12 +128,56 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			(_rel->>'is_creator')::bool
 			);
 		END LOOP;
- 	END IF;   
+	END IF;   
+	
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Datierung
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_datierung::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_datierung::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_datierung(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_datierung::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_datierung(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'datierung')::text,
+			(_rel->>'ref_ereignis_id')::integer,
+			(_rel->>'alt_ereignis')::text
+			);
+		END LOOP;
+	END IF;   
 
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: TODO
 ---------------------------------------------------------------------------------------------------------------
-
+	
     RETURN NEW;
 
 END IF;

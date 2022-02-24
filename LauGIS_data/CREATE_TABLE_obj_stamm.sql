@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS development.obj_stamm
     kategorie smallint,             -- fk NOT NULL
     erhaltungszustand smallint,     -- fk 5210
     schutzstatus smallint,          -- fk
-    nachnutzungspotential smallint, -- fk
+    foerderfaehig bool, 
     -- funktion -> ref
 
     -- # Lokalisatoren
@@ -38,10 +38,6 @@ CONSTRAINT fkey_erhaltungszustand FOREIGN KEY (erhaltungszustand)
     ON DELETE NO ACTION,
 CONSTRAINT fkey_kategorie FOREIGN KEY (kategorie)
     REFERENCES development.def_kategorie (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION,
-CONSTRAINT fkey_nachnutzung FOREIGN KEY (nachnutzungspotential)
-    REFERENCES development.def_nachnutzung (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 CONSTRAINT fkey_schutzstatus FOREIGN KEY (schutzstatus)

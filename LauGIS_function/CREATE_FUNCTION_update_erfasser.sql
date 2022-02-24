@@ -27,7 +27,7 @@ BEGIN
     UPDATE development.rel_erfasser
     SET
         ref_objekt_id = _ref_objekt_id,
-        ref_erfasser_id = ref_erfasser_id,
+        ref_erfasser_id = _ref_erfasser_id,
         is_creator = _is_creator
     WHERE relation_id = _relation_id;
   ELSE

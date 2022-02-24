@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION development.update_obj_stamm(
     _kategorie smallint,             -- fk NOT NULL
     _erhaltungszustand smallint,     -- fk 5210
     _schutzstatus smallint,          -- fk
-    _nachnutzungspotential smallint, -- fk
+    _foerderfaehig bool, 
     
     -- # Lokalisatoren
     _kreis text,                     -- 5098
@@ -43,7 +43,7 @@ BEGIN
             kategorie,
             erhaltungszustand,
             schutzstatus,
-            nachnutzungspotential,
+            foerderfaehig,
             kreis,
             gemeinde,
             ort,
@@ -59,7 +59,7 @@ BEGIN
             _kategorie,
             _erhaltungszustand,
             _schutzstatus,
-            _nachnutzungspotential,
+            _foerderfaehig,
             _kreis,
             _gemeinde,
             _ort,
@@ -77,7 +77,7 @@ BEGIN
             kategorie = _kategorie,
             erhaltungszustand = _erhaltungszustand,
             schutzstatus = _schutzstatus,
-            nachnutzungspotential = _nachnutzungspotential,
+            foerderfaehig = _foerderfaehig,
             kreis = _kreis,
             gemeinde = _gemeinde,
             ort = _ort,
