@@ -280,5 +280,5 @@ INSERT INTO development.def_personen (bezeichnung, is_ausführend, sortierung) V
 ('Entwurf', false, 15),
 ('Projektleitung', false, 16),
 ('Unterstützer:in', false, 17),
-('FREITEXT', 999)
+('FREITEXT', null, 999)
 ;

@@ -26,6 +26,7 @@ def formOpen(dialog,layer,feature):
         reload_controls()
         # modal dialog for all edit windows
         dlg_edit = QDialog()
+        dlg_edit2 = QDialog()
             
 # Feld: Datierung #####################################################        
         btn_datierung = local_dialog.findChild(QToolButton, 'btn_datierung')
@@ -36,6 +37,15 @@ def formOpen(dialog,layer,feature):
             True
         btn_datierung.clicked.connect(lambda: dlg_edit_datierung(dlg_edit))
         
+# Feld: Personen #####################################################        
+        btn_personen = local_dialog.findChild(QToolButton, 'btn_personen')
+        try:
+            btn_personen.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_personen.clicked.connect(lambda: dlg_edit_personen(dlg_edit2))
+        
 # Feld: Erfasser ######################################################
         btn_erfasser = dialog.findChild(QToolButton, 'btn_erfasser')
         try:
@@ -45,8 +55,6 @@ def formOpen(dialog,layer,feature):
             True
         btn_erfasser.clicked.connect(lambda: dlg_edit_erfasser(QDialog()))
 
-# Feld: Personen ######################################################
-        load_person_control()
 
 ##############################################################################
 
@@ -60,6 +68,13 @@ def reload_controls():
     # control ermitteln und text einfügen
     lbl_return_datierung = local_dialog.findChild(QLabel, 'lbl_return_datierung')
     lbl_return_datierung.setText(' | '.join(datierung))
+    
+# Feld: Personen #####################################################
+    personen = [rel['ref_funktion'] + ' ' + rel['bezeichnung'] for rel in get_rel_personen()] 
+    # TODO ELSE
+    # control ermitteln und text einfügen
+    lbl_return_personen = local_dialog.findChild(QLabel, 'lbl_return_personen')
+    lbl_return_personen.setText(' | '.join(personen))
     
 # Feld: Erfasser #####################################################
     erfasser = list()
@@ -102,11 +117,11 @@ def get_rel_datierung():
     rel_dates = list()
     # check if object isnt none
     if isinstance(local_feature.attribute('return_datierung'), str):     
-        rel_dates = [{'relation_id'     :date['relation_id'],
-                      'datierung'       :date['datierung'],
-                      'ref_ereignis'    :[item['bezeichnung'] for item in get_def_datierung() if item['id'] == date['ref_ereignis_id']][0],
-                      'alt_ereignis'    :date['alt_ereignis']}
-                     for date in json.loads(local_feature.attribute('return_datierung'))]
+        rel_dates = [{'relation_id'     :rel['relation_id'],
+                      'datierung'       :rel['datierung'],
+                      'ref_ereignis'    :[item['bezeichnung'] for item in get_def_datierung() if item['id'] == rel['ref_ereignis_id']][0],
+                      'alt_ereignis'    :rel['alt_ereignis']}
+                     for rel in json.loads(local_feature.attribute('return_datierung'))]
     # [{"relation_id":,"datierung":"","ref_ereignis":"","alt_ereignis":""}]
     return rel_dates
     
@@ -163,8 +178,8 @@ def dlg_edit_datierung(dialog):
     table.setHorizontalHeaderLabels(['relation_id', 'Datierung', 'Ereignis', 'Ereignis (alternativ)'])
     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
     
-    # TODO hide irrelevant columns
-    #table.setColumnHidden(0, True)
+    # hide irrelevant columns
+    table.setColumnHidden(0, True)
     
     # iterate over interface items and add rows
     for date in get_rel_datierung():
@@ -240,7 +255,177 @@ def accept_edit_datierung(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
       
+    
+##############################################################################
+# Feld: Personen
+##############################################################################
 
+# datierung definition ermitteln
+def get_def_personen():
+    # load list with base data via definition layer
+    project = QgsProject.instance()
+    def_personen = QgsVectorLayer()
+    try:
+        def_personen = project.mapLayersByName('def_personen')[0]
+    except:
+        error_dialog.showMessage('Der Definitionslayer *def_personen* konnte nicht gefunden werden.')
+    # build dict based upon def_datierung. unfortunately one can't simply export all features at once
+    return [{"id":feat['id'], "bezeichnung":feat['bezeichnung']} for feat in def_personen.getFeatures()]
+
+# aufgelöste Liste mit Datierungen ermitteln
+def get_rel_personen():
+    rel_person = list()
+    # check if object isnt none
+    if isinstance(local_feature.attribute('return_personen'), str):     
+        rel_person = [{'relation_id'    :rel['relation_id'],
+                      'bezeichnung'     :rel['bezeichnung'],
+                      'ref_funktion'    :[item['bezeichnung'] for item in get_def_personen() if item['id'] == rel['ref_funktion_id']][0],
+                      'alt_funktion'    :rel['alt_funktion'],
+                      'is_sozietaet'    :rel['is_sozietaet']}
+                     for rel in json.loads(local_feature.attribute('return_personen'))]
+    # [{"relation_id":,"bezeichnung":"","ref_funktion":"","alt_funktion":"", "is_sozietaet":bool}]
+    return rel_person
+    
+###############################################################################        
+
+# defines and opens a dialog to edit the date list
+def dlg_edit_personen(dialog):    
+    # check edit state    
+    if local_layer.isEditable():
+        dialog.setDisabled(False)
+    else:
+        dialog.setDisabled(True)
+    
+    # initialise layout and controls        
+    layout = QFormLayout()
+    qhbox = QHBoxLayout()
+    qvbox = QVBoxLayout()
+    table = QTableWidget()
+    table.setObjectName('tableWidget') # for identification
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
+    btn_add = QToolButton()
+    btn_add.setText('+')
+    btn_del = QToolButton()
+    btn_del.setText('-')
+    dialog.setWindowTitle('Personen bearbeiten')
+
+    # define signals
+    try:
+        dialog.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    dialog.accepted.connect(lambda: accept_edit_personen(dialog))
+    try:
+        btn_add.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    btn_add.clicked.connect(lambda: add_row_personen(table, None))
+    try:
+        btn_del.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    # löscht die oberste, ausgewählte Zeile
+    btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
+    btn_box.accepted.connect(dialog.accept)
+    btn_box.rejected.connect(dialog.reject)
+    #TODO reset table at reject
+       
+    # setup table
+    table.setColumnCount(5)
+    table.setHorizontalHeaderLabels(['relation_id', 'Name / Bezeichnung', 'Funktion', 'Funktion (alternativ)', 'Sozietaet'])
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+    
+    # TODO hide irrelevant columns
+    #table.setColumnHidden(0, True)
+    
+    # iterate over interface items and add rows
+    for rel in get_rel_personen():
+        add_row_personen(table, rel)
+
+    # setup layout & dialog
+    qvbox.addWidget(btn_add)
+    qvbox.addWidget(btn_del)
+    qhbox.addLayout(qvbox)
+    qhbox.addWidget(table)
+    layout.addRow(qhbox)
+    layout.addRow(btn_box)
+    dialog.setLayout(layout) 
+    dialog.setModal(True)       # ensure clean dialog handling
+    dialog.show()
+    table.resizeColumnsToContents()
+    dialog.adjustSize()
+    
+###############################################################################        
+
+def add_row_personen(table, rel):   
+    # get new row number
+    row = table.rowCount()
+    table.insertRow(row)
+    print(rel)
+    # 2 cbx Funktion (bei jeder Row vorhanden)
+    cbx = QComboBox()
+    cbx.addItems(item['bezeichnung'] for item in get_def_personen())    
+    table.setCellWidget(row, 2, cbx)
+    
+    # 4 chk Sozietaet (bei jeder Row vorhanden)
+    is_sozietaet = QTableWidgetItem()
+    is_sozietaet.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+    is_sozietaet.setCheckState(Qt.Unchecked) 
+    table.setItem(row, 4, is_sozietaet)
+    
+    if rel is not None:
+        # 0 relation_id
+        table.setItem(row, 0, QTableWidgetItem(str(rel['relation_id'])))
+        # 1 Bezeichnung
+        table.setItem(row, 1, QTableWidgetItem(rel['bezeichnung']))
+        # 2 set combobox value
+        cbx.setCurrentText(rel['ref_funktion'])
+        # 3 Funktion alternativ
+        table.setItem(row, 3, QTableWidgetItem(rel['alt_funktion']))
+        # 4 set checkbox state
+        is_sozietaet.setCheckState(Qt.Checked if rel['is_sozietaet'] else Qt.Unchecked) 
+    
+    table.resizeColumnsToContents()
+    
+###############################################################################        
+    
+# accept methode zur Übernahme geänderter Werte
+def accept_edit_personen(dialog):
+    # find data table and prepare list
+    table = dialog.findChild(QTableWidget, 'tableWidget')
+    return_list = list()
+    
+    # parse table entries into return list
+    for row in range(table.rowCount()):
+        #print(table.cellWidget(row, 2).currentText())
+        # funktionsart auflösen
+        ref_funktion_id = None
+        for item in get_def_personen():
+            if item['bezeichnung'] == table.cellWidget(row, 2).currentText():
+                ref_funktion_id = item['id']
+        # Werte in Liste übernehmen
+        return_list.append({
+                'relation_id'       : table.item(row, 0).text() 
+                    if table.item(row, 0) is not None and table.item(row, 0).text().isnumeric() else 'NULL',
+                'ref_objekt_id'     : local_feature.attribute('objekt_id'),
+                'bezeichnung'       : table.item(row, 1).text() if table.item(row, 1) is not None else 'NULL',
+                'ref_funktion_id'   : ref_funktion_id if ref_funktion_id is not None else 'NULL',
+                'alt_funktion'      : table.item(row, 3).text() if table.item(row, 3) is not None else 'NULL',
+                'is_sozietaet'      : True if table.item(row, 4).checkState() > 0 else False
+                })           
+            
+    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_personen'), json.dumps(return_list))
+    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+    local_feature['return_personen'] = json.dumps(return_list)
+    # Aktualisierung des Hauptdialogs erzwingen
+    reload_controls()
+      
+    
 ##############################################################################
 # Feld: Erfasser:in
 ##############################################################################
@@ -382,62 +567,7 @@ def accept_edit_erfasser(dlg_erfasser):
     local_feature['return_erfasser'] = json.dumps(return_erfasser)
     # Aktualisierung des Dialogs erzwingen
     reload_controls()
-      
-    
-##############################################################################
-# Feld: Personen
-##############################################################################
-
-# fill datierung control
-def load_person_control():
-    # mock interface
-    return_person = [{"id" :  1, "date" : "ab 1905", "function" : "Auftraggeber:in", "function_custom" : None, "is_real" : True}
-                    , {"id" :  2, "date" : "1980-1983", "function" : "Bauleitung", "function_custom" : None, "is_real" : True}
-                    , {"id" :  3, "date" : "13.02.1961", "function" : "Entwurf", "function_custom" : None, "is_real" : False}]
-        
-    # load list with base data via definition layer
-    project = QgsProject.instance()
-    def_personen = QgsVectorLayer()
-    try:
-        def_datierung = project.mapLayersByName('def_personen')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *def_personen* konnte nicht gefunden werden.')
-    # build dict based upon def_datierung. unfortunately one can't simply export all features at once
-    personen = [{"id" :  feat['id'], "bezeichnung" : feat['bezeichnung']} for feat in def_datierung.getFeatures()]
-    
-    # define table
-    tbl_datierung = local_dialog.findChild(QTableWidget, 'personen')
-    tbl_datierung.setColumnCount(4)
-    tbl_datierung.setHorizontalHeaderLabels(['ID', 'Datum', 'Funktion', 'Funktion Custom'])
-    tbl_datierung.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-    
-    # iterate table items
-    row = 0
-    tbl_datierung.setRowCount(len(return_person))
-    for person in return_person:
-        # by columns:
-        # 0 id
-        relid = QTableWidgetItem(str(person['id']))
-        tbl_datierung.setItem(row, 0, relid)
-        # 1 Datum
-        datum = QTableWidgetItem(str(person['date']))
-        tbl_datierung.setItem(row, 1, datum)
-        # 2 Datierung Bezeichnung
-        cbx = QComboBox()
-        cbx.addItems(item['bezeichnung'] for item in personen)
-        # set defined value
-        cbx.setCurrentText(str(person['function']))
-        tbl_datierung.setCellWidget(row, 2, cbx)
-        # 3 Datierung Custom
-        custom = QTableWidgetItem(str(person['function_custom']))
-        tbl_datierung.setItem(row, 3, custom)
-        # incr
-        row += 1
-    tbl_datierung.resizeColumnsToContents()
-    
-##############################################################################
-    
-    
+ 
     
     
     

@@ -25,10 +25,7 @@ SELECT
 		notiz_intern, 
 		hida_nr, 
 		development.return_datierung(ob.objekt_id) AS return_datierung, 
-	    -- Person_werk -> ref   
-	    -- Soziet_werk -> ref
-	    -- Person_verantw -> ref
-	    -- Soziet_verantw -> ref
+	    development.return_personen(ob.objekt_id) AS return_personen,
 	    -- bilder_extern -> ref
 	    -- bilder_intern -> ref
 		
