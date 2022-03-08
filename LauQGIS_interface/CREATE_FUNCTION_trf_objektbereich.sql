@@ -8,6 +8,7 @@ DECLARE
 	_rel_old_ids text[]; 	-- id list, type 'text' to handle literal 'NULL'
 	_rel_new_ids text[];	-- -"-
 	_rel_id text;			-- iterator and temp variable
+	_rel_temp text;			-- temp variable
 	_rel json;				-- iterator
 BEGIN 
 
@@ -43,8 +44,8 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	SELECT development.update_obj_basis(
 	    -- # Metadaten
 	    _obj_id,				-- pk IF NOT NULL -> UPDATE
-		NEW.ref_objekt_id, 
-		NEW.objekt_nr, 
+		NEW.objekt_nr,
+		NEW.rel_objekt_nr,
 		NEW.erfassungsdatum, 
 		NEW.aenderungsdatum,
 
@@ -183,6 +184,53 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_new_ids = NULL;
 
 ---------------------------------------------------------------------------------------------------------------
+-- Relation: Nutzung / Funktion
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_nutzung::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_nutzung(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_nutzung::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_nutzung(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'nutzungsart')::text,
+			(_rel->>'datierung')::text
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Personen
 --------------------------------------------------------------------------------------------------------------- 	
 
@@ -230,6 +278,62 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	-- clean variables
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Blickbeziehung
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_nutzung::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_blickbeziehung(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_blickbeziehung::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+
+			-- catch 'NULL' and '' in rel_obejkt_nr to ensure valid casting
+			_rel_temp = (_rel->>'rel_objekt_nr')::text;
+			IF _rel_temp = 'NULL' OR _rel_temp = '' THEN
+				_rel_temp = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_blickbeziehung(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'beschreibung')::text,
+			--(_rel->>'rel_objekt_nr')::integer,
+			_rel_temp::integer,
+			(_rel->>'ref_blick_id')::integer
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+	_rel_temp = NULL;
 
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: TODO

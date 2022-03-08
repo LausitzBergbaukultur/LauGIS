@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS development.obj_stamm
     erhaltungszustand smallint,     -- fk 5210
     schutzstatus smallint,          -- fk
     foerderfaehig bool, 
-    -- funktion -> ref
+    -- funktion -> rel
 
     -- # Lokalisatoren
     kreis text,                     -- 5098

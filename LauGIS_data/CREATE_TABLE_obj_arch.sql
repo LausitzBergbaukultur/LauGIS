@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS obj_arch
 
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
-    REFERENCES "obj_basis" (objekt_id) MATCH SIMPLE
+    REFERENCES development.obj_basis (objekt_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );

@@ -282,3 +282,18 @@ INSERT INTO development.def_personen (bezeichnung, is_ausführend, sortierung) V
 ('Unterstützer:in', false, 17),
 ('FREITEXT', null, 999)
 ;
+
+--------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS development.def_blickbeziehung;
+CREATE TABLE IF NOT EXISTS development.def_blickbeziehung
+(
+ 	id integer PRIMARY KEY generated always as identity,
+    bezeichnung text NOT NULL,
+    sortierung integer
+);
+
+INSERT INTO development.def_blickbeziehung (bezeichnung, sortierung) VALUES 
+	('gerichtet', 1),
+	('ungerichtet', 2)
+;

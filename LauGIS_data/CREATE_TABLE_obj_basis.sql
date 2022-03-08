@@ -6,13 +6,13 @@ CREATE TABLE IF NOT EXISTS development.obj_basis
 (     
     -- # Metadaten
     objekt_id integer PRIMARY KEY generated always as identity, -- PK
-    ref_objekt_id integer,          -- fk
-    objekt_nr text,                 -- 5000
+    objekt_nr integer UNIQUE,       -- 5000
+    rel_objekt_nr integer,          -- fk
     erfassungsdatum date,           -- 9580
     aenderungsdatum date,           -- 9950
     letzte_aenderung timestamp,     -- meta zur Filterung
     geloescht bool,                 -- meta zur Filterung
-    -- erfasser -> ref
+    -- erfasser -> rel
 
     -- # Deskriptoren
     in_bearbeitung bool,            -- default 1
@@ -22,17 +22,17 @@ CREATE TABLE IF NOT EXISTS development.obj_basis
     quellen_literatur text,         -- 8330
     notiz_intern text,              -- 9984 '9980 = Kommentar'
     hida_nr text,                   -- 5000
-    -- datierung -> ref
-    -- Person_werk -> ref   
-    -- Soziet_werk -> ref
-    -- Person_verantw -> ref
-    -- Soziet_verantw -> ref
-    -- bilder_extern -> ref
-    -- bilder_intern -> ref
+    -- datierung -> rel
+    -- Person_werk -> rel   
+    -- Soziet_werk -> rel
+    -- Person_verantw -> rel
+    -- Soziet_verantw -> rel
+    -- bilder_extern -> rel
+    -- bilder_intern -> rel
 
 -- Referenz zu übergeordneten Objekten
-CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
-    REFERENCES development.obj_basis (objekt_id) MATCH SIMPLE
+CONSTRAINT fkey_rel_objekt_nr FOREIGN KEY (rel_objekt_nr)
+    REFERENCES development.obj_basis (objekt_nr) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );

@@ -7,8 +7,8 @@
 CREATE OR REPLACE FUNCTION development.update_obj_basis(
   -- # Metadaten
   _objekt_id integer,              -- pk IF NOT NULL -> UPDATE
-  _ref_objekt_id integer,          -- fk
-  _objekt_nr text,                 -- 5000
+  _objekt_nr integer,              -- 5000
+  _rel_objekt_nr integer,          -- fk
   _erfassungsdatum date,           -- 9580
   _aenderungsdatum date,           -- 9950
   
@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION development.update_obj_basis(
   ) 
 RETURNS INTEGER AS $$
 
-DECLARE 
+DECLARE
   _ob_id integer = _objekt_id;
   _is_update bool = NULL;
 BEGIN
@@ -42,8 +42,8 @@ BEGIN
   IF (_is_update) THEN
     UPDATE development.obj_basis
     SET
-        ref_objekt_id = _ref_objekt_id,
         objekt_nr = _objekt_nr,
+        rel_objekt_nr = _rel_objekt_nr,
         erfassungsdatum = _erfassungsdatum,
         aenderungsdatum = _aenderungsdatum,
         letzte_aenderung = NOW(),
@@ -57,8 +57,8 @@ BEGIN
     WHERE objekt_id = _ob_id;
   ELSE
     INSERT INTO development.obj_basis(
-        ref_objekt_id,
         objekt_nr,
+        rel_objekt_nr,
         erfassungsdatum,
         aenderungsdatum,
         letzte_aenderung,
@@ -71,8 +71,8 @@ BEGIN
         notiz_intern,
         hida_nr)
       VALUES (
-        _ref_objekt_id,
         _objekt_nr,
+        _rel_objekt_nr,
         _erfassungsdatum,
         _aenderungsdatum,
         NOW(),
@@ -86,6 +86,17 @@ BEGIN
         _hida_nr
         )
       RETURNING obj_basis.objekt_id INTO _ob_id;
+  END IF;
+
+  -- handle objekt_nr generation
+  IF NOT (_is_update) AND (_objekt_nr IS NULL) THEN
+    -- generate nr by adding 32.000.000 to the identifier 
+    _objekt_nr = (_ob_id + 32000000);
+    
+    UPDATE development.obj_basis
+    SET
+        objekt_nr = _objekt_nr
+    WHERE objekt_id = _ob_id;
   END IF;
 
   -- handle geometry entries

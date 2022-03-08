@@ -8,23 +8,24 @@ CREATE OR REPLACE VIEW development.objektbereich_poly AS
 
 SELECT 
     -- # Metadaten
-    	objekt_id,
-		ob.ref_objekt_id,
-		stammdaten_id,
-		objekt_nr, 
-		erfassungsdatum, 
-		aenderungsdatum, 
+    	ob.objekt_id,
+		ob.objekt_nr,
+		ob.rel_objekt_nr,
+		--os.stammdaten_id,
+		ob.erfassungsdatum, 
+		ob.aenderungsdatum, 
 		development.return_erfasser(ob.objekt_id) AS return_erfasser, 
 
     -- # Deskriptoren
-		in_bearbeitung, 
-		beschreibung, 
-		beschreibung_ergaenzung, 
-		lagebeschreibung, 
-		quellen_literatur, 
-		notiz_intern, 
-		hida_nr, 
+		ob.in_bearbeitung, 
+		ob.beschreibung, 
+		ob.beschreibung_ergaenzung, 
+		ob.lagebeschreibung, 
+		ob.quellen_literatur, 
+		ob.notiz_intern, 
+		ob.hida_nr, 
 		development.return_datierung(ob.objekt_id) AS return_datierung, 
+		development.return_nutzung(ob.objekt_id) AS return_nutzung,
 	    development.return_personen(ob.objekt_id) AS return_personen,
 	    -- bilder_extern -> ref
 	    -- bilder_intern -> ref
@@ -46,6 +47,7 @@ SELECT
 		strasse, 
 		hausnummer, 
 		gem_flur,
+		development.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
 
 	-- # Geometrie 
 		geom
