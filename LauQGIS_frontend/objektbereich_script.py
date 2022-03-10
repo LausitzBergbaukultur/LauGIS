@@ -69,6 +69,16 @@ def formOpen(dialog,layer,feature):
             True
         btn_blickbeziehung.clicked.connect(lambda: dlg_edit_blickbeziehung(QDialog()))
 
+# Feld: Sachbegriff ##################################################        
+        sachbegriff = QDialog()
+        btn_sachbegriff = local_dialog.findChild(QToolButton, 'btn_sachbegriff')
+        try:
+            btn_sachbegriff.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_sachbegriff.clicked.connect(lambda: dlg_edit_sachbegriff(sachbegriff))
+
 ##############################################################################
 
 # refresh list on primary dialog
@@ -878,9 +888,168 @@ def accept_edit_blickbeziehung(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
+##############################################################################
+# Feld: Sachbegriff
+##############################################################################
+
+## datierung definition ermitteln
+#def get_def_sachbegriff():
+#    # load list with base data via definition layer
+#    project = QgsProject.instance()
+#    def_sachbegriffe = QgsVectorLayer()
+#    try:
+#        def_sachbegriffe = project.mapLayersByName('def_sachbegriffe')[0]
+#    except:
+#        error_dialog.showMessage('Der Definitionslayer *def_sachbegriffe* konnte nicht gefunden werden.')
+#    # build dict based upon def_sachbegriffe. unfortunately one can't simply export all features at once
+#    return [{"id":feat['id'], "sachbegriff":feat['Sachbegriff']} for feat in def_sachbegriffe.getFeatures()]
+
+# aufgelöste Liste mit Blickbeziehungen ermitteln
+#def get_rel_blickbeziehung():
+#    rel_blick = list()
+#    # check if object isnt none
+#    if isinstance(local_feature.attribute('return_blickbeziehung'), str):     
+#        rel_blick = [{'relation_id'         :rel['relation_id'],
+#                      'beschreibung'        :rel['beschreibung'],
+#                      'rel_objekt_nr'        :rel['rel_objekt_nr'],
+#                      'ref_blick'  :[item['bezeichnung'] for item in get_def_blickbeziehung() if item['id'] == rel['ref_blick_id']][0]
+#                      }
+#                     for rel in json.loads(local_feature.attribute('return_blickbeziehung'))]
+#    # [{"relation_id":,"beschreibung":"","rel_objekt_nr":"","ref_blick":""}]
+#    return rel_blick
+#    
+###############################################################################        
+
+# defines and opens a dialog to edit the blickbeziehung list
+def dlg_edit_sachbegriff(dialog):    
+    # load definition layer
+    project = QgsProject.instance()
+    def_sachbegriffe = QgsVectorLayer()
+    try:
+        def_sachbegriffe = project.mapLayersByName('def_sachbegriffe')[0]
+    except:
+        error_dialog.showMessage('Der Definitionslayer *def_sachbegriffe* konnte nicht gefunden werden.')
+
+    # check edit state    
+    if local_layer.isEditable():
+        dialog.setDisabled(False)
+    else:
+        dialog.setDisabled(True)
     
+    # initialise layout and controls        
+    layout = QFormLayout()
+    qhbox = QHBoxLayout()
+    table = QTableWidget()
+    table.setObjectName('tableWidget') # for identification
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+    #table 2
+    table2 = QTableWidget()
+    table2.setObjectName('tableWidget2') # for identification
+    table2.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
+    dialog.setWindowTitle('Sachbegriff auswählen')
+
+    # define signals
+    try:
+        dialog.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+#    dialog.accepted.connect(lambda: accept_edit_sachbegriff(dialog))
+
     
+    btn_box.accepted.connect(dialog.accept)
+    btn_box.rejected.connect(dialog.reject)
+    #TODO reset table at reject
     
+    # setup table
+    table.setColumnCount(3)
+    table.setHorizontalHeaderLabels(['id', 'Sachbegriff', 'erweiterbar'])
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    
+    # setup table2
+    table2.setColumnCount(2)
+    table2.setHorizontalHeaderLabels(['id', 'Sachbegriff'])
+    table2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    
+    # hide irrelevant columns
+    table.setColumnHidden(0, True)
+    table2.setColumnHidden(0, True)
+    
+    local_feature.attribute('kategorie')
+    def_sachbegriffe.setSubsetString("(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND kategorie = " + str(local_feature.attribute('kategorie')))
+    # iterate over interface items and add rows
+    for feat in def_sachbegriffe.getFeatures():
+        add_row_sachbegriff(table, {"id":feat['id'], "sachbegriff":feat['sachbegriff'], "ref_sachbegriff_id":feat['ref_sachbegriff_id']})
+    
+    def_sachbegriffe.setSubsetString("kategorie = " + str(local_feature.attribute('kategorie')))    
+    for feat in def_sachbegriffe.getFeatures():
+        add_row_sachbegriff(table2, {"id":feat['id'], "sachbegriff":feat['sachbegriff'], "ref_sachbegriff_id":feat['ref_sachbegriff_id']})
+    
+    # filter auflösen
+    def_sachbegriffe.setSubsetString("")
+
+    
+    # setup layout & dialog
+    qhbox.addWidget(table)
+    qhbox.addWidget(table2)
+    layout.addRow(qhbox)
+    layout.addRow(btn_box)
+    dialog.setLayout(layout) 
+    dialog.setModal(True)       # ensure clean dialog handling
+    dialog.setMinimumSize(450, 200)
+    dialog.show()
+    dialog.adjustSize()
+    
+###############################################################################        
+
+def add_row_sachbegriff(table, sachbegriff):   
+    # get new row number
+    row = table.rowCount()
+    table.insertRow(row)
+    
+    if sachbegriff is not None:
+        # 0 id
+        table.setItem(row, 0, QTableWidgetItem(str(sachbegriff['id'])))
+        # 1 Sachbegriff
+        table.setItem(row, 1, QTableWidgetItem(sachbegriff['sachbegriff']))
+        # 2 erweiterbar
+        if sachbegriff['ref_sachbegriff_id'] == sachbegriff['id']:
+            table.setItem(row, 2, QTableWidgetItem('+'))
+    
+###############################################################################        
+    
+# accept methode zur Übernahme geänderter Werte
+#def accept_edit_blickbeziehung(dialog):
+#    # find data table and prepare list
+#    table = dialog.findChild(QTableWidget, 'tableWidget')
+#    return_list = list()
+#    
+#    # parse table entries into return list
+#    for row in range(table.rowCount()):
+#        # Ereignisart auflösen
+#        ref_blick_id = None
+#        for item in get_def_blickbeziehung():
+#            if item['bezeichnung'] == table.cellWidget(row, 3).currentText():
+#                ref_blick_id = item['id']
+#        # Werte in Liste übernehmen
+#        return_list.append({
+#                'relation_id'               : table.item(row, 0).text() 
+#                    if table.item(row, 0) is not None and table.item(row, 0).text().isnumeric() else 'NULL',
+#                'ref_objekt_id'             : local_feature.attribute('objekt_id'),
+#                'beschreibung'              : table.item(row, 1).text() if table.item(row, 1) is not None else 'NULL',
+#                'rel_objekt_nr'             : table.item(row, 2).text() if table.item(row, 2) is not None else 'NULL',
+#                'ref_blick_id'              : ref_blick_id if ref_blick_id is not None else 'NULL'
+#                })                       
+#            
+#    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+#    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_blickbeziehung'), json.dumps(return_list))
+#    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+#    local_feature['return_blickbeziehung'] = json.dumps(return_list)
+#    # Aktualisierung des Hauptdialogs erzwingen
+#    reload_controls()    
+#    
+#    
     
     
     

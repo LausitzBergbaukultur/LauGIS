@@ -302,7 +302,7 @@
     <item>
      <widget class="QTabWidget" name="BottomRow_Tabs">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="TabBeschreibung">
        <attribute name="title">
@@ -410,13 +410,22 @@
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_15">
+           <property name="font">
+            <font>
+             <strikeout>true</strikeout>
+            </font>
+           </property>
            <property name="text">
             <string>Erhaltungszustand</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="erhaltungszustand"/>
+          <widget class="QComboBox" name="erhaltungszustand">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_17">
