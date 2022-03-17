@@ -33,7 +33,7 @@ def formOpen(dialog,layer,feature):
             True
         btn_datierung.clicked.connect(lambda: dlg_edit_datierung(QDialog()))
 
-# Feld: funktion / Nutzung ############################################        
+# Feld: Funktion / Nutzung ############################################        
         btn_nutzung = local_dialog.findChild(QToolButton, 'btn_nutzung')
         try:
             btn_nutzung.disconnect()
@@ -128,6 +128,30 @@ def reload_controls():
     # control ermitteln und text einfügen
     lbl_return_blickbeziehung = local_dialog.findChild(QLabel, 'lbl_return_blickbeziehung')
     lbl_return_blickbeziehung.setText(' | '.join(blick))
+
+# Feld: Sachbegriff ###############################################
+        
+    # load definition layer
+    project = QgsProject.instance()
+    def_sachbegriffe = QgsVectorLayer()
+    try:
+        def_sachbegriffe = project.mapLayersByName('def_sachbegriffe')[0]
+    except:
+        error_dialog.showMessage('Der Definitionslayer *def_sachbegriffe* konnte nicht gefunden werden.')
+    
+    # auf id filtern
+    def_sachbegriffe.setSubsetString("ID = " + str(local_feature.attribute('sachbegriff')))    
+    
+    sachbegriff = ['[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff_ueber'] + ' > ' + feat['sachbegriff']
+            for feat in def_sachbegriffe.getFeatures()]
+    
+    # filter auflösen
+    def_sachbegriffe.setSubsetString("")   
+    
+    # control ermitteln und text einfügen
+    lbl_sachbegriff = local_dialog.findChild(QLabel, 'lbl_sachbegriff')
+    lbl_sachbegriff.setText(sachbegriff[0])
+
 
 ##############################################################################
 # Feld: Datierung
@@ -1005,13 +1029,21 @@ def accept_edit_sachbegriff(dialog):
     table_ober = dialog.findChild(QTableWidget, 'table_ober')
     table_erw = dialog.findChild(QTableWidget, 'table_erw')
     
-    #return_value = str()
-    
+    return_value = int()
+        
     if table_erw.currentRow() != -1:
-        print('erweitert: ' + str(table_erw.item(table_erw.currentRow(),1).text()))
+        #print('erweitert: ' + str(table_erw.item(table_erw.currentRow(),1).text()))
+        return_value = table_erw.item(table_erw.currentRow(),0).text()        
     else:
-        print('oberbegriff: ' + str(table_ober.item(table_ober.currentRow(),1).text()))
-#    
+        #print('oberbegriff: ' + str(table_ober.item(table_ober.currentRow(),1).text()))
+        return_value = table_ober.item(table_erw.currentRow(),0).text()
+
+    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('sachbegriff'), return_value)
+    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+    local_feature['sachbegriff'] = return_value
+    reload_controls()    
+        
 #    # parse table entries into return list
 #    for row in range(table.rowCount()):
 #        # Ereignisart auflösen
@@ -1030,12 +1062,12 @@ def accept_edit_sachbegriff(dialog):
 #                })                       
 #     
 #    print(return_value)
-#    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+
 #    #local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_blickbeziehung'), json.dumps(return_list))
 #    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
 #    #local_feature['return_blickbeziehung'] = json.dumps(return_list)
 #    # Aktualisierung des Hauptdialogs erzwingen
-#    reload_controls()    
+
     
     
     

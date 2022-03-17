@@ -9,11 +9,14 @@ CREATE OR REPLACE FUNCTION development.update_obj_basis(
   _objekt_id integer,              -- pk IF NOT NULL -> UPDATE
   _objekt_nr integer,              -- 5000
   _rel_objekt_nr integer,          -- fk
+  _status_bearbeitung smallint,    -- fk
   _erfassungsdatum date,           -- 9580
   _aenderungsdatum date,           -- 9950
   
   -- # Deskriptoren
-  _in_bearbeitung bool,            -- default 1
+  _kategorie smallint,             -- fk NOT NULL
+  _sachbegriff integer,            -- fk 5230
+  _sachbegriff_alt text,           -- 5230 (als Altdaten-temp sowie für Freitexte)
   _beschreibung text,              -- 9980
   _beschreibung_ergaenzung text,   -- 9980
   _lagebeschreibung text,          -- 5125
@@ -38,16 +41,22 @@ BEGIN
     _is_update = FALSE;
   END IF;
 
-  -- handle obj_basis entries
+---------------------------------------------------------------------------------------------------------------
+-- Handle obj_basis entries
+---------------------------------------------------------------------------------------------------------------
+
   IF (_is_update) THEN
     UPDATE development.obj_basis
     SET
         objekt_nr = _objekt_nr,
         rel_objekt_nr = _rel_objekt_nr,
+        status_bearbeitung = _status_bearbeitung,
         erfassungsdatum = _erfassungsdatum,
         aenderungsdatum = _aenderungsdatum,
         letzte_aenderung = NOW(),
-        in_bearbeitung = _in_bearbeitung,
+        kategorie = _kategorie,
+        sachbegriff = _sachbegriff,
+        sachbegriff_alt = _sachbegriff_alt,
         beschreibung = _beschreibung,
         beschreibung_ergaenzung = _beschreibung_ergaenzung,
         lagebeschreibung = _lagebeschreibung,
@@ -59,11 +68,14 @@ BEGIN
     INSERT INTO development.obj_basis(
         objekt_nr,
         rel_objekt_nr,
+        status_bearbeitung,
         erfassungsdatum,
         aenderungsdatum,
         letzte_aenderung,
         geloescht,
-        in_bearbeitung,
+        kategorie,
+        sachbegriff,
+        sachbegriff_alt,
         beschreibung,
         beschreibung_ergaenzung,
         lagebeschreibung,
@@ -73,11 +85,14 @@ BEGIN
       VALUES (
         _objekt_nr,
         _rel_objekt_nr,
+        _status_bearbeitung,
         _erfassungsdatum,
         _aenderungsdatum,
         NOW(),
         FALSE,
-        _in_bearbeitung,
+        _kategorie,
+        _sachbegriff,
+        _sachbegriff_alt,
         _beschreibung,
         _beschreibung_ergaenzung,
         _lagebeschreibung,
@@ -88,7 +103,10 @@ BEGIN
       RETURNING obj_basis.objekt_id INTO _ob_id;
   END IF;
 
-  -- handle objekt_nr generation
+---------------------------------------------------------------------------------------------------------------
+-- Objekt-Nr generation
+---------------------------------------------------------------------------------------------------------------
+
   IF NOT (_is_update) AND (_objekt_nr IS NULL) THEN
     -- generate nr by adding 32.000.000 to the identifier 
     _objekt_nr = (_ob_id + 32000000);
@@ -99,7 +117,10 @@ BEGIN
     WHERE objekt_id = _ob_id;
   END IF;
 
-  -- handle geometry entries
+---------------------------------------------------------------------------------------------------------------
+-- Geometry handling
+---------------------------------------------------------------------------------------------------------------
+
   IF (ST_GeometryType(_geom) = 'ST_MultiPolygon') THEN 
     
     IF (_is_update) THEN

@@ -12,12 +12,15 @@ SELECT
 		ob.objekt_nr,
 		ob.rel_objekt_nr,
 		--os.stammdaten_id,
+		ob.status_bearbeitung,
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		development.return_erfasser(ob.objekt_id) AS return_erfasser, 
 
-    -- # Deskriptoren
-		ob.in_bearbeitung, 
+    -- # Deskriptoren 
+		ob.kategorie,
+		ob.sachbegriff,
+    	ob.sachbegriff_alt,
 		ob.beschreibung, 
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
@@ -30,11 +33,9 @@ SELECT
 	    -- bilder_extern -> ref
 	    -- bilder_intern -> ref
 		
-    -- # Stammdaten 
-		sachbegriff, 
+    -- # Stammdaten  
 		bezeichnung, 
-		bauwerksname_eigenname, 
-		kategorie, 
+		bauwerksname_eigenname,
 		erhaltungszustand, 
 		schutzstatus, 
 		foerderfaehig,

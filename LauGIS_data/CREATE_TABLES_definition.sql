@@ -20,6 +20,7 @@ INSERT INTO development.def_Erfasser (name, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
+-- Löschkandidat
 DROP TABLE IF EXISTS development.def_erhaltungszustand;
 CREATE TABLE IF NOT EXISTS development.def_erhaltungszustand
 (
@@ -296,4 +297,20 @@ CREATE TABLE IF NOT EXISTS development.def_blickbeziehung
 INSERT INTO development.def_blickbeziehung (bezeichnung, sortierung) VALUES 
 	('gerichtet', 1),
 	('ungerichtet', 2)
+;
+
+--------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS development.def_bearbeitung;
+CREATE TABLE IF NOT EXISTS development.def_bearbeitung
+(
+ 	id integer PRIMARY KEY generated always as identity,
+    bezeichnung text NOT NULL,
+    sortierung integer
+);
+
+INSERT INTO development.def_bearbeitung (bezeichnung, sortierung) VALUES 
+	('in Bearbeitung', 1),
+	('in Prüfung', 2),
+	('abgeschlossen', 3)
 ;

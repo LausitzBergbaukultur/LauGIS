@@ -46,11 +46,14 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	    _obj_id,				-- pk IF NOT NULL -> UPDATE
 		NEW.objekt_nr,
 		NEW.rel_objekt_nr,
+		NEW.status_bearbeitung,
 		NEW.erfassungsdatum, 
 		NEW.aenderungsdatum,
 
 	    -- # Deskriptoren
-		NEW.in_bearbeitung, 
+		NEW.kategorie,
+    	NEW.sachbegriff,
+		NEW.sachbegriff_alt,
 		NEW.beschreibung, 
 		NEW.beschreibung_ergaenzung, 
 		NEW.lagebeschreibung, 
@@ -70,10 +73,8 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
   	PERFORM development.update_obj_stamm(
 	    _obj_id,                   -- fk zu angelegter Objekt-Basis, NOT NULL
 	    -- # Stammdaten
-		NEW.sachbegriff, 
 		NEW.bezeichnung, 
 		NEW.bauwerksname_eigenname, 
-		NEW.kategorie, 
 		NEW.erhaltungszustand, 
 		NEW.schutzstatus, 
 		NEW.foerderfaehig,

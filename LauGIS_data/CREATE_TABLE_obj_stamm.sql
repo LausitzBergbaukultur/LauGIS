@@ -9,10 +9,8 @@ CREATE TABLE IF NOT EXISTS development.obj_stamm
     ref_objekt_id integer,          -- fk NOT NULL
     
     -- # Stammdaten
-    sachbegriff text,               -- 5230
     bezeichnung text,               -- 9990
     bauwerksname_eigenname text,    -- 5202
-    kategorie smallint,             -- fk NOT NULL
     erhaltungszustand smallint,     -- fk 5210
     schutzstatus smallint,          -- fk
     foerderfaehig bool, 
