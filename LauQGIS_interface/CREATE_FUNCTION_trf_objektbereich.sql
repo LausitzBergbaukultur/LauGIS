@@ -60,6 +60,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.quellen_literatur, 
 		NEW.notiz_intern,
 		NEW.hida_nr,
+		NEW.bilder_anmerkung,
 	    
 	  	-- # Geometrie
 		NEW.geom
@@ -335,6 +336,53 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	_rel_temp = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Bilder
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_bilder::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_bilder::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_bilder(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_bilder::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_bilder(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'dateiname')::text,
+			(_rel->>'intern')::bool
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
 
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: TODO

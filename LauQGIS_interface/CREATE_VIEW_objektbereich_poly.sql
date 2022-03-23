@@ -32,26 +32,28 @@ SELECT
 	    development.return_personen(ob.objekt_id) AS return_personen,
 	    -- bilder_extern -> ref
 	    -- bilder_intern -> ref
-		
+	    development.return_bilder(ob.objekt_id) AS return_bilder,
+		ob.bilder_anmerkung,
+
     -- # Stammdaten  
-		bezeichnung, 
-		bauwerksname_eigenname,
-		erhaltungszustand, 
-		schutzstatus, 
-		foerderfaehig,
+		os.bezeichnung, 
+		os.bauwerksname_eigenname,
+		os.erhaltungszustand, 
+		os.schutzstatus, 
+		os.foerderfaehig,
 
 	-- # Lokalisatoren
-		kreis, 
-		gemeinde, 
-		ort, 
-		sorbisch, 
-		strasse, 
-		hausnummer, 
-		gem_flur,
+		os.kreis, 
+		os.gemeinde, 
+		os.ort, 
+		os.sorbisch, 
+		os.strasse, 
+		os.hausnummer, 
+		os.gem_flur,
 		development.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
 
 	-- # Geometrie 
-		geom
+		geo.geom
 	FROM development.obj_basis AS ob
 	JOIN development.geo_poly AS geo ON ob.objekt_id = geo.ref_objekt_id
 	JOIN development.obj_stamm AS os ON ob.objekt_id = os.ref_objekt_id

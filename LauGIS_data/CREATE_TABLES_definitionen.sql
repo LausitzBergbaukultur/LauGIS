@@ -20,7 +20,7 @@ INSERT INTO development.def_Erfasser (name, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
--- Löschkandidat
+-- Löschkandidat (wird im Formular deaktiv dargestellt)
 DROP TABLE IF EXISTS development.def_erhaltungszustand;
 CREATE TABLE IF NOT EXISTS development.def_erhaltungszustand
 (

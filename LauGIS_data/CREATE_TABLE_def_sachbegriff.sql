@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS development.def_sachbegriff
 (
  	id integer PRIMARY KEY generated always as identity,
     sachbegriff text NOT NULL,
-    kategorie smallint NOT NULL,		-- fk NOT NULL
+    kategorie smallint,		            -- fk
     ref_sachbegriff_id integer,			-- fk Verweis auf übergeordnete Sachbegriffe
     show_anlage bool,					-- TRUE wenn der Sachbegriff für Anlage-Objekte geeignet ist
     sortierung integer,					
@@ -342,7 +342,7 @@ VALUES
 (3,3204,3200,'Schwefelgewinnungsanlage',FALSE,3055),
 (3,3205,3200,'Tanklager',FALSE,3056),
 (3,3001,NULL,'Montanwachsfabrik',FALSE,3057),
-(3,3300,NULL,'Schwelerei/Schwelwerk',FALSE,3058),
+(3,3300,3300,'Schwelerei/Schwelwerk',FALSE,3058),
 (3,3301,3300,'Laborgebäude',TRUE,3059),
 (3,3302,3300,'Magazin',FALSE,3060),
 (3,3303,3300,'Schornstein',TRUE,3061),
@@ -988,5 +988,6 @@ VALUES
 (6,6316,6310,'Trockenschuppen',FALSE,6126),
 (6,6317,6310,'Verwaltungsgebäude',FALSE,6127),
 (6,6318,6310,'Ziegelbrennofen',FALSE,6128),
-(6,6006,NULL,'Zuckerfabrik',FALSE,6129)
+(6,6006,NULL,'Zuckerfabrik',FALSE,6129),
+(NULL,9999,NULL,'FREITEXT',TRUE,9999)
 ;

@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS development.obj_basis
     -- Soziet_verantw -> rel
     -- bilder_extern -> rel
     -- bilder_intern -> rel
+    bilder_anmerkung text,          -- temp zur Migration sowie als Anmerkungsfeld
 
 -- Referenz zu übergeordneten Objekten
 CONSTRAINT fkey_rel_objekt_nr FOREIGN KEY (rel_objekt_nr)
