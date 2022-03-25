@@ -23,6 +23,7 @@ CREATE OR REPLACE FUNCTION development.update_obj_basis(
   _quellen_literatur text,         -- 8330
   _notiz_intern text,              -- 9984 '9980 = Kommentar'
   _hida_nr text,                   -- 5000
+  _bilder_anmerkung text,          -- temp und anmerkung
 
   -- # Geometrie
   _geom geometry                   -- undefined geometry
@@ -62,7 +63,8 @@ BEGIN
         lagebeschreibung = _lagebeschreibung,
         quellen_literatur = _quellen_literatur,
         notiz_intern = _notiz_intern,
-        hida_nr = _hida_nr
+        hida_nr = _hida_nr,
+        bilder_anmerkung = _bilder_anmerkung
     WHERE objekt_id = _ob_id;
   ELSE
     INSERT INTO development.obj_basis(
@@ -81,7 +83,8 @@ BEGIN
         lagebeschreibung,
         quellen_literatur,
         notiz_intern,
-        hida_nr)
+        hida_nr,
+        bilder_anmerkung)
       VALUES (
         _objekt_nr,
         _rel_objekt_nr,
@@ -98,7 +101,8 @@ BEGIN
         _lagebeschreibung,
         _quellen_literatur,
         _notiz_intern,
-        _hida_nr
+        _hida_nr,
+        _bilder_anmerkung
         )
       RETURNING obj_basis.objekt_id INTO _ob_id;
   END IF;

@@ -12,11 +12,13 @@ CREATE TABLE IF NOT EXISTS obj_arch
     geschosszahl smallint,          -- 5390
     achsenzahl smallint,            -- 5392
     -- grundriss -> ref             -- 5244
+    grundriss text,
     -- dachform -> ref              -- 5910     
+    dachform_alt text,
     -- material -> ref              -- 5280
+    material_alt text,
     -- konstruktion_technik -> ref  -- 5300
-    -- blickbeziehung -> ref
-
+    konstruktion_alt text,
 
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)

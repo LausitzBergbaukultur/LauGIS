@@ -1,11 +1,11 @@
--- Setzt die Werte für eine bestehende oder neue Bilder-Relation
+-- Setzt die Werte für eine bestehende oder neue Nutzung-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_bilder(
+CREATE OR REPLACE FUNCTION development.update_material(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
-  _dateiname text,
-  _intern bool
+  _ref_material_id integer,        -- fk
+  _alt_material text
   ) 
 
 RETURNS INTEGER AS $$
@@ -23,24 +23,24 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_bilder
+    UPDATE development.rel_material
     SET
         ref_objekt_id = _ref_objekt_id,
-        dateiname = _dateiname,
-        intern = _intern
+        ref_material_id = _ref_material_id,
+        alt_material = _alt_material
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_bilder(
+    INSERT INTO development.rel_material(
         ref_objekt_id,
-        dateiname,
-        intern
+        ref_material_id,
+        alt_material
         )
       VALUES (
         _ref_objekt_id,
-        _dateiname,
-        _intern
+        _ref_material_id,
+        _alt_material
         )
-      RETURNING rel_bilder.relation_id INTO _relation_id;
+      RETURNING rel_material.relation_id INTO _relation_id;
   END IF;
  
 -- return (inserted) rel id

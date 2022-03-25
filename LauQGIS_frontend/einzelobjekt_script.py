@@ -97,6 +97,15 @@ def formOpen(dialog,layer,feature):
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
             True
         btn_bilder.clicked.connect(lambda: dlg_edit_bilder(QDialog()))
+        
+# Feld: Erfasser ######################################################
+        btn_material = dialog.findChild(QToolButton, 'btn_material')
+        try:
+            btn_material.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_material.clicked.connect(lambda: dlg_edit_material(QDialog()))
 
 ##############################################################################
 
@@ -186,6 +195,16 @@ def reload_controls():
     # control ermitteln und text einfügen
     lbl_return_bilder = local_dialog.findChild(QLabel, 'lbl_return_bilder')
     lbl_return_bilder.setText('\n'.join(bilder))
+
+# Feld: Material #####################################################
+    material = list()
+    for rel in get_rel_material():
+        if rel['id'] is not None:
+            material.append(rel['material'] if str(rel['material']) != 'FREITEXT' else str(local_feature['material_alt']))
+
+    # control ermitteln und text einfügen
+    lbl_return_material = local_dialog.findChild(QLabel, 'lbl_return_material')
+    lbl_return_material.setText(' | '.join(material))    
 
 ##############################################################################
 # Feld: Datierung
@@ -406,7 +425,6 @@ def dlg_edit_nutzung(dialog):
     btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
     btn_box.accepted.connect(dialog.accept)
     btn_box.rejected.connect(dialog.reject)
-    #TODO reset table at reject
        
     # setup table
     table.setColumnCount(3)
@@ -731,7 +749,6 @@ def dlg_edit_erfasser(dialog):
         table.setItem(row, 2, QTableWidgetItem(str(person['erfasser_id'])))
         # 3 fullname
         fullname = QTableWidgetItem(person['erfasser_name'])
-        #TODO tf?
         fullname.setFlags(fullname.flags() & ~Qt.ItemIsEditable)
         table.setItem(row, 3, fullname)
         # 4 is_creator (checkbox)
@@ -855,7 +872,6 @@ def dlg_edit_blickbeziehung(dialog):
     btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
     btn_box.accepted.connect(dialog.accept)
     btn_box.rejected.connect(dialog.reject)
-    #TODO reset table at reject
        
     # setup table
     table.setColumnCount(4)
@@ -1087,7 +1103,7 @@ def fill_table_sachbegriff(def_sachbegriffe, table, tablefilter):
     # filter zurücksetzen
     def_sachbegriffe.setSubsetString("")   
  
-###############################################################################      
+###############################################################################        
    
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_sachbegriff(dialog):
@@ -1194,7 +1210,6 @@ def dlg_edit_bilder(dialog):
     btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
     btn_box.accepted.connect(dialog.accept)
     btn_box.rejected.connect(dialog.reject)
-    #TODO reset table at reject
        
     # setup table
     table.setColumnCount(3)
@@ -1220,7 +1235,7 @@ def dlg_edit_bilder(dialog):
     dialog.setMinimumSize(450, 200)
     dialog.show()
     dialog.adjustSize()
-
+    
 ###############################################################################        
 
 # prüft bilder_anmerkungen auf zu importierende Bildeinträge und fügt diese der Tabelle hinzu
@@ -1230,7 +1245,7 @@ def check_bilder(table):
               in local_dialog.findChild(QLineEdit, 'bilder_anmerkung').text().split(';')]:
         add_row_bilder(table, {"relation_id": 'NULL',"dateiname":bild,"intern":False})
     
-###############################################################################        
+###############################################################################    
 
 def add_row_bilder(table, rel):   
     # get new row number
@@ -1277,15 +1292,147 @@ def accept_edit_bilder(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
+##############################################################################
+# Feld: Material
+##############################################################################
+            
+# Ermittelt def_material Liste und ergänzt diese Liste um die übergebenen Werte
+def get_rel_material():
+    # return variable to fill
+    rel_material = list()
+    
+    # build dict based upon def_material. unfortunately one can't simply export all features at once
+    definitionen.setSubsetString("tabelle = 'def_material'")    
+    rel_material = [{'id':None, 
+                     'objekt':None, 
+                     'material_id':feat['id'], 
+                     'material':feat['bezeichnung']} for feat in definitionen.getFeatures()]
+    
+    # reset filter
+    definitionen.setSubsetString("")
+    
+    return_material = None
+    # check if object isnt none
+    if isinstance(local_feature.attribute('return_material'), str):
+        return_material = json.loads(local_feature.attribute('return_material'))
+        # combine base data in rel_material and this list
+        for entry in return_material:
+            for rel in rel_material:
+                if int(rel['material_id']) == int(entry['ref_material_id']):
+                    rel['id'] = entry['relation_id']
+                    rel['objekt'] = entry['ref_objekt_id']
+       
+    # return combined list
+    return rel_material
+
 ###############################################################################
+
+# defines and opens a dialog to edit the material list
+def dlg_edit_material(dialog):
+    # check edit state    
+    if local_layer.isEditable():
+        dialog.setDisabled(False)
+    else:
+        dialog.setDisabled(True)
     
+    # initialise & setup controls        
+    layout = QFormLayout()
+    table = QTableWidget()
+    material_alt = QLineEdit()
+    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
+    material_alt.setObjectName('material_alt') # for identification
+    material_alt.setToolTip('Eingabefeld für FREITEXT-Materialien.')
+    material_alt.setText(str(local_feature['material_alt']))   
     
+    # define signals 
+    try:
+        dialog.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    dialog.accepted.connect(lambda: accept_edit_material(dialog))
+    btn_box.accepted.connect(dialog.accept)
+    btn_box.rejected.connect(dialog.reject)
     
+    # setup table    
+    table.setObjectName('tableWidget') # for identification
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)   
+    table.setColumnCount(4)
+    table.setHorizontalHeaderLabels(['ID', 'Ausgewählt', 'Material_ID', 'Material'])
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
     
+    # hide irrelevant columns
+    table.setColumnHidden(0, True)
+    table.setColumnHidden(2, True)
+        
+    # Materialliste 
+    rel_material = None
+    rel_material = get_rel_material()
+    row = 0
+    table.setRowCount(len(rel_material))
+    for rel in rel_material:
+        # by columns:
+        # 0 id
+        table.setItem(row, 0, QTableWidgetItem(str(rel['id'])))
+        # 1 selected (checkbox)
+        selected = QTableWidgetItem()
+        selected.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+        selected.setCheckState(Qt.Checked if rel['id'] is not None else Qt.Unchecked) 
+        table.setItem(row, 1, selected)
+        # 2 material_id
+        table.setItem(row, 2, QTableWidgetItem(str(rel['material_id'])))
+        # 3 material bezeichnung
+        material = QTableWidgetItem(rel['material'])
+        material.setFlags(material.flags() & ~Qt.ItemIsEditable)
+        table.setItem(row, 3, material)
+        # incr
+        row += 1
     
+    # setup layout & dialog
+    table.resizeColumnsToContents()
+    layout.addRow(table)
+    layout.addRow(QLabel('Material alternativ:'), material_alt)
+    layout.addRow(btn_box)
+    dialog.setWindowTitle('Material zuweisen')
+    dialog.setLayout(layout) 
+    dialog.setModal(True)       # ensure clean dialog handling
+    dialog.setMinimumSize(400, 300)
+    dialog.show()
+    dialog.adjustSize()
     
+###############################################################################        
     
+# accept methode zur Übernahme geänderter Werte
+def accept_edit_material(dialog):
+    # find data table and prepare list
+    table = dialog.findChild(QTableWidget, 'tableWidget')
+    material_alt = dialog.findChild(QLineEdit, 'material_alt').text()
     
+    return_list = list()
+    
+    # parse table entries into return list
+    for row in range(table.rowCount()):
+        # checkstate selected -> write data into list
+        if table.item(row, 1).checkState() > 0:                     
+            return_list.append({
+                    'relation_id'       : table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL',
+                    'ref_objekt_id'     : local_feature.attribute('objekt_id'),
+                    'ref_material_id'   : table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL'
+                    })
+    
+    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_material'), json.dumps(return_list))
+    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+    local_feature['return_material'] = json.dumps(return_list)
+        
+    # sachbegriff_alt stets übernehmen
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('material_alt'), material_alt)
+    local_feature['material_alt'] = material_alt
+    
+    # Aktualisierung des Dialogs erzwingen
+    reload_controls()
+    
+###############################################################################
     
     
     

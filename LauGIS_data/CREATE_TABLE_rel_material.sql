@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS development.rel_material
     ref_objekt_id integer,          -- fk NOT NULL
     ref_material_id integer,        -- fk NOT NULL
 
+
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
     REFERENCES development.obj_basis (objekt_id) MATCH SIMPLE

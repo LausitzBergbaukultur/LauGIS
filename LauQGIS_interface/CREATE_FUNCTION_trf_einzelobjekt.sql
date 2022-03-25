@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION development.trf_objektbereich()
+CREATE OR REPLACE FUNCTION development.trf_einzelobjekt()
 RETURNS TRIGGER AS $$
 DECLARE
 	_obj_id integer;
@@ -88,6 +88,21 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.strasse, 
 		NEW.hausnummer, 
 		NEW.gem_flur
+  	);
+
+---------------------------------------------------------------------------------------------------------------
+-- zugehöriges Architektur-Objekt anlegen/updaten
+---------------------------------------------------------------------------------------------------------------
+
+  	PERFORM development.update_obj_arch(
+	    _obj_id,                   -- fk zu angelegter Objekt-Basis, NOT NULL
+	    -- # Deskriptoren
+		NEW.geschosszahl, 
+		NEW.achsenzahl,
+		NEW.grundriss,
+		NEW.dachform_alt,
+		NEW.material_alt,
+		NEW.konstruktion_alt		
   	);
 
 ---------------------------------------------------------------------------------------------------------------
@@ -384,8 +399,57 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
---------------------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Material
+--------------------------------------------------------------------------------------------------------------- 	
 
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_material::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_material::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_material(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_material::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_material(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'ref_material_id')::integer,
+			(_rel->>'alt_material')::text
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: TODO
+---------------------------------------------------------------------------------------------------------------
+	
     RETURN NEW;
 
 END IF;

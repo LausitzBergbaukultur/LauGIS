@@ -249,7 +249,8 @@ INSERT INTO development.def_material (bezeichnung, sortierung) VALUES
 ('Kies / Sand', 63),
 ('Wasser', 64),
 ('Bronze', 65),
-('Feldstein', 66)
+('Feldstein', 66),
+('FREITEXT', 999)
 ;
 
 --------------------------------------------------------------------------------------
