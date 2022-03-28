@@ -6,7 +6,7 @@ import json
 import datetime
 
 error_dialog = QErrorMessage()
-definitionen = QgsVectorLayer()
+definitionen = list()
 local_feature = None
 local_layer = None
 local_dialog = None
@@ -21,17 +21,22 @@ def formOpen(dialog,layer,feature):
     local_feature = feature
     local_layer = layer
     local_dialog = dialog
-     
-    # load definition table
-    project = QgsProject.instance() 
-    try:
-        definitionen = project.mapLayersByName('definitionen')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *definitionen* konnte nicht gefunden werden.')
     
     ## check if initialised with actual feature
     if len(feature.attributes()) > 0:
-               
+        # create definitions table
+        project = QgsProject.instance() 
+        try:
+            def_layer = project.mapLayersByName('definitionen')[0]
+        except:
+            error_dialog.showMessage('Der Definitionslayer *definitionen* konnte nicht gefunden werden.')
+        for feat in def_layer.getFeatures():
+            definitionen.append(
+                {'tabelle':         feat['tabelle'], 
+                 'id':              feat['id'], 
+                 'bezeichnung':     feat['bezeichnung'],
+                 'is_ausfuehrend':  feat['is_ausfuehrend']})
+           
         # load all custom controls
         reload_controls()
             
@@ -251,10 +256,10 @@ def reload_controls():
 # datierung definition ermitteln
 def get_def_datierung():
     
-    # build dict based upon def_datierung. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_datierung'")    
-    return [{"id":feat['id'], "bezeichnung":feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    definitionen.setSubsetString("")    
+    # build dict based upon def_datierung. unfortunately one can't simply export all features at once    
+   return ({"id":feat['id'], "bezeichnung":feat['bezeichnung']}
+            for feat in definitionen 
+            if feat['tabelle'] == 'def_datierung')
 
 # aufgelöste Liste mit Datierungen ermitteln
 def get_rel_datierung():
@@ -535,11 +540,10 @@ def accept_edit_nutzung(dialog):
 
 # datierung definition ermitteln
 def get_def_personen():
-    # build dict based upon def_datierung. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_personen'")    
-    personen = [{"id":feat['id'], "bezeichnung":feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    definitionen.setSubsetString("")
-    return personen
+    # build dict based upon def_datierung. unfortunately one can't simply export all features at once   
+    return ({"id":feat['id'], "bezeichnung":feat['bezeichnung']} 
+             for feat in definitionen 
+             if feat['tabelle'] == 'def_personen')
 
 # aufgelöste Liste mit Datierungen ermitteln
 def get_rel_personen():
@@ -700,19 +704,14 @@ def accept_edit_personen(dialog):
             
 # Ermittelt def_erfasser Liste und ergänzt diese Liste um die übergebenen Werte
 def get_rel_erfasser():   
-    # return variable to fill
-    rel_erfasser = list()
-    
     # build dict based upon def_erfasser. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_erfasser'")    
-    rel_erfasser = [{'id':None, 
+    rel_erfasser = list({'id':None, 
                      'objekt':None, 
                      'erfasser_id':feat['id'], 
                      'erfasser_name':feat['bezeichnung'],
-                     'is_creator':None} for feat in definitionen.getFeatures()]
-    
-    # reset filter
-    definitionen.setSubsetString("")
+                     'is_creator':None} 
+            for feat in definitionen 
+            if feat['tabelle'] == 'def_erfasser')
     
     return_erfasser = None
     # check if object isnt none
@@ -810,7 +809,7 @@ def accept_edit_erfasser(dlg_erfasser):
     # find data table and prepare list
     table = dlg_erfasser.findChild(QTableWidget, 'tableWidget')
     return_erfasser = list()
-    return_erfasser.clear()
+#TODO    return_erfasser.clear()
     
     # parse table entries into return list
     for row in range(table.rowCount()):
@@ -836,11 +835,10 @@ def accept_edit_erfasser(dlg_erfasser):
 
 # datierung definition ermitteln
 def get_def_blickbeziehung():
-    # load list with base data via definition layer
-    definitionen.setSubsetString("tabelle = 'def_blickbeziehung'")  
-    blickbeziehung = [{"id":feat['id'], "bezeichnung":feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    definitionen.setSubsetString("")  
-    return blickbeziehung
+#    # load list with base data via definition layer
+    return ({"id":feat['id'], "bezeichnung":feat['bezeichnung']}
+             for feat in definitionen
+             if feat['tabelle'] == 'def_blickbeziehung')
 
 # aufgelöste Liste mit Blickbeziehungen ermitteln
 def get_rel_blickbeziehung():
@@ -1104,7 +1102,6 @@ def dlg_edit_sachbegriff(dialog):
    
 # schreibt die rows für beide sachbegriff-tabellen    
 def fill_table_sachbegriff(def_sachbegriffe, table, tablefilter):
-    
     # tabelle zurücksetzen
     table.setRowCount(0)
     
@@ -1331,19 +1328,14 @@ def accept_edit_bilder(dialog):
 ##############################################################################
             
 # Ermittelt def_material Liste und ergänzt diese Liste um die übergebenen Werte
-def get_rel_material():
-    # return variable to fill
-    rel_material = list()
-    
-    # build dict based upon def_material. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_material'")    
-    rel_material = [{'id':None, 
+def get_rel_material(): 
+    # build dict based upon def_material. unfortunately one can't simply export all features at once  
+    rel_material = list({'id':None, 
                      'objekt':None, 
                      'material_id':feat['id'], 
-                     'material':feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    
-    # reset filter
-    definitionen.setSubsetString("")
+                     'material':feat['bezeichnung']}
+                    for feat in definitionen
+                    if feat['tabelle'] == 'def_material')
     
     return_material = None
     # check if object isnt none
@@ -1472,19 +1464,14 @@ def accept_edit_material(dialog):
             
 # Ermittelt def_dachform Liste und ergänzt diese Liste um die übergebenen Werte
 def get_rel_dachform():
-    # return variable to fill
-    rel_dachform = list()
-    
-    # build dict based upon def_dachform. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_dachform'")    
-    rel_dachform = [{'id':None, 
+    # build dict based upon def_dachform. unfortunately one can't simply export all features at once  
+    rel_dachform = list({'id':None, 
                      'objekt':None, 
                      'dachform_id':feat['id'], 
-                     'dachform':feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    
-    # reset filter
-    definitionen.setSubsetString("")
-    
+                     'dachform':feat['bezeichnung']}
+                    for feat in definitionen
+                    if feat['tabelle'] == 'def_dachform')
+
     return_dachform = None
     # check if object isnt none
     if isinstance(local_feature.attribute('return_dachform'), str):
@@ -1612,18 +1599,13 @@ def accept_edit_dachform(dialog):
             
 # Ermittelt def_konstruktion Liste und ergänzt diese Liste um die übergebenen Werte
 def get_rel_konstruktion():
-    # return variable to fill
-    rel_konstruktion = list()
-    
-    # build dict based upon def_konstruktion. unfortunately one can't simply export all features at once
-    definitionen.setSubsetString("tabelle = 'def_konstruktion'")    
-    rel_konstruktion = [{'id':None, 
-                     'objekt':None, 
-                     'konstruktion_id':feat['id'], 
-                     'konstruktion':feat['bezeichnung']} for feat in definitionen.getFeatures()]
-    
-    # reset filter
-    definitionen.setSubsetString("")
+    # build dict based upon def_konstruktion. unfortunately one can't simply export all features at once  
+    rel_konstruktion = list({'id':None, 
+                         'objekt':None, 
+                         'konstruktion_id':feat['id'], 
+                         'konstruktion':feat['bezeichnung']} 
+                        for feat in definitionen
+                        if feat['tabelle'] == 'def_konstruktion')
     
     return_konstruktion = None
     # check if object isnt none
