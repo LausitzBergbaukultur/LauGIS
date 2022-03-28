@@ -53,11 +53,11 @@ SELECT
 	    ar.geschosszahl,
 	    ar.achsenzahl,
 	    ar.grundriss,
-	    NULL AS return_dachform, 		-- dachform -> ref              -- 5910     
+	    development.return_dachform(ob.objekt_id) AS return_dachform,
 	    ar.dachform_alt,
 	    development.return_material(ob.objekt_id) AS return_material,
 	    ar.material_alt,
-	    NULL AS return_konstruktion, 	-- konstruktion_technik -> ref  -- 5300
+	    development.return_konstruktion(ob.objekt_id) AS return_konstruktion,
 	    ar.konstruktion_alt,
 
 	-- # Geometrie 

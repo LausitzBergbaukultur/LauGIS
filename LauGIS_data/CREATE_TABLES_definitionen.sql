@@ -315,3 +315,99 @@ INSERT INTO development.def_bearbeitung (bezeichnung, sortierung) VALUES
 	('in Prüfung', 2),
 	('abgeschlossen', 3)
 ;
+
+--------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS development.def_dachform;
+CREATE TABLE IF NOT EXISTS development.def_dachform
+(
+ 	id integer PRIMARY KEY generated always as identity,
+    bezeichnung text NOT NULL,
+    sortierung integer
+);
+
+INSERT INTO development.def_dachform (bezeichnung, sortierung) VALUES
+('Berliner Dach', 1),
+('Bogendach', 2),
+('Faltdach', 3),
+('Flachdach', 4),
+('Fußwalm', 5),
+('Giebelwalm', 6),
+('Glockendach', 7),
+('Halbkegeldach', 8),
+('Halbwalmdach', 9),
+('Kegeldach', 10),
+('Kopfwalm', 11),
+('Kreuzdach', 12),
+('Krüppelwalmdach', 13),
+('Kuppeldach', 14),
+('Mansarddach', 15),
+('Mansarddach mit Schopf', 16),
+('Mansardgiebeldach', 17),
+('Mansardwalmdach', 18),
+('Pagodendach', 19),
+('Pultdach', 20),
+('Pyramidendach', 21),
+('Satteldach', 22),
+('Satteldach (geschweift)', 23),
+('Schalendach', 24),
+('Schleppdach', 25),
+('Schmetterlingsdach', 26),
+('Schopfwalm', 27),
+('Schweifhaube', 28),
+('Sheddach', 29),
+('Terrassendach', 30),
+('Tonnendach', 31),
+('Walmdach', 32),
+('Walmdach (geschweift)', 33),
+('Wellendach', 34),
+('Zeltdach', 35),
+('FREITEXT', 999)
+
+--------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS development.def_konstruktion;
+CREATE TABLE IF NOT EXISTS development.def_konstruktion
+(
+ 	id integer PRIMARY KEY generated always as identity,
+    bezeichnung text NOT NULL,
+    sortierung integer
+);
+
+INSERT INTO development.def_konstruktion (bezeichnung, sortierung) VALUES
+('Binderkonstruktion', 1),
+('Blockbauweise', 2),
+('Blockbohlenbauweise', 3),
+('Blockständerbauweise', 4),
+('Fachwerk', 5),
+('Fertigbauweise', 6),
+('Gitterbinderkonstruktion', 7),
+('Gitterträgerkonstruktion', 8),
+('Großblockbauweise', 9),
+('Hypar-Schalenkonstruktion', 10),
+('Lehmstampfbauweise', 11),
+('Massivbauweise', 12),
+('Montagebauweise', 13),
+('Plattenbauweise', 14),
+('Plattenbauweise Typ P2', 15),
+('Plattenbauweise Typ Q6', 16),
+('Rahmenbauweise', 17),
+('Rahmenbinderkonstruktion', 18),
+('Schalenkonstruktion', 19),
+('Schottenbauweise', 20),
+('Skelettbauweise', 21),
+('Spannbetonkonstruktion', 22),
+('Stabknotenfachwerk', 23),
+('Gleitbauweise', 24),
+('Stahlfachwerk', 25),
+('Lammellenkonstruktion', 26),
+('Ständerbauweise', 27),
+('Tafelbauweise', 28),
+('Umgebinde', 29),
+('Wandständerbauweise', 30),
+('Ständerkonstruktion', 31),
+('Gerüstbauweise', 32),
+('Hohlkastenkonstruktion', 33),
+('FREITEXT', 999)
+
+--------------------------------------------------------------------------------------

@@ -1,10 +1,10 @@
--- Setzt die Werte für eine bestehende oder neue Nutzung-Relation
+-- Setzt die Werte für eine bestehende oder neue Dachform-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_material(
+CREATE OR REPLACE FUNCTION development.update_dachform(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
-  _ref_material_id integer
+  _ref_dachform_id integer         -- fk
   ) 
 
 RETURNS INTEGER AS $$
@@ -22,21 +22,21 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_material
+    UPDATE development.rel_dachform
     SET
         ref_objekt_id = _ref_objekt_id,
-        ref_material_id = _ref_material_id
+        ref_dachform_id = _ref_dachform_id
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_material(
+    INSERT INTO development.rel_dachform(
         ref_objekt_id,
-        ref_material_id
+        ref_dachform_id
         )
       VALUES (
         _ref_objekt_id,
-        _ref_material_id
+        _ref_dachform_id
         )
-      RETURNING rel_material.relation_id INTO _relation_id;
+      RETURNING rel_dachform.relation_id INTO _relation_id;
   END IF;
  
 -- return (inserted) rel id

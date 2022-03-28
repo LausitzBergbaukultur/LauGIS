@@ -328,7 +328,7 @@
     <item>
      <widget class="QTabWidget" name="BottomRow_Tabs">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="TabBeschreibung">
        <attribute name="title">
@@ -449,6 +449,12 @@
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_datierung">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -466,7 +472,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>
@@ -493,6 +499,12 @@
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_nutzung">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -510,7 +522,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>
@@ -537,6 +549,12 @@
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_personen">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -554,7 +572,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>
@@ -731,7 +749,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>0</number>
@@ -837,6 +855,12 @@
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_dachform">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -854,7 +878,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>
@@ -881,6 +905,12 @@
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_material">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -898,7 +928,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>
@@ -917,14 +947,20 @@
          <item row="4" column="1">
           <layout class="QHBoxLayout" name="hlayoutTechnik">
            <item>
-            <widget class="QToolButton" name="btn_technik">
+            <widget class="QToolButton" name="btn_konstruktion">
              <property name="text">
               <string>...</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="lbl_return_technik">
+            <widget class="QLabel" name="lbl_return_konstruktion">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -942,7 +978,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="margin">
               <number>6</number>

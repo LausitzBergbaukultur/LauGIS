@@ -436,8 +436,99 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			PERFORM development.update_material(
 			_rel_id::integer,
 			_obj_id,
-			(_rel->>'ref_material_id')::integer,
-			(_rel->>'alt_material')::text
+			(_rel->>'ref_material_id')::integer
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Dachform
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_dachform::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_dachform::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_dachform(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_dachform::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_dachform(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'ref_dachform_id')::integer
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Konstruktion
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_konstruktion::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_konstruktion::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM development.remove_konstruktion(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_konstruktion::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM development.update_konstruktion(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'ref_konstruktion_id')::integer
 			);
 		END LOOP;
 	END IF;   

@@ -1,10 +1,10 @@
--- Setzt die Werte für eine bestehende oder neue Nutzung-Relation
+-- Setzt die Werte für eine bestehende oder neue konstruktion-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_material(
+CREATE OR REPLACE FUNCTION development.update_konstruktion(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
-  _ref_material_id integer
+  _ref_konstruktion_id integer
   ) 
 
 RETURNS INTEGER AS $$
@@ -22,21 +22,21 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_material
+    UPDATE development.rel_konstruktion
     SET
         ref_objekt_id = _ref_objekt_id,
-        ref_material_id = _ref_material_id
+        ref_konstruktion_id = _ref_konstruktion_id
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_material(
+    INSERT INTO development.rel_konstruktion(
         ref_objekt_id,
-        ref_material_id
+        ref_konstruktion_id
         )
       VALUES (
         _ref_objekt_id,
-        _ref_material_id
+        _ref_konstruktion_id
         )
-      RETURNING rel_material.relation_id INTO _relation_id;
+      RETURNING rel_konstruktion.relation_id INTO _relation_id;
   END IF;
  
 -- return (inserted) rel id
