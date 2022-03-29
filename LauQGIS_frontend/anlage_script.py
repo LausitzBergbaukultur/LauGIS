@@ -74,15 +74,6 @@ def formOpen(dialog,layer,feature):
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
             True
         btn_erfasser.clicked.connect(lambda: dlg_edit_erfasser(QDialog()))
-        
-# Feld: Blickbeziehung ########################################################       
-        btn_blickbeziehung = local_dialog.findChild(QToolButton, 'btn_blickbeziehung')
-        try:
-            btn_blickbeziehung.disconnect()
-        except:
-            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-            True
-        btn_blickbeziehung.clicked.connect(lambda: dlg_edit_blickbeziehung(QDialog()))
 
 # Feld: Sachbegriff ###########################################################     
         dlg_sachbegriff = QDialog()
@@ -111,15 +102,6 @@ def formOpen(dialog,layer,feature):
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
             True
         btn_material.clicked.connect(lambda: dlg_edit_material(QDialog()))
-
-# Feld: Dachform ##############################################################
-        btn_dachform = dialog.findChild(QToolButton, 'btn_dachform')
-        try:
-            btn_dachform.disconnect()
-        except:
-            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-            True
-        btn_dachform.clicked.connect(lambda: dlg_edit_dachform(QDialog()))
         
 # Feld: Konstruktion / Technik ################################################
         btn_konstruktion = dialog.findChild(QToolButton, 'btn_konstruktion')
@@ -171,15 +153,6 @@ def reload_controls():
     lbl_return_erfasser = local_dialog.findChild(QLabel, 'lbl_return_erfasser')
     lbl_return_erfasser.setText(', '.join(erfasser))        
 
-# Feld: Blickbeziehung ########################################################
-    blick = [rel['ref_blick'] + ' -> Objekt ' + str(rel['rel_objekt_nr']) + ': ' + rel['beschreibung']
-            if rel['rel_objekt_nr'] is not None
-            else rel['ref_blick'] + ': ' + rel['beschreibung']
-            for rel in get_rel_blickbeziehung()]
-    # control ermitteln und text einfügen
-    lbl_return_blickbeziehung = local_dialog.findChild(QLabel, 'lbl_return_blickbeziehung')
-    lbl_return_blickbeziehung.setText(' | '.join(blick))
-
 # Feld: Sachbegriff ###########################################################
     # load definition layer
     project = QgsProject.instance()
@@ -226,17 +199,7 @@ def reload_controls():
 
     # control ermitteln und text einfügen
     lbl_return_material = local_dialog.findChild(QLabel, 'lbl_return_material')
-    lbl_return_material.setText(' | '.join(material))    
-
-# Feld: Dachform ##############################################################
-    dachform = list()
-    for rel in get_rel_dachform():
-        if rel['id'] is not None:
-            dachform.append(rel['dachform'] if str(rel['dachform']) != 'FREITEXT' else str(local_feature['dachform_alt']))
-
-    # control ermitteln und text einfügen
-    lbl_return_dachform = local_dialog.findChild(QLabel, 'lbl_return_dachform')
-    lbl_return_dachform.setText(' | '.join(dachform))    
+    lbl_return_material.setText(' | '.join(material))      
 
 # Feld: Konstruktion / Technik ################################################
     konstruktion = list()
@@ -827,161 +790,6 @@ def accept_edit_erfasser(dlg_erfasser):
     local_feature['return_erfasser'] = json.dumps(return_erfasser)
     # Aktualisierung des Dialogs erzwingen
     reload_controls()
- 
-##############################################################################
-# Feld: Blickbeziehung
-##############################################################################
-
-# datierung definition ermitteln
-def get_def_blickbeziehung():
-#    # load list with base data via definition layer
-    return ({"id":feat['id'], "bezeichnung":feat['bezeichnung']}
-             for feat in definitionen
-             if feat['tabelle'] == 'def_blickbeziehung')
-
-# aufgelöste Liste mit Blickbeziehungen ermitteln
-def get_rel_blickbeziehung():
-    rel_blick = list()
-    # check if object isnt none
-    if isinstance(local_feature.attribute('return_blickbeziehung'), str):     
-        rel_blick = [{'relation_id'         :rel['relation_id'],
-                      'beschreibung'        :rel['beschreibung'],
-                      'rel_objekt_nr'        :rel['rel_objekt_nr'],
-                      'ref_blick'  :[item['bezeichnung'] for item in get_def_blickbeziehung() if item['id'] == rel['ref_blick_id']][0]
-                      }
-                     for rel in json.loads(local_feature.attribute('return_blickbeziehung'))]
-    # [{"relation_id":,"beschreibung":"","rel_objekt_nr":"","ref_blick":""}]
-    return rel_blick
-    
-###############################################################################        
-
-# defines and opens a dialog to edit the blickbeziehung list
-def dlg_edit_blickbeziehung(dialog):    
-    # check edit state    
-    if local_layer.isEditable():
-        dialog.setDisabled(False)
-    else:
-        dialog.setDisabled(True)
-    
-    # initialise layout and controls        
-    layout = QFormLayout()
-    qhbox = QHBoxLayout()
-    qvbox = QVBoxLayout()
-    table = QTableWidget()
-    table.setObjectName('tableWidget') # for identification
-    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
-    btn_add = QToolButton()
-    btn_add.setText('+')
-    btn_add.setToolTip('Leere Zeile einfügen.')
-    btn_add.setFixedSize(22,22)
-    btn_del = QToolButton()
-    btn_del.setText('-')
-    btn_del.setToolTip('Markierte Zeile löschen.')
-    btn_del.setFixedSize(22,22)
-    dialog.setWindowTitle('Blickbeziehung bearbeiten')
-
-    # define signals
-    try:
-        dialog.disconnect()
-    except:
-        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-        True
-    dialog.accepted.connect(lambda: accept_edit_blickbeziehung(dialog))
-    try:
-        btn_add.disconnect()
-    except:
-        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-        True
-    btn_add.clicked.connect(lambda: add_row_blickbeziehung(table, None))
-    try:
-        btn_del.disconnect()
-    except:
-        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-        True
-    # löscht die oberste, ausgewählte Zeile
-    btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
-    btn_box.accepted.connect(dialog.accept)
-    btn_box.rejected.connect(dialog.reject)
-       
-    # setup table
-    table.setColumnCount(4)
-    table.setHorizontalHeaderLabels(['relation_id', 'Beschreibung', 'sichtbares Objekt (Nr)', 'Blickbeziehung'])
-    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-    
-    # hide irrelevant columns
-    table.setColumnHidden(0, True)
-    
-    # iterate over interface items and add rows
-    for blick in get_rel_blickbeziehung():
-        add_row_blickbeziehung(table, blick)
-
-    # setup layout & dialog
-    qvbox.addWidget(btn_add)
-    qvbox.addWidget(btn_del)
-    qhbox.addLayout(qvbox)
-    qhbox.addWidget(table)
-    layout.addRow(qhbox)
-    layout.addRow(btn_box)
-    dialog.setLayout(layout) 
-    dialog.setModal(True)       # ensure clean dialog handling
-    dialog.setMinimumSize(450, 200)
-    dialog.show()
-    dialog.adjustSize()
-    
-###############################################################################        
-
-def add_row_blickbeziehung(table, blick):   
-    # get new row number
-    row = table.rowCount()
-    table.insertRow(row)
-    
-    # 2 cbx Ereignis (bei jeder Row vorhanden)
-    cbx = QComboBox()
-    cbx.addItems(item['bezeichnung'] for item in get_def_blickbeziehung())    
-    table.setCellWidget(row, 3, cbx)
-    
-    if blick is not None:
-        # 0 relation_id
-        table.setItem(row, 0, QTableWidgetItem(str(blick['relation_id'])))
-        # 1 Beschreibung
-        table.setItem(row, 1, QTableWidgetItem(blick['beschreibung']))
-        # 2 Zielobjekt
-        table.setItem(row, 2, QTableWidgetItem(blick['rel_objekt_nr']))
-        # 3 set combobox value
-        cbx.setCurrentText(blick['ref_blick'])
-    
-###############################################################################        
-    
-# accept methode zur Übernahme geänderter Werte
-def accept_edit_blickbeziehung(dialog):
-    # find data table and prepare list
-    table = dialog.findChild(QTableWidget, 'tableWidget')
-    return_list = list()
-    
-    # parse table entries into return list
-    for row in range(table.rowCount()):
-        # Ereignisart auflösen
-        ref_blick_id = None
-        for item in get_def_blickbeziehung():
-            if item['bezeichnung'] == table.cellWidget(row, 3).currentText():
-                ref_blick_id = item['id']
-        # Werte in Liste übernehmen
-        return_list.append({
-                'relation_id'               : table.item(row, 0).text() 
-                    if table.item(row, 0) is not None and table.item(row, 0).text().isnumeric() else 'NULL',
-                'ref_objekt_id'             : local_feature.attribute('objekt_id'),
-                'beschreibung'              : table.item(row, 1).text() if table.item(row, 1) is not None else 'NULL',
-                'rel_objekt_nr'             : table.item(row, 2).text() if table.item(row, 2) is not None else 'NULL',
-                'ref_blick_id'              : ref_blick_id if ref_blick_id is not None else 'NULL'
-                })                       
-            
-    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
-    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_blickbeziehung'), json.dumps(return_list))
-    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
-    local_feature['return_blickbeziehung'] = json.dumps(return_list)
-    # Aktualisierung des Hauptdialogs erzwingen
-    reload_controls()
     
 ##############################################################################
 # Feld: Sachbegriff
@@ -1048,7 +856,7 @@ def dlg_edit_sachbegriff(dialog):
     table_erw.setColumnHidden(0, True)
         
     # fill table oberbegriff
-    fill_table_sachbegriff(def_sachbegriffe, table_ober, "(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)")
+    fill_table_sachbegriff(def_sachbegriffe, table_ober, "anlage = TRUE AND (id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)")
 
     # define signals
     # dialog buttons accept
@@ -1456,142 +1264,7 @@ def accept_edit_material(dialog):
     
     # Aktualisierung des Dialogs erzwingen
     reload_controls()
-    
-###############################################################################
-# Feld: Dachform
-##############################################################################
-            
-# Ermittelt def_dachform Liste und ergänzt diese Liste um die übergebenen Werte
-def get_rel_dachform():
-    # build dict based upon def_dachform. unfortunately one can't simply export all features at once  
-    rel_dachform = list({'id':None, 
-                     'objekt':None, 
-                     'dachform_id':feat['id'], 
-                     'dachform':feat['bezeichnung']}
-                    for feat in definitionen
-                    if feat['tabelle'] == 'def_dachform')
 
-    return_dachform = None
-    # check if object isnt none
-    if isinstance(local_feature.attribute('return_dachform'), str):
-        return_dachform = json.loads(local_feature.attribute('return_dachform'))
-        # combine base data in rel_dachform and this list
-        for entry in return_dachform:
-            for rel in rel_dachform:
-                if int(rel['dachform_id']) == int(entry['ref_dachform_id']):
-                    rel['id'] = entry['relation_id']
-                    rel['objekt'] = entry['ref_objekt_id']
-       
-    # return combined list
-    return rel_dachform
-
-###############################################################################
-
-# defines and opens a dialog to edit the material list
-def dlg_edit_dachform(dialog):
-    # check edit state    
-    if local_layer.isEditable():
-        dialog.setDisabled(False)
-    else:
-        dialog.setDisabled(True)
-    
-    # initialise & setup controls        
-    layout = QFormLayout()
-    table = QTableWidget()
-    dachform_alt = QLineEdit()
-    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
-    dachform_alt.setObjectName('dachform_alt') # for identification
-    dachform_alt.setToolTip('Eingabefeld für FREITEXT-Dachformen.')
-    dachform_alt.setText(str(local_feature['dachform_alt']))   
-    
-    # define signals 
-    try:
-        dialog.disconnect()
-    except:
-        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
-        True
-    dialog.accepted.connect(lambda: accept_edit_dachform(dialog))
-    btn_box.accepted.connect(dialog.accept)
-    btn_box.rejected.connect(dialog.reject)
-    
-    # setup table    
-    table.setObjectName('tableWidget') # for identification
-    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)   
-    table.setColumnCount(4)
-    table.setHorizontalHeaderLabels(['ID', 'Ausgewählt', 'Dachform_ID', 'Dachform'])
-    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-    
-    # hide irrelevant columns
-    table.setColumnHidden(0, True)
-    table.setColumnHidden(2, True)
-        
-    # Materialliste 
-    rel_dachform = None
-    rel_dachform = get_rel_dachform()
-    row = 0
-    table.setRowCount(len(rel_dachform))
-    for rel in rel_dachform:
-        # by columns:
-        # 0 id
-        table.setItem(row, 0, QTableWidgetItem(str(rel['id'])))
-        # 1 selected (checkbox)
-        selected = QTableWidgetItem()
-        selected.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-        selected.setCheckState(Qt.Checked if rel['id'] is not None else Qt.Unchecked) 
-        table.setItem(row, 1, selected)
-        # 2 material_id
-        table.setItem(row, 2, QTableWidgetItem(str(rel['dachform_id'])))
-        # 3 material bezeichnung
-        material = QTableWidgetItem(rel['dachform'])
-        material.setFlags(material.flags() & ~Qt.ItemIsEditable)
-        table.setItem(row, 3, material)
-        # incr
-        row += 1
-    
-    # setup layout & dialog
-    table.resizeColumnsToContents()
-    layout.addRow(table)
-    layout.addRow(QLabel('Dachform alternativ:'), dachform_alt)
-    layout.addRow(btn_box)
-    dialog.setWindowTitle('Dachform zuweisen')
-    dialog.setLayout(layout) 
-    dialog.setModal(True)       # ensure clean dialog handling
-    dialog.setMinimumSize(400, 300)
-    dialog.show()
-    dialog.adjustSize()
-    
-###############################################################################        
-    
-# accept methode zur Übernahme geänderter Werte
-def accept_edit_dachform(dialog):
-    # find data table and prepare list
-    table = dialog.findChild(QTableWidget, 'tableWidget')
-    dachform_alt = dialog.findChild(QLineEdit, 'dachform_alt').text()
-    
-    return_list = list()
-    
-    # parse table entries into return list
-    for row in range(table.rowCount()):
-        # checkstate selected -> write data into list
-        if table.item(row, 1).checkState() > 0:                     
-            return_list.append({
-                    'relation_id'       : table.item(row, 0).text() if table.item(row, 0).text().isnumeric() else 'NULL',
-                    'ref_objekt_id'     : local_feature.attribute('objekt_id'),
-                    'ref_dachform_id'   : table.item(row, 2).text() if table.item(row, 2).text().isnumeric() else 'NULL'
-                    })
-    
-    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
-    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_dachform'), json.dumps(return_list))
-    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
-    local_feature['return_dachform'] = json.dumps(return_list)
-        
-    # sachbegriff_alt stets übernehmen
-    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('dachform_alt'), dachform_alt)
-    local_feature['dachform_alt'] = dachform_alt
-    
-    # Aktualisierung des Dialogs erzwingen
-    reload_controls()
-    
 ###############################################################################
 # Feld: Konstruktion
 ###############################################################################
