@@ -1,6 +1,6 @@
 -- Textprüfung Einzelobjekt
-
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
+|| E'\nObjektart:\t\t' || 'Einzelobjekt'
 || E'\nErfassung:\t\t' || COALESCE(bea.name, '')
 || E'\nÄnderungsdatum\t' || COALESCE(CAST(eo.aenderungsdatum AS text), '')
 || E'\nBezeichnung:\t\t' || COALESCE(eo.bezeichnung, '')
@@ -39,11 +39,12 @@ FROM "Erfassung"."obj_Einzelobjekt" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-11-26')
-	AND eo.aenderungsdatum != date('2021-12-10')
+	AND eo.aenderungsdatum > date('2022-02-03')
+	AND onr.objekt_nr NOT IN (SELECT objekt_nr FROM "Erfassung".textkorrektur)
 	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
 UNION
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
+|| E'\nObjektart:\t\t' || 'Einzelobjekt'
 || E'\nErfassung:\t\t' || COALESCE(bea.name, '')
 || E'\nÄnderungsdatum\t' || COALESCE(CAST(eo.aenderungsdatum AS text), '')
 || E'\nBezeichnung:\t\t' || COALESCE(eo.bezeichnung, '')
@@ -82,12 +83,13 @@ FROM "Erfassung"."obj_Einzelobjekt_line" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-11-26')
-	AND eo.aenderungsdatum != date('2021-12-10')
+	AND eo.aenderungsdatum > date('2022-02-03')
+	AND onr.objekt_nr NOT IN (SELECT objekt_nr FROM "Erfassung".textkorrektur)
 	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
 UNION
 -- Textprüfung Objektbereich
 SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
+|| E'\nObjektart:\t\t' || 'Objektbereich'
 || E'\nErfassung:\t\t' || COALESCE(bea.name, '')
 || E'\nÄnderungsdatum\t' || COALESCE(CAST(eo.aenderungsdatum AS text), '')
 || E'\nBezeichnung:\t\t' || COALESCE(eo.bezeichnung, '')
@@ -120,7 +122,53 @@ FROM "Erfassung"."obj_Objektbereich" AS eo
 	LEFT JOIN "Erfassung"."def_Schutzstatus" AS sch ON eo.schutzstatus = sch.id
 	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
 WHERE eo.in_bearbeitung IS false
-	AND eo.aenderungsdatum > date('2021-11-26')
-	AND eo.aenderungsdatum != date('2021-12-10')
+	AND eo.aenderungsdatum > date('2022-02-03')
+	AND onr.objekt_nr NOT IN (SELECT objekt_nr FROM "Erfassung".textkorrektur)
 	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
-
+UNION
+-- Textprüfung Anlagen
+SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
+|| E'\nObjektart:\t\t' || 'Anlage'
+|| E'\nErfassung:\t\t' || COALESCE(bea.name, '')
+|| E'\nÄnderungsdatum\t' || COALESCE(CAST(eo.aenderungsdatum AS text), '')
+|| E'\nBezeichnung:\t\t' || COALESCE(eo.bezeichnung, '')
+|| E'\nSachbegriff:\t\t' || COALESCE(sachbegriff, '')
+|| E'\nDatierung:\t\t' || COALESCE(datierung, '')
+|| E'\nAntrieb:\t\t' || COALESCE(antrieb, '')
+|| E'\nHersteller:\t\t' || COALESCE(hersteller, '')
+|| E'\nGewicht:\t\t' || COALESCE(gewicht, '')
+|| E'\nMaterial:\t\t' || COALESCE(material, '')
+|| E'\nKonstruktion / Technik: \t' || COALESCE(konstruktion_technik, '')
+|| E'\nBeschreibung: ' || COALESCE(beschreibung_funktion, '')
+|| E'\nNotiz intern:\t' || COALESCE(notiz_intern, '')
+|| E'\n\n---\n\n' AS "Anlage"
+FROM "Erfassung"."obj_Anlage" AS eo
+	LEFT JOIN "Erfassung"."ref_Objektnummer" AS onr ON eo.objekt_nr = onr.id
+	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
+WHERE eo.in_bearbeitung IS false
+	AND eo.aenderungsdatum > date('2022-02-03')
+	AND onr.objekt_nr NOT IN (SELECT objekt_nr FROM "Erfassung".textkorrektur)
+	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
+UNION
+SELECT E'Objektnummer:\t' || COALESCE(onr.objekt_nr, '')
+|| E'\nObjektart:\t\t' || 'Anlage'
+|| E'\nErfassung:\t\t' || COALESCE(bea.name, '')
+|| E'\nÄnderungsdatum\t' || COALESCE(CAST(eo.aenderungsdatum AS text), '')
+|| E'\nBezeichnung:\t\t' || COALESCE(eo.bezeichnung, '')
+|| E'\nSachbegriff:\t\t' || COALESCE(sachbegriff, '')
+|| E'\nDatierung:\t\t' || COALESCE(datierung, '')
+|| E'\nAntrieb:\t\t' || COALESCE(antrieb, '')
+|| E'\nHersteller:\t\t' || COALESCE(hersteller, '')
+|| E'\nGewicht:\t\t' || COALESCE(gewicht, '')
+|| E'\nMaterial:\t\t' || COALESCE(material, '')
+|| E'\nKonstruktion / Technik: \t' || COALESCE(konstruktion_technik, '')
+|| E'\nBeschreibung: ' || COALESCE(beschreibung_funktion, '')
+|| E'\nNotiz intern:\t' || COALESCE(notiz_intern, '')
+|| E'\n\n---\n\n' AS "Anlage"
+FROM "Erfassung"."obj_Anlage_line" AS eo
+	LEFT JOIN "Erfassung"."ref_Objektnummer" AS onr ON eo.objekt_nr = onr.id
+	LEFT JOIN "Erfassung"."def_Erfasser" AS bea ON eo.erfassung = bea.id
+WHERE eo.in_bearbeitung IS false
+	AND eo.aenderungsdatum > date('2022-02-03')
+	AND onr.objekt_nr NOT IN (SELECT objekt_nr FROM "Erfassung".textkorrektur)
+	--AND eo.erfassung = 5 -- 1 LW, 2 FD, 3 KK, 4 BK, 5 KT, 6 SK, 7 TT
