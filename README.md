@@ -5,3 +5,5 @@ Im Rahmen des [Projekts zur Erfassung der lausitzer Braunkohle- & Industriekultu
 ## LauGIS
 
 Das vorliegende Repositorium dient der Dokumentation der PostgreSQL-Datenbank.
+
+![](.\Dokumentation\Datenbankschema_vereinfacht.png)
