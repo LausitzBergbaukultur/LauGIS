@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Erfasser-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_erfasser(
+CREATE OR REPLACE FUNCTION laugis.update_erfasser(
   -- # Metadaten
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
@@ -24,14 +24,14 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_erfasser
+    UPDATE laugis.rel_erfasser
     SET
         ref_objekt_id = _ref_objekt_id,
         ref_erfasser_id = _ref_erfasser_id,
         is_creator = _is_creator
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_erfasser(
+    INSERT INTO laugis.rel_erfasser(
         ref_objekt_id,
         ref_erfasser_id,
         is_creator)

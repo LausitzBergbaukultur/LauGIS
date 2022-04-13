@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION development.trf_objektbereich()
+CREATE OR REPLACE FUNCTION lauqgis.trf_objektbereich()
 RETURNS TRIGGER AS $$
 DECLARE
 	_obj_id integer;
@@ -32,7 +32,7 @@ BEGIN
 
 IF (TG_OP = 'DELETE') THEN
 
-	PERFORM development.delete_objekt(_obj_id);
+	PERFORM laugis.delete_objekt(_obj_id);
     RETURN NULL;
     
 ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
@@ -41,7 +41,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 -- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
 ---------------------------------------------------------------------------------------------------------------
 
-	SELECT development.update_obj_basis(
+	SELECT laugis.update_obj_basis(
 	    -- # Metadaten
 	    _obj_id,				-- pk IF NOT NULL -> UPDATE
 		NEW.objekt_nr,
@@ -57,26 +57,13 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.beschreibung, 
 		NEW.beschreibung_ergaenzung, 
 		NEW.lagebeschreibung, 
-		NEW.quellen_literatur, 
 		NEW.notiz_intern,
 		NEW.hida_nr,
 		NEW.bilder_anmerkung,
 	    
-	  	-- # Geometrie
-		NEW.geom
-	)
-	INTO _obj_id;
-
----------------------------------------------------------------------------------------------------------------
--- zugehöriges Stammdaten-Objekt anlegen/updaten
----------------------------------------------------------------------------------------------------------------
-
-  	PERFORM development.update_obj_stamm(
-	    _obj_id,                   -- fk zu angelegter Objekt-Basis, NOT NULL
 	    -- # Stammdaten
 		NEW.bezeichnung, 
 		NEW.bauwerksname_eigenname, 
-		NEW.erhaltungszustand, 
 		NEW.schutzstatus, 
 		NEW.foerderfaehig,
 
@@ -87,8 +74,12 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.sorbisch, 
 		NEW.strasse, 
 		NEW.hausnummer, 
-		NEW.gem_flur
-  	);
+		NEW.gem_flur,
+
+	  	-- # Geometrie
+		NEW.geom
+	)
+	INTO _obj_id;
 
 ---------------------------------------------------------------------------------------------------------------
 -- Relation: Erfasser
@@ -107,7 +98,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_erfasser(_rel_id::integer);
+		PERFORM laugis.remove_erfasser(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -124,7 +115,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_erfasser(
+			PERFORM laugis.update_erfasser(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'ref_erfasser_id')::integer,
@@ -154,7 +145,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_datierung(_rel_id::integer);
+		PERFORM laugis.remove_datierung(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -171,7 +162,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_datierung(
+			PERFORM laugis.update_datierung(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'datierung')::text,
@@ -202,7 +193,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_nutzung(_rel_id::integer);
+		PERFORM laugis.remove_nutzung(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -219,7 +210,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_nutzung(
+			PERFORM laugis.update_nutzung(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'nutzungsart')::text,
@@ -249,7 +240,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_personen(_rel_id::integer);
+		PERFORM laugis.remove_personen(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -266,7 +257,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_personen(
+			PERFORM laugis.update_personen(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'bezeichnung')::text,
@@ -298,7 +289,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_blickbeziehung(_rel_id::integer);
+		PERFORM laugis.remove_blickbeziehung(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -321,7 +312,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_blickbeziehung(
+			PERFORM laugis.update_blickbeziehung(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'beschreibung')::text,
@@ -354,7 +345,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		FROM unnest(_rel_old_ids) AS erf_old
 		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
 	LOOP
-		PERFORM development.remove_bilder(_rel_id::integer);
+		PERFORM laugis.remove_bilder(_rel_id::integer);
 	END LOOP;
 	
 	-- determine json[] for new/updated entries 
@@ -371,7 +362,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			END IF;
 			
 			-- call update function
-			PERFORM development.update_bilder(
+			PERFORM laugis.update_bilder(
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'dateiname')::text,
@@ -383,6 +374,59 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	-- clean variables
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
+
+---------------------------------------------------------------------------------------------------------------
+-- Relation: Literatur
+--------------------------------------------------------------------------------------------------------------- 	
+
+	-- determine text[] for old relation-ids to compare against 
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_literatur::json)->>'relation_id')
+   	INTO _rel_old_ids;
+	
+	-- determine text[] of new relation-ids to compare against 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_literatur::json)->>'relation_id')
+   	INTO _rel_new_ids;
+
+	-- delete diff old/new
+	FOR _rel_id in SELECT erf_old
+		FROM unnest(_rel_old_ids) AS erf_old
+		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+	LOOP
+		PERFORM laugis.remove_literatur(_rel_id::integer);
+	END LOOP;
+	
+	-- determine json[] for new/updated entries 
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_literatur::json))
+   	INTO _rel_new;
+	
+  	IF array_length(_rel_new, 1) > 0 THEN
+		FOREACH _rel IN ARRAY(_rel_new)
+		LOOP
+			-- catch 'NULL' in rel_id -> used to identify new entries
+			_rel_id = (_rel->>'relation_id')::text;
+			IF _rel_id = 'NULL' THEN
+				_rel_id = NULL;
+			END IF;
+			
+			-- call update function
+			PERFORM laugis.update_literatur(
+			_rel_id::integer,
+			_obj_id,
+			(_rel->>'literatur')::text,
+			(_rel->>'lib_ref')::text
+			);
+		END LOOP;
+	END IF;   
+
+	-- clean variables
+	_rel_old_ids = NULL;
+	_rel_new_ids = NULL;
+	
+    RETURN NEW;
+
+END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 --------------------------------------------------------------------------------------------------------------- 
 

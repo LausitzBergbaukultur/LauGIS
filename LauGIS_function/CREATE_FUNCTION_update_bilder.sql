@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Bilder-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_bilder(
+CREATE OR REPLACE FUNCTION laugis.update_bilder(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _dateiname text,
@@ -23,14 +23,14 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_bilder
+    UPDATE laugis.rel_bilder
     SET
         ref_objekt_id = _ref_objekt_id,
         dateiname = _dateiname,
         intern = _intern
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_bilder(
+    INSERT INTO laugis.rel_bilder(
         ref_objekt_id,
         dateiname,
         intern

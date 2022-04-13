@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Personen-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_personen(
+CREATE OR REPLACE FUNCTION laugis.update_personen(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _bezeichnung text,
@@ -25,7 +25,7 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_personen
+    UPDATE laugis.rel_personen
     SET
         ref_objekt_id = _ref_objekt_id,
         bezeichnung = _bezeichnung,
@@ -34,7 +34,7 @@ BEGIN
         is_sozietaet = _is_sozietaet
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_personen(
+    INSERT INTO laugis.rel_personen(
         ref_objekt_id,
         bezeichnung,
         ref_funktion_id,

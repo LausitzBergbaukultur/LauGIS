@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS development.def_sachbegriff;
-CREATE TABLE IF NOT EXISTS development.def_sachbegriff
+DROP TABLE IF EXISTS laugis.def_sachbegriff;
+CREATE TABLE IF NOT EXISTS laugis.def_sachbegriff
 (
  	id integer PRIMARY KEY generated always as identity,
     sachbegriff text NOT NULL,
@@ -9,17 +9,17 @@ CREATE TABLE IF NOT EXISTS development.def_sachbegriff
     sortierung integer,					
 
 CONSTRAINT fkey_kategorie FOREIGN KEY (kategorie)
-    REFERENCES development.def_kategorie (id) MATCH SIMPLE
+    REFERENCES laugis.def_kategorie (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 
 CONSTRAINT fkey_sachbegriff FOREIGN KEY (ref_sachbegriff_id)
-    REFERENCES development.def_sachbegriff (id) MATCH SIMPLE
+    REFERENCES laugis.def_sachbegriff (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );
 
-INSERT INTO development.def_sachbegriff (kategorie, id, ref_sachbegriff_id, sachbegriff, show_anlage, sortierung) 
+INSERT INTO laugis.def_sachbegriff (kategorie, id, ref_sachbegriff_id, sachbegriff, show_anlage, sortierung) 
 OVERRIDING SYSTEM VALUE
 VALUES 
 (1,1100,1100,'Bergbauanlage',FALSE,1000),

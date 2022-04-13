@@ -16,6 +16,7 @@ def formOpen(dialog,layer,feature):
     global local_layer
     global local_dialog
     global definitionen
+    global sachbegriffe
     global error_dialog
     local_feature = feature
     local_layer = layer
@@ -23,18 +24,37 @@ def formOpen(dialog,layer,feature):
     
     ## check if initialised with actual feature
     if len(feature.attributes()) > 0:
-        # create definitions table
+        # create definitionen list
+        # lists are substantially faster then filtered layers
         project = QgsProject.instance() 
         try:
-            def_layer = project.mapLayersByName('definitionen')[0]
+            definitionen_layer = project.mapLayersByName('definitionen')[0]
         except:
             error_dialog.showMessage('Der Definitionslayer *definitionen* konnte nicht gefunden werden.')
-        for feat in def_layer.getFeatures():
+        definitionen = list()
+        for feat in definitionen_layer.getFeatures():
             definitionen.append(
                 {'tabelle':         feat['tabelle'], 
                  'id':              feat['id'], 
                  'bezeichnung':     feat['bezeichnung'],
-                 'is_ausfuehrend':  feat['is_ausfuehrend']})
+                 'is_ausfuehrend':  feat['is_ausfuehrend']}
+                )
+        # ceate sachbegriffe list
+        try:
+            sachbegriffe_layer = project.mapLayersByName('sachbegriffe')[0]
+        except:
+            error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
+        sachbegriffe = list()
+        for feat in sachbegriffe_layer.getFeatures():
+            sachbegriffe.append(
+                {'id':                  feat['id'], 
+                 'sachbegriff':         feat['sachbegriff'],
+                 'sachbegriff_ueber':   feat['sachbegriff_ueber'],
+                 'kategorie':           feat['kategorie'],
+                 'anlage':              feat['anlage'],
+                 'anlage_erweitert':    feat['anlage_erweitert'],
+                 'ref_sachbegriff_id':  feat['ref_sachbegriff_id']}
+                )
            
         # load all custom controls
         reload_controls()
@@ -154,29 +174,16 @@ def reload_controls():
     lbl_return_erfasser.setText(', '.join(erfasser))        
 
 # Feld: Sachbegriff ###########################################################
-    # load definition layer
-    project = QgsProject.instance()
-    def_sachbegriffe = QgsVectorLayer()
-    try:
-        def_sachbegriffe = project.mapLayersByName('sachbegriffe')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
-    
     sachbegriff = str()
     # auf id filtern
     if local_feature.attribute('sachbegriff') is not None:
-        def_sachbegriffe.setSubsetString("ID = " + str(local_feature.attribute('sachbegriff')))    
-        
-        for feat in def_sachbegriffe.getFeatures():
-            if feat['sachbegriff'] == 'FREITEXT':
-                sachbegriff = '* ' + str(local_feature['sachbegriff_alt'])
-            elif str(feat['sachbegriff_ueber']) == 'NULL':
-                sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff']
-            else:
-                sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff_ueber']) + ' > ' + feat['sachbegriff']
-        
-        # filter auflösen
-        def_sachbegriffe.setSubsetString("")   
+        [feat] = list(feat for feat in sachbegriffe if feat['id'] == local_feature.attribute('sachbegriff'))
+        if feat['sachbegriff'] == 'FREITEXT':
+            sachbegriff = '* ' + str(local_feature['sachbegriff_alt'])
+        elif str(feat['sachbegriff_ueber']) == 'NULL':
+            sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff']
+        else:
+            sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff_ueber']) + ' > ' + feat['sachbegriff']
     
     # control ermitteln und text einfügen
     lbl_sachbegriff = local_dialog.findChild(QLabel, 'lbl_sachbegriff')
@@ -771,7 +778,6 @@ def accept_edit_erfasser(dlg_erfasser):
     # find data table and prepare list
     table = dlg_erfasser.findChild(QTableWidget, 'tableWidget')
     return_erfasser = list()
-#TODO    return_erfasser.clear()
     
     # parse table entries into return list
     for row in range(table.rowCount()):
@@ -799,12 +805,12 @@ def accept_edit_erfasser(dlg_erfasser):
 def dlg_edit_sachbegriff(dialog):    
 
     # load definition layer
-    project = QgsProject.instance()
-    def_sachbegriffe = QgsVectorLayer()
-    try:
-        def_sachbegriffe = project.mapLayersByName('sachbegriffe')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
+#    project = QgsProject.instance()
+#    def_sachbegriffe = QgsVectorLayer()
+#    try:
+#        def_sachbegriffe = project.mapLayersByName('sachbegriffe')[0]
+#    except:
+#        error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
     
     # check edit state    
     if local_layer.isEditable():
@@ -856,7 +862,7 @@ def dlg_edit_sachbegriff(dialog):
     table_erw.setColumnHidden(0, True)
         
     # fill table oberbegriff
-    fill_table_sachbegriff(def_sachbegriffe, table_ober, "anlage = TRUE AND (id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)")
+    fill_table_sachbegriff(None, table_ober, int(local_dialog.findChild(QComboBox, 'kategorie').currentData()))
 
     # define signals
     # dialog buttons accept
@@ -876,7 +882,7 @@ def dlg_edit_sachbegriff(dialog):
         # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
         True
     table_ober.cellClicked.connect(lambda: 
-        fill_table_sachbegriff(def_sachbegriffe, table_erw, "ref_sachbegriff_id = " + str(table_ober.item(table_ober.currentRow(),0).text())))
+        fill_table_sachbegriff(None, table_erw, int(local_dialog.findChild(QComboBox, 'kategorie').currentData()))) #"ref_sachbegriff_id = " + str(table_ober.item(table_ober.currentRow(),0).text())))
     
     # checkbox changed
     try:
@@ -885,9 +891,9 @@ def dlg_edit_sachbegriff(dialog):
         # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
         True
     alle_sachbegriffe.stateChanged.connect(lambda: 
-        fill_table_sachbegriff(def_sachbegriffe, table_ober, '') 
+        fill_table_sachbegriff(sachbegriffe, table_ober, None) 
         if alle_sachbegriffe.isChecked() 
-        else fill_table_sachbegriff(def_sachbegriffe, table_ober, "(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)"))  
+        else fill_table_sachbegriff(None, table_ober, "(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)"))  
             
     # setup layout & dialog
     qhbox.addWidget(table_ober)
@@ -908,38 +914,53 @@ def dlg_edit_sachbegriff(dialog):
 ###############################################################################        
    
 # schreibt die rows für beide sachbegriff-tabellen    
-def fill_table_sachbegriff(def_sachbegriffe, table, tablefilter):
+def fill_table_sachbegriff(def_sachbegriffe, table, kategorie):
+    #TODO
     # tabelle zurücksetzen
     table.setRowCount(0)
-    
+#    fill_table_sachbegriff(def_sachbegriffe, table_ober, "anlage = TRUE AND (id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)")
     # filter setzen  
-    def_sachbegriffe.setSubsetString(tablefilter)    
+#    def_sachbegriffe.setSubsetString(tablefilter)    
     
+#    [feat] = list(feat for feat in sachbegriffe if feat['id'] == local_feature.attribute('sachbegriff'))
+#        if feat['sachbegriff'] == 'FREITEXT':
+#            sachbegriff = '* ' + str(local_feature['sachbegriff_alt'])
+#        elif str(feat['sachbegriff_ueber']) == 'NULL':
+#            sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff']
+#        else:
+#            sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff_ueber']) + ' > ' + feat['sachbegriff']
+#    
+
     # rows einfügen
-    for feat in def_sachbegriffe.getFeatures():
-        row = table.rowCount()
-        table.insertRow(row)
-        # 0 id
-        table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))     
-        # 1 Sachbegriff
-        # feat ist oberbegriff -> Kat & Indikator
-        if table.objectName() == 'table_ober' and feat['ref_sachbegriff_id'] == feat['id']:
-            sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')
-        # feat ist FREITEXT (keine Kategorie) -> plain text
-        elif table.objectName() == 'table_ober' and str(feat['kategorie']) == 'NULL':          
-            sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
-        # feat ist Sachbegriff ohne untergeordnete Begriffe -> Kat & kein Indikator
-        elif table.objectName() == 'table_ober':
-            sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
-        # feat ist erweiterter Sachbegriff -> plain text
-        else:
-            sachbegriff = QTableWidgetItem(feat['sachbegriff'])
-        # widget schreibgeschützt setzen und einfügen
-        sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
-        table.setItem(row, 1, sachbegriff)
+    for feat in sachbegriffe:
+        # check if anlage
+        if (feat['anlage'] is True or feat['anlage_erweitert'] is True) and feat['kategorie'] == 1:
+            row = table.rowCount()
+            table.insertRow(row)
+            # 0 id
+            table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))     
+            # 1 Sachbegriff
+            # feat ist oberbegriff & anlage -> Kat & Indikator
+            if table.objectName() == 'table_ober' and feat['ref_sachbegriff_id'] == feat['id'] and feat['anlage'] is True:
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')
+            # feat ist oberbegriff & hat untergeordnete anlagen -> (Kat & Indikator)
+            elif table.objectName() == 'table_ober' and feat['ref_sachbegriff_id'] == feat['id'] and feat['anlage_erweitert'] is True:
+                sachbegriff = QTableWidgetItem('([Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+))')
+            # feat ist FREITEXT (keine Kategorie) -> plain text
+            elif table.objectName() == 'table_ober' and str(feat['kategorie']) == 'NULL':          
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+            # feat ist Sachbegriff ohne untergeordnete Begriffe -> Kat & kein Indikator
+            elif table.objectName() == 'table_ober' and feat['anlage'] is True:
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
+            # feat ist erweiterter Sachbegriff -> plain text
+            else:
+                sachbegriff = QTableWidgetItem(feat['sachbegriff'])
+            # widget schreibgeschützt setzen und einfügen
+            sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+            table.setItem(row, 1, sachbegriff)
     
     # filter zurücksetzen
-    def_sachbegriffe.setSubsetString("")   
+#    def_sachbegriffe.setSubsetString("")   
  
 ###############################################################################        
    

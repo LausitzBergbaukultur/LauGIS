@@ -1,12 +1,11 @@
--- Setzt die Werte für eine bestehende oder neue Blickbeziehung-Relation
+-- Setzt die Werte für eine bestehende oder neue Literatur-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION laugis.update_blickbeziehung(
+CREATE OR REPLACE FUNCTION laugis.update_literatur(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
-  _beschreibung text,
-  _rel_objekt_nr integer,          -- rel fk
-  _ref_blick_id integer
+  _literatur text,
+  _lib_ref text
   ) 
 
 RETURNS INTEGER AS $$
@@ -24,27 +23,24 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE laugis.rel_blickbeziehung
+    UPDATE laugis.rel_literatur
     SET
         ref_objekt_id = _ref_objekt_id,
-        beschreibung = _beschreibung,
-        rel_objekt_nr = _rel_objekt_nr,
-        ref_blick_id = _ref_blick_id
+        literatur = _literatur,
+        lib_ref = _lib_ref
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO laugis.rel_blickbeziehung(
+    INSERT INTO laugis.rel_literatur(
         ref_objekt_id,
-        beschreibung,
-        rel_objekt_nr,
-        ref_blick_id
+        literatur,
+        lib_ref
         )
       VALUES (
         _ref_objekt_id,
-        _beschreibung,
-        _rel_objekt_nr,
-        _ref_blick_id
+        _literatur,
+        _lib_ref
         )
-      RETURNING rel_blickbeziehung.relation_id INTO _relation_id;
+      RETURNING rel_literatur.relation_id INTO _relation_id;
   END IF;
  
 -- return (inserted) rel id

@@ -1,8 +1,8 @@
--- In der Tabelle obj_base werden die Metadaten und Deskriptoren sämtlicher Objekte abgelegt.
+-- In der Tabelle obj_basis werden die Metadaten und Deskriptoren sämtlicher Objekte abgelegt.
 -- Die explizite Beschreibung der einzelnen Objekte findet durch Erweiterungstabellen statt. 
 
-DROP TABLE IF EXISTS development.obj_basis;
-CREATE TABLE IF NOT EXISTS development.obj_basis
+DROP TABLE IF EXISTS laugis.obj_basis;
+CREATE TABLE IF NOT EXISTS laugis.obj_basis
 (     
     -- # Metadaten
     objekt_id integer PRIMARY KEY generated always as identity, -- PK
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS development.obj_basis
     beschreibung text,              -- 9980
     beschreibung_ergaenzung text,   -- 9980
     lagebeschreibung text,          -- 5125
-    quellen_literatur text,         -- 8330
+    -- quellen_literatur -> rel     -- 8330
     notiz_intern text,              -- 9984 '9980 = Kommentar'
     hida_nr text,                   -- 5000
     -- datierung -> rel
@@ -34,24 +34,46 @@ CREATE TABLE IF NOT EXISTS development.obj_basis
     -- bilder_intern -> rel
     bilder_anmerkung text,          -- temp zur Migration sowie als Anmerkungsfeld
 
+        -- # Stammdaten
+    bezeichnung text,               -- 9990
+    bauwerksname_eigenname text,    -- 5202
+    -- erhaltungszustand            -- fk 5210 -> wird als text an notiz_intern übergeben
+    schutzstatus smallint,          -- fk
+    foerderfaehig bool, 
+    -- funktion -> rel
+
+    -- # Lokalisatoren
+    kreis text,                     -- 5098
+    gemeinde text,                  -- 5100
+    ort text,                       -- 5108
+    sorbisch text,                  -- 5115
+    strasse text,                   -- 5116
+    hausnummer text,                -- 5117
+    gem_flur text,                  -- 5120
+
 -- Referenz zu übergeordneten Objekten
 CONSTRAINT fkey_rel_objekt_nr FOREIGN KEY (rel_objekt_nr)
-    REFERENCES development.obj_basis (objekt_nr) MATCH SIMPLE
+    REFERENCES laugis.obj_basis (objekt_nr) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 
 CONSTRAINT fkey_status_bearbeitung FOREIGN KEY (status_bearbeitung)
-    REFERENCES development.def_bearbeitung (id) MATCH SIMPLE
+    REFERENCES laugis.def_bearbeitung (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 
 CONSTRAINT fkey_kategorie FOREIGN KEY (kategorie)
-    REFERENCES development.def_kategorie (id) MATCH SIMPLE
+    REFERENCES laugis.def_kategorie (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 
 CONSTRAINT fkey_sachbegriff FOREIGN KEY (sachbegriff)
-    REFERENCES development.def_sachbegriff (id) MATCH SIMPLE
+    REFERENCES laugis.def_sachbegriff (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION,
+
+CONSTRAINT fkey_schutzstatus FOREIGN KEY (schutzstatus)
+    REFERENCES laugis.def_schutzstatus (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );

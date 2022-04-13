@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Dachform-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_dachform(
+CREATE OR REPLACE FUNCTION laugis.update_dachform(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _ref_dachform_id integer         -- fk
@@ -22,13 +22,13 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_dachform
+    UPDATE laugis.rel_dachform
     SET
         ref_objekt_id = _ref_objekt_id,
         ref_dachform_id = _ref_dachform_id
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_dachform(
+    INSERT INTO laugis.rel_dachform(
         ref_objekt_id,
         ref_dachform_id
         )

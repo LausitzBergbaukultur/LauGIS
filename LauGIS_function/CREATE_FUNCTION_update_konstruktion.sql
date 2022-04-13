@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue konstruktion-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_konstruktion(
+CREATE OR REPLACE FUNCTION laugis.update_konstruktion(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _ref_konstruktion_id integer
@@ -22,13 +22,13 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_konstruktion
+    UPDATE laugis.rel_konstruktion
     SET
         ref_objekt_id = _ref_objekt_id,
         ref_konstruktion_id = _ref_konstruktion_id
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_konstruktion(
+    INSERT INTO laugis.rel_konstruktion(
         ref_objekt_id,
         ref_konstruktion_id
         )

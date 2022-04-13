@@ -185,7 +185,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="ref_objekt_id">
+         <widget class="QLineEdit" name="rel_objekt_nr">
           <property name="toolTip">
            <string>Verweist über die Objektnummer auf hierarchisch übergeordnete Objekte.</string>
           </property>
@@ -279,7 +279,7 @@
     <item>
      <widget class="QTabWidget" name="BottomRow_Tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="TabBeschreibung">
        <attribute name="title">
@@ -477,8 +477,20 @@
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="lblPersonen">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>Personen</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Personen &lt;br/&gt;Unternehmen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

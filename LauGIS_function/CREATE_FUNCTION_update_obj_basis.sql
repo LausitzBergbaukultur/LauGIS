@@ -1,10 +1,11 @@
 -- Setzt die Werte für ein bestehendes oder neues Basis-Objekt
+-- Erzeugt eine definierte Objektnummer
 -- Legt entsprechend der Geometrie-Art einen passenden verknüpften Eintrag an
 -- Setzt das Flag 'geloescht' auf false
 -- Fügt in 'letzte_aenderung' den aktuellen Timestamp
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_obj_basis(
+CREATE OR REPLACE FUNCTION laugis.update_obj_basis(
   -- # Metadaten
   _objekt_id integer,              -- pk IF NOT NULL -> UPDATE
   _objekt_nr integer,              -- 5000
@@ -20,10 +21,24 @@ CREATE OR REPLACE FUNCTION development.update_obj_basis(
   _beschreibung text,              -- 9980
   _beschreibung_ergaenzung text,   -- 9980
   _lagebeschreibung text,          -- 5125
-  _quellen_literatur text,         -- 8330
-  _notiz_intern text,              -- 9984 '9980 = Kommentar'
+   _notiz_intern text,              -- 9984 '9980 = Kommentar'
   _hida_nr text,                   -- 5000
   _bilder_anmerkung text,          -- temp und anmerkung
+
+  -- # Stammdaten
+  _bezeichnung text,               -- 9990
+  _bauwerksname_eigenname text,    -- 5202
+  _schutzstatus smallint,          -- fk
+  _foerderfaehig bool, 
+    
+  -- # Lokalisatoren
+  _kreis text,                     -- 5098
+  _gemeinde text,                  -- 5100
+  _ort text,                       -- 5108
+  _sorbisch text,                  -- 5115
+  _strasse text,                   -- 5116
+  _hausnummer text,                -- 5117
+  _gem_flur text,                  -- 5120
 
   -- # Geometrie
   _geom geometry                   -- undefined geometry
@@ -47,27 +62,37 @@ BEGIN
 ---------------------------------------------------------------------------------------------------------------
 
   IF (_is_update) THEN
-    UPDATE development.obj_basis
+    UPDATE laugis.obj_basis
     SET
-        objekt_nr = _objekt_nr,
-        rel_objekt_nr = _rel_objekt_nr,
-        status_bearbeitung = _status_bearbeitung,
-        erfassungsdatum = _erfassungsdatum,
-        aenderungsdatum = _aenderungsdatum,
-        letzte_aenderung = NOW(),
-        kategorie = _kategorie,
-        sachbegriff = _sachbegriff,
-        sachbegriff_alt = _sachbegriff_alt,
-        beschreibung = _beschreibung,
+        objekt_nr               = _objekt_nr,
+        rel_objekt_nr           = _rel_objekt_nr,
+        status_bearbeitung      = _status_bearbeitung,
+        erfassungsdatum         = _erfassungsdatum,
+        aenderungsdatum         = _aenderungsdatum,
+        letzte_aenderung        = NOW(),
+        kategorie               = _kategorie,
+        sachbegriff             = _sachbegriff,
+        sachbegriff_alt         = _sachbegriff_alt,
+        beschreibung            = _beschreibung,
         beschreibung_ergaenzung = _beschreibung_ergaenzung,
-        lagebeschreibung = _lagebeschreibung,
-        quellen_literatur = _quellen_literatur,
-        notiz_intern = _notiz_intern,
-        hida_nr = _hida_nr,
-        bilder_anmerkung = _bilder_anmerkung
-    WHERE objekt_id = _ob_id;
+        lagebeschreibung        = _lagebeschreibung,
+        notiz_intern            = _notiz_intern,
+        hida_nr                 = _hida_nr,
+        bilder_anmerkung        = _bilder_anmerkung,
+        bezeichnung             = _bezeichnung,
+        bauwerksname_eigenname  = _bauwerksname_eigenname,
+        schutzstatus            = _schutzstatus,
+        foerderfaehig           = _foerderfaehig,
+        kreis                   = _kreis,
+        gemeinde                = _gemeinde,
+        ort                     = _ort,
+        sorbisch                = _sorbisch,
+        strasse                 = _strasse,
+        hausnummer              = _hausnummer,
+        gem_flur                = _gem_flur
+    WHERE objekt_id             = _ob_id;
   ELSE
-    INSERT INTO development.obj_basis(
+    INSERT INTO laugis.obj_basis(
         objekt_nr,
         rel_objekt_nr,
         status_bearbeitung,
@@ -81,10 +106,20 @@ BEGIN
         beschreibung,
         beschreibung_ergaenzung,
         lagebeschreibung,
-        quellen_literatur,
         notiz_intern,
         hida_nr,
-        bilder_anmerkung)
+        bilder_anmerkung,
+        bezeichnung,
+        bauwerksname_eigenname,
+        schutzstatus,
+        foerderfaehig,
+        kreis,
+        gemeinde,
+        ort,
+        sorbisch,
+        strasse,
+        hausnummer,
+        gem_flur)
       VALUES (
         _objekt_nr,
         _rel_objekt_nr,
@@ -99,11 +134,20 @@ BEGIN
         _beschreibung,
         _beschreibung_ergaenzung,
         _lagebeschreibung,
-        _quellen_literatur,
         _notiz_intern,
         _hida_nr,
-        _bilder_anmerkung
-        )
+        _bilder_anmerkung,
+        _bezeichnung,
+        _bauwerksname_eigenname,
+        _schutzstatus,
+        _foerderfaehig,
+        _kreis,
+        _gemeinde,
+        _ort,
+        _sorbisch,
+        _strasse,
+        _hausnummer,
+        _gem_flur)
       RETURNING obj_basis.objekt_id INTO _ob_id;
   END IF;
 
@@ -115,7 +159,7 @@ BEGIN
     -- generate nr by adding 32.000.000 to the identifier 
     _objekt_nr = (_ob_id + 32000000);
     
-    UPDATE development.obj_basis
+    UPDATE laugis.obj_basis
     SET
         objekt_nr = _objekt_nr
     WHERE objekt_id = _ob_id;
@@ -128,11 +172,11 @@ BEGIN
   IF (ST_GeometryType(_geom) = 'ST_MultiPolygon') THEN 
     
     IF (_is_update) THEN
-        UPDATE development.geo_poly
+        UPDATE laugis.geo_poly
         SET geom = _geom
         WHERE ref_objekt_id = _ob_id;  
     ELSE 
-        INSERT INTO development.geo_poly(
+        INSERT INTO laugis.geo_poly(
             ref_objekt_id,
             geom
             )
@@ -144,11 +188,11 @@ BEGIN
   ELSEIF (ST_GeometryType(_geom) = 'ST_MultiLineString') THEN
     
     IF (_is_update) THEN
-        UPDATE development.geo_line
+        UPDATE laugis.geo_line
         SET geom = _geom
         WHERE ref_objekt_id = _ob_id;    
     ELSE  
-        INSERT INTO development.geo_line(
+        INSERT INTO laugis.geo_line(
             ref_objekt_id,
             geom
             )
@@ -160,11 +204,11 @@ BEGIN
   ELSEIF (ST_GeometryType(_geom) = 'ST_MultiPoint') THEN
     
     IF (_is_update) THEN
-        UPDATE development.geo_point
+        UPDATE laugis.geo_point
         SET geom = _geom
         WHERE ref_objekt_id = _ob_id;
     ELSE 
-        INSERT INTO development.geo_point(
+        INSERT INTO laugis.geo_point(
             ref_objekt_id,
             geom
             )

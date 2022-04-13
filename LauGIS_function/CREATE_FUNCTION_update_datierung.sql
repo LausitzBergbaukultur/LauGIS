@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Datierung-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_datierung(
+CREATE OR REPLACE FUNCTION laugis.update_datierung(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _datierung text,
@@ -24,7 +24,7 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_datierung
+    UPDATE laugis.rel_datierung
     SET
         ref_objekt_id = _ref_objekt_id,
         datierung = _datierung,
@@ -32,7 +32,7 @@ BEGIN
         alt_ereignis = _alt_ereignis
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_datierung(
+    INSERT INTO laugis.rel_datierung(
         ref_objekt_id,
         datierung,
         ref_ereignis_id,

@@ -1,11 +1,11 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QDialog, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QDialog, QWidget, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox, QTabWidget
 import json
+import operator
 
 error_dialog = QErrorMessage()
 definitionen = list()
+sachbegriffe = list()
 local_feature = None
 local_layer = None
 local_dialog = None
@@ -16,6 +16,7 @@ def formOpen(dialog,layer,feature):
     global local_layer
     global local_dialog
     global definitionen
+    global sachbegriffe
     global error_dialog
     local_feature = feature
     local_layer = layer
@@ -35,7 +36,24 @@ def formOpen(dialog,layer,feature):
                  'id':              feat['id'], 
                  'bezeichnung':     feat['bezeichnung'],
                  'is_ausfuehrend':  feat['is_ausfuehrend']})
-           
+        
+        # create sachbegriffe table    
+        try:
+            [def_layer] = project.mapLayersByName('sachbegriffe')
+        except:
+            error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
+        for feat in def_layer.getFeatures():
+            sachbegriffe.append(
+                {'id':                  feat['id'], 
+                 'sachbegriff':         feat['sachbegriff'], 
+                 'sachbegriff_ueber':   feat['sachbegriff_ueber'],
+                 'kategorie':           feat['kategorie'],
+                 'anlage':              feat['anlage'],
+                 'anlage_erweitert':    feat['anlage_erweitert'],
+                 'ref_sachbegriff_id':  feat['ref_sachbegriff_id'],
+                 'sortierung':          feat['sortierung']
+                 })
+        
         # load all custom controls
         reload_controls()
             
@@ -105,12 +123,15 @@ def formOpen(dialog,layer,feature):
         
 # Feld: Material ##############################################################
         btn_material = dialog.findChild(QToolButton, 'btn_material')
+        btn_material2 = dialog.findChild(QToolButton, 'btn_material2')
         try:
             btn_material.disconnect()
+            btn_material2.disconnect()
         except:
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
             True
         btn_material.clicked.connect(lambda: dlg_edit_material(QDialog()))
+        btn_material2.clicked.connect(lambda: dlg_edit_material(QDialog()))
 
 # Feld: Dachform ##############################################################
         btn_dachform = dialog.findChild(QToolButton, 'btn_dachform')
@@ -123,18 +144,42 @@ def formOpen(dialog,layer,feature):
         
 # Feld: Konstruktion / Technik ################################################
         btn_konstruktion = dialog.findChild(QToolButton, 'btn_konstruktion')
+        btn_konstruktion2 = dialog.findChild(QToolButton, 'btn_konstruktion2')
         try:
             btn_konstruktion.disconnect()
+            btn_konstruktion2.disconnect()
         except:
             # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
             True
         btn_konstruktion.clicked.connect(lambda: dlg_edit_konstruktion(QDialog()))
+        btn_konstruktion2.clicked.connect(lambda: dlg_edit_konstruktion(QDialog()))
+
+# Feld: Literatur ###############################################        
+        btn_literatur = local_dialog.findChild(QToolButton, 'btn_literatur')
+        try:
+            btn_literatur.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_literatur.clicked.connect(lambda: dlg_edit_literatur(QDialog()))
+        
+# Feld: Technische Anlage #####################################################
+        chk_techn_anlage = local_dialog.findChild(QCheckBox, 'techn_anlage')
+# disconnect löst auch die Übergabe an den Layer
+#        try:
+#            chk_techn_anlage.disconnect()
+#        except:
+#            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+#            True
+        chk_techn_anlage.stateChanged.connect(setAnlage)
 
 ###############################################################################
 
 # refresh list on primary dialog
 def reload_controls():
 
+    setAnlage()
+    
 # Feld: Datierung #############################################################
     datierung = [date['ref_ereignis'] + ': ' + date['datierung'] 
                 if date['ref_ereignis'] != 'FREITEXT'
@@ -181,29 +226,20 @@ def reload_controls():
     lbl_return_blickbeziehung.setText(' | '.join(blick))
 
 # Feld: Sachbegriff ###########################################################
-    # load definition layer
-    project = QgsProject.instance()
-    def_sachbegriffe = QgsVectorLayer()
-    try:
-        def_sachbegriffe = project.mapLayersByName('sachbegriffe')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
-    
+ 
     sachbegriff = str()
     # auf id filtern
     if local_feature.attribute('sachbegriff') is not None:
-        def_sachbegriffe.setSubsetString("ID = " + str(local_feature.attribute('sachbegriff')))    
+        #def_sachbegriffe.setSubsetString("ID = " + str(local_feature.attribute('sachbegriff')))    
         
-        for feat in def_sachbegriffe.getFeatures():
-            if feat['sachbegriff'] == 'FREITEXT':
-                sachbegriff = '* ' + str(local_feature['sachbegriff_alt'])
-            elif str(feat['sachbegriff_ueber']) == 'NULL':
-                sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff']
-            else:
-                sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff_ueber']) + ' > ' + feat['sachbegriff']
-        
-        # filter auflösen
-        def_sachbegriffe.setSubsetString("")   
+        for feat in sachbegriffe:
+            if str(feat['id']) == str(local_feature.attribute('sachbegriff')):
+                if feat['sachbegriff'] == 'FREITEXT':
+                    sachbegriff = '* ' + str(local_feature['sachbegriff_alt'])
+                elif str(feat['sachbegriff_ueber']) == 'NULL':
+                    sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + feat['sachbegriff']
+                else:
+                    sachbegriff = '[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff_ueber']) + ' > ' + feat['sachbegriff']
     
     # control ermitteln und text einfügen
     lbl_sachbegriff = local_dialog.findChild(QLabel, 'lbl_sachbegriff')
@@ -226,7 +262,9 @@ def reload_controls():
 
     # control ermitteln und text einfügen
     lbl_return_material = local_dialog.findChild(QLabel, 'lbl_return_material')
+    lbl_return_material2 = local_dialog.findChild(QLabel, 'lbl_return_material2')
     lbl_return_material.setText(' | '.join(material))    
+    lbl_return_material2.setText(' | '.join(material))    
 
 # Feld: Dachform ##############################################################
     dachform = list()
@@ -246,8 +284,38 @@ def reload_controls():
 
     # control ermitteln und text einfügen
     lbl_return_konstruktion = local_dialog.findChild(QLabel, 'lbl_return_konstruktion')
+    lbl_return_konstruktion2 = local_dialog.findChild(QLabel, 'lbl_return_konstruktion2')
     lbl_return_konstruktion.setText(' | '.join(konstruktion))
+    lbl_return_konstruktion2.setText(' | '.join(konstruktion))
 
+# Feld: Literatur ###############################################
+    literatur = [rel['literatur']
+              for rel in get_rel_literatur()] 
+    # control ermitteln und text einfügen
+    lbl_return_literatur = local_dialog.findChild(QLabel, 'lbl_return_literatur')
+    lbl_return_literatur.setText('\n'.join(literatur))
+
+###############################################################################
+
+# enable tabs according to check state
+def setAnlage():
+    
+    chk_techn_anlage = local_dialog.findChild(QCheckBox, 'techn_anlage')
+    bottomRow_Tabs = local_dialog.findChild(QTabWidget, 'BottomRow_Tabs')
+    tabTechnik = local_dialog.findChild(QWidget, 'TabTechnik')
+    tabArchitektur = local_dialog.findChild(QWidget, 'TabArchitektur')
+    techn_anlage = chk_techn_anlage.isChecked()
+      
+    if techn_anlage:
+        bottomRow_Tabs.setTabText(3, '(Architektur)')    
+        bottomRow_Tabs.setTabText(4, 'Technik')    
+    else:
+        bottomRow_Tabs.setTabText(3, 'Architektur')    
+        bottomRow_Tabs.setTabText(4, '(Technik)')
+    
+    tabTechnik.setEnabled(techn_anlage)
+    tabArchitektur.setEnabled(operator.not_(techn_anlage))
+    
 ##############################################################################
 # Feld: Datierung
 ##############################################################################
@@ -808,8 +876,7 @@ def accept_edit_erfasser(dlg_erfasser):
     # find data table and prepare list
     table = dlg_erfasser.findChild(QTableWidget, 'tableWidget')
     return_erfasser = list()
-#TODO    return_erfasser.clear()
-    
+
     # parse table entries into return list
     for row in range(table.rowCount()):
         # checkstate selected -> write data into list
@@ -990,14 +1057,6 @@ def accept_edit_blickbeziehung(dialog):
 # defines and opens a dialog to edit the blickbeziehung list
 def dlg_edit_sachbegriff(dialog):    
 
-    # load definition layer
-    project = QgsProject.instance()
-    def_sachbegriffe = QgsVectorLayer()
-    try:
-        def_sachbegriffe = project.mapLayersByName('sachbegriffe')[0]
-    except:
-        error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
-    
     # check edit state    
     if local_layer.isEditable():
         dialog.setDisabled(False)
@@ -1047,9 +1106,7 @@ def dlg_edit_sachbegriff(dialog):
     table_ober.setColumnHidden(0, True)
     table_erw.setColumnHidden(0, True)
         
-    # fill table oberbegriff
-    fill_table_sachbegriff(def_sachbegriffe, table_ober, "(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)")
-
+    fill_table_sachbegriff(dialog, table_ober, None, False)
     # define signals
     # dialog buttons accept
     try:
@@ -1068,8 +1125,7 @@ def dlg_edit_sachbegriff(dialog):
         # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
         True
     table_ober.cellClicked.connect(lambda: 
-        fill_table_sachbegriff(def_sachbegriffe, table_erw, "ref_sachbegriff_id = " + str(table_ober.item(table_ober.currentRow(),0).text())))
-    
+        fill_table_sachbegriff(dialog, table_erw, table_ober, alle_sachbegriffe.isChecked()))
     # checkbox changed
     try:
         alle_sachbegriffe.stateChanged.disconnect()
@@ -1077,9 +1133,7 @@ def dlg_edit_sachbegriff(dialog):
         # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
         True
     alle_sachbegriffe.stateChanged.connect(lambda: 
-        fill_table_sachbegriff(def_sachbegriffe, table_ober, '') 
-        if alle_sachbegriffe.isChecked() 
-        else fill_table_sachbegriff(def_sachbegriffe, table_ober, "(id = ref_sachbegriff_id OR ref_sachbegriff_id IS NULL) AND (kategorie = " + str(local_dialog.findChild(QComboBox, 'kategorie').currentData()) + " OR kategorie IS NULL)"))  
+        fill_table_sachbegriff(dialog, table_ober, None, alle_sachbegriffe.isChecked()))
             
     # setup layout & dialog
     qhbox.addWidget(table_ober)
@@ -1100,38 +1154,152 @@ def dlg_edit_sachbegriff(dialog):
 ###############################################################################        
    
 # schreibt die rows für beide sachbegriff-tabellen    
-def fill_table_sachbegriff(def_sachbegriffe, table, tablefilter):
+def fill_table_sachbegriff(dialog, dest_table, src_table, alle_sachbegriffe):
     # tabelle zurücksetzen
-    table.setRowCount(0)
-    
-    # filter setzen  
-    def_sachbegriffe.setSubsetString(tablefilter)    
-    
-    # rows einfügen
-    for feat in def_sachbegriffe.getFeatures():
-        row = table.rowCount()
-        table.insertRow(row)
-        # 0 id
-        table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))     
-        # 1 Sachbegriff
-        # feat ist oberbegriff -> Kat & Indikator
-        if table.objectName() == 'table_ober' and feat['ref_sachbegriff_id'] == feat['id']:
-            sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')
-        # feat ist FREITEXT (keine Kategorie) -> plain text
-        elif table.objectName() == 'table_ober' and str(feat['kategorie']) == 'NULL':          
-            sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
-        # feat ist Sachbegriff ohne untergeordnete Begriffe -> Kat & kein Indikator
-        elif table.objectName() == 'table_ober':
-            sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
-        # feat ist erweiterter Sachbegriff -> plain text
-        else:
-            sachbegriff = QTableWidgetItem(feat['sachbegriff'])
-        # widget schreibgeschützt setzen und einfügen
-        sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
-        table.setItem(row, 1, sachbegriff)
-    
-    # filter zurücksetzen
-    def_sachbegriffe.setSubsetString("")   
+    dest_table.setRowCount(0)
+    anlage = local_dialog.findChild(QCheckBox, 'techn_anlage').isChecked()
+    kategorie = str(local_dialog.findChild(QComboBox, 'kategorie').currentData())
+    # invalide kategorie-werte abfangen
+    if len(kategorie) > 2:
+        error_dialog.showMessage('Der Wert *Kategorie* wurde nicht korrekt gesetzt. Es wird eine ungefilterte Sachbegriffsliste aufgerufen.')
+        kategorie = None
+    # wenn filter 'alle Sachbegriffe', kategorien nicht filtern
+    if alle_sachbegriffe:
+        kategorie = None
+        
+    # src_table None -> fill table_ober acc to kategorie (or not) AND anlage
+    if src_table is None and kategorie is not None and anlage is False:
+        # fill table_ober according to filter kategorie but without anlage
+        for feat in sachbegriffe:
+            if str(feat['kategorie']) == kategorie and feat['ref_sachbegriff_id'] == feat['id']:
+                # übergeordnet
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')    
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['kategorie']) == kategorie and str(feat['ref_sachbegriff_id']) == 'NULL':
+                # alleinstehend
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['kategorie']) == 'NULL':
+                # FREITEXT
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+    elif src_table is None and kategorie is not None and anlage is True:
+        # fill table_ober according to filter kategorie and anlage
+        for feat in sachbegriffe:
+            if str(feat['kategorie']) == kategorie and feat['ref_sachbegriff_id'] == feat['id'] and (feat['anlage'] or feat['anlage_erweitert']):
+                # übergeordnet
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = (QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')
+                            if feat['anlage'] is True
+                            else QTableWidgetItem('<[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)>'))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['kategorie']) == kategorie and str(feat['ref_sachbegriff_id']) == 'NULL' and feat['anlage'] is True:
+                # alleinstehend
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['kategorie']) == 'NULL':
+                # FREITEXT
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+    elif src_table is None and kategorie is None and anlage is False:
+        # fill table_ober with neither filter kategorie nor anlage
+        for feat in sachbegriffe:
+            if str(feat['kategorie']) == 'NULL':
+                # FREITEXT
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif feat['ref_sachbegriff_id'] == feat['id']:
+                # übergeordnet
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')    
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['ref_sachbegriff_id']) == 'NULL':
+                # alleinstehend
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+    elif src_table is None and kategorie is None and anlage is True:
+        # fill table_ober without kategorie but with filter anlage
+        for feat in sachbegriffe:
+            if str(feat['kategorie']) == 'NULL':
+                # FREITEXT
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif feat['ref_sachbegriff_id'] == feat['id'] and (feat['anlage'] or feat['anlage_erweitert']):
+                # übergeordnet
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = (QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+)')
+                            if feat['anlage'] is True
+                            else QTableWidgetItem('<[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']) + ' (+))>'))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+            elif str(feat['ref_sachbegriff_id']) == 'NULL' and feat['anlage'] is True:
+                # alleinstehend
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem('[Kat.' + str(feat['kategorie']) + '] ' + str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+    elif src_table is not None and anlage is False:
+        # fill table_unter according to ref but without filter anlage
+        for feat in sachbegriffe:
+            if str(feat['ref_sachbegriff_id']) == str(src_table.item(src_table.currentRow(),0).text()):
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
+    elif src_table is not None and anlage is True:
+        # fill table_unter according to ref and filter anlage
+        for feat in sachbegriffe:
+            if str(feat['ref_sachbegriff_id']) == str(src_table.item(src_table.currentRow(),0).text()) and feat['anlage'] is True:
+                row = dest_table.rowCount()
+                dest_table.insertRow(row)
+                sachbegriff = QTableWidgetItem(str(feat['sachbegriff']))
+                sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
+                dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
+                dest_table.setItem(row, 1, sachbegriff)
  
 ###############################################################################        
    
@@ -1725,6 +1893,136 @@ def accept_edit_konstruktion(dialog):
     local_feature['konstruktion_alt'] = konstruktion_alt
     
     # Aktualisierung des Dialogs erzwingen
+    reload_controls()
+    
+##############################################################################
+# Feld: Literatur
+##############################################################################
+
+# Liste mit Literatur ermitteln
+def get_rel_literatur():
+    relations = list()
+    # check if object isnt none
+    if isinstance(local_feature.attribute('return_literatur'), str):     
+        relations = [rel for rel in json.loads(local_feature.attribute('return_literatur'))]
+    # [{"relation_id":,"literatur":"","lib_ref":""}]
+    return relations
+    
+###############################################################################        
+
+# defines and opens a dialog to edit the literatur list
+def dlg_edit_literatur(dialog):    
+    # check edit state    
+    if local_layer.isEditable():
+        dialog.setDisabled(False)
+    else:
+        dialog.setDisabled(True)
+    
+    # initialise layout and controls        
+    layout = QFormLayout()
+    qhbox = QHBoxLayout()
+    qvbox = QVBoxLayout()
+    table = QTableWidget()
+    table.setObjectName('tableWidget') # for identification
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+    btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)    
+    btn_add = QToolButton()
+    btn_add.setText('+')
+    btn_add.setToolTip('Leere Zeile einfügen.')
+    btn_add.setFixedSize(22,22)
+    btn_del = QToolButton()
+    btn_del.setText('-')
+    btn_del.setToolTip('Markierte Zeile löschen.')
+    btn_del.setFixedSize(22,22)
+    dialog.setWindowTitle('Literatur / Quellen bearbeiten')
+
+    # define signals
+    try:
+        dialog.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    dialog.accepted.connect(lambda: accept_edit_literatur(dialog))
+    try:
+        btn_add.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    btn_add.clicked.connect(lambda: add_row_literatur(table, None))
+    try:
+        btn_del.disconnect()
+    except:
+        # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+        True
+    # löscht die oberste, ausgewählte Zeile
+    btn_del.clicked.connect(lambda: table.removeRow(table.selectedIndexes()[0].row()))
+    btn_box.accepted.connect(dialog.accept)
+    btn_box.rejected.connect(dialog.reject)
+       
+    # setup table
+    table.setColumnCount(3)
+    table.setHorizontalHeaderLabels(['relation_id', 'Literatur / Quelle', 'Literaturverwaltung'])
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    
+    # hide irrelevant columns
+    table.setColumnHidden(0, True)
+    
+    # iterate over interface items and add rows
+    for rel in get_rel_literatur():
+        add_row_literatur(table, rel)
+
+    # setup layout & dialog
+    qvbox.addWidget(btn_add)
+    qvbox.addWidget(btn_del)
+    qhbox.addLayout(qvbox)
+    qhbox.addWidget(table)
+    layout.addRow(qhbox)
+    layout.addRow(btn_box)
+    dialog.setLayout(layout) 
+    dialog.setModal(True)       # ensure clean dialog handling
+    dialog.setMinimumSize(450, 200)
+    dialog.show()
+    dialog.adjustSize()
+
+###############################################################################        
+
+def add_row_literatur(table, rel):   
+    # get new row number
+    row = table.rowCount()
+    table.insertRow(row)
+      
+    if rel is not None:
+        # 0 relation_id
+        table.setItem(row, 0, QTableWidgetItem(str(rel['relation_id'])))
+        # 1 literaturangabe
+        table.setItem(row, 1, QTableWidgetItem(rel['literatur']))
+        # 2 lib referenz
+        table.setItem(row, 1, QTableWidgetItem(rel['lib_ref']))
+    
+###############################################################################        
+    
+# accept methode zur Übernahme geänderter Werte
+def accept_edit_literatur(dialog):
+    # find data table and prepare list
+    table = dialog.findChild(QTableWidget, 'tableWidget')
+    return_list = list()
+    
+    # parse table entries into return list
+    for row in range(table.rowCount()):
+        # Werte in Liste übernehmen
+        return_list.append({
+                'relation_id'       : table.item(row, 0).text() 
+                    if table.item(row, 0) is not None and table.item(row, 0).text().isnumeric() else 'NULL',
+                'ref_objekt_id'     : local_feature.attribute('objekt_id'),
+                'literatur'         : table.item(row, 1).text() if table.item(row, 1) is not None else 'NULL',
+                'lib_ref'           : table.item(row, 2).text() if table.item(row, 2) is not None else 'NULL',
+                })                       
+            
+    # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+    local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('return_literatur'), json.dumps(return_list))
+    # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+    local_feature['return_literatur'] = json.dumps(return_list)
+    # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
 ###############################################################################

@@ -1,7 +1,7 @@
 -- Setzt die Werte für eine bestehende oder neue Nutzung-Relation
 -- Gibt die ID des bearbeiteten Eintrags zurück
 
-CREATE OR REPLACE FUNCTION development.update_nutzung(
+CREATE OR REPLACE FUNCTION laugis.update_nutzung(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _nutzungsart text,
@@ -23,14 +23,14 @@ BEGIN
   END IF;
 
   IF (_is_update) THEN
-    UPDATE development.rel_nutzung
+    UPDATE laugis.rel_nutzung
     SET
         ref_objekt_id = _ref_objekt_id,
         nutzungsart = _nutzungsart,
         datierung = _datierung
     WHERE relation_id = _relation_id;
   ELSE
-    INSERT INTO development.rel_nutzung(
+    INSERT INTO laugis.rel_nutzung(
         ref_objekt_id,
         nutzungsart,
         datierung

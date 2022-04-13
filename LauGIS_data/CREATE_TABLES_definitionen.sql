@@ -1,14 +1,14 @@
 -- Definitionstabellen 
 
-DROP TABLE IF EXISTS development.def_erfasser;
-CREATE TABLE IF NOT EXISTS development.def_erfasser
+DROP TABLE IF EXISTS laugis.def_erfasser;
+CREATE TABLE IF NOT EXISTS laugis.def_erfasser
 (
  	id integer PRIMARY KEY generated always as identity,
     name text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_Erfasser (name, sortierung) VALUES 
+INSERT INTO laugis.def_Erfasser (name, sortierung) VALUES 
 	('Louise Warnow', 1),
 	('Franz Dietzmann', 2),
 	('Kirsten Krepelin', 3),
@@ -20,87 +20,51 @@ INSERT INTO development.def_Erfasser (name, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
--- Löschkandidat (wird im Formular deaktiv dargestellt)
-DROP TABLE IF EXISTS development.def_erhaltungszustand;
-CREATE TABLE IF NOT EXISTS development.def_erhaltungszustand
-(
- 	id integer PRIMARY KEY generated always as identity,
-    bezeichnung text NOT NULL,
-    sortierung integer
-);
-
-INSERT INTO development.def_erhaltungszustand (bezeichnung, sortierung) VALUES 
-	('Ruine', 1),
-	('Fragment', 2)
-;
-
---------------------------------------------------------------------------------------
-
-DROP TABLE IF EXISTS development.def_kategorie;
-CREATE TABLE IF NOT EXISTS development.def_kategorie
+DROP TABLE IF EXISTS laugis.def_kategorie;
+CREATE TABLE IF NOT EXISTS laugis.def_kategorie
 (
    id integer PRIMARY KEY generated always as identity,
    bezeichnung text NOT NULL,
    sortierung integer
 );
 
-INSERT INTO development.def_kategorie (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_kategorie (bezeichnung, sortierung) VALUES 
 	('Kat. 1 - Bergbau', 1),
 	('Kat. 2 - Energieerzeugung', 2),
 	('Kat. 3 - Veredelung', 3),
 	('Kat. 4 - Technische Infrastruktur', 4),
 	('Kat. 5 - Sozialstrukturen', 5), 
 	('Kat. 6 - Begleit- und Folgeindustrie', 6), 
-	('Kat. 7 - Gelaendestrukturen und Rekultivierung', 7)
+	('Kat. 7 - Gelaendestrukturen und Rekultivierung', 7),
 	('kein Braunkohlebezug', 8)
 ;
 
 --------------------------------------------------------------------------------------
 
--- obsolet
-/* DROP TABLE IF EXISTS development.def_nachnutzung;
- CREATE TABLE IF NOT EXISTS development.def_nachnutzung
- (
- 	id integer PRIMARY KEY generated always as identity,
-    bezeichnung text NOT NULL,
-    sortierung integer
-);
-
-INSERT INTO development.def_nachnutzung (bezeichnung, sortierung) VALUES 
-	-- in nachnutzung -> retcon?
-	('vorhanden', 1),
-	-- ('bedingt vorhanden', 2),
-	('zur Nachnutzung empfohlen', 2),
-	('in Nutzung', 3),
-	('nicht vorhanden', 4)
-;*/
-
---------------------------------------------------------------------------------------
-
-DROP TABLE IF EXISTS development.def_schutzstatus;
-CREATE TABLE IF NOT EXISTS development.def_schutzstatus
+DROP TABLE IF EXISTS laugis.def_schutzstatus;
+CREATE TABLE IF NOT EXISTS laugis.def_schutzstatus
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_schutzstatus (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_schutzstatus (bezeichnung, sortierung) VALUES 
 	('Kulturdenkmal', 1),
 	('Denkmalverdacht', 2)
 ;
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_jahresschnitt;
-CREATE TABLE IF NOT EXISTS development.def_jahresschnitt
+DROP TABLE IF EXISTS laugis.def_jahresschnitt;
+CREATE TABLE IF NOT EXISTS laugis.def_jahresschnitt
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_jahresschnitt (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_jahresschnitt (bezeichnung, sortierung) VALUES 
 	('1936-1943', 1),
 	('1989', 2),
 	('2021', 3)
@@ -108,15 +72,15 @@ INSERT INTO development.def_jahresschnitt (bezeichnung, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_nutzungsart;
-CREATE TABLE IF NOT EXISTS development.def_nutzungsart
+DROP TABLE IF EXISTS laugis.def_nutzungsart;
+CREATE TABLE IF NOT EXISTS laugis.def_nutzungsart
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_nutzungsart (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_nutzungsart (bezeichnung, sortierung) VALUES 
 	('Wasser', 1),
 	('Wald', 2),
 	('Naturschutzgebiet', 3), -- Schraffur
@@ -132,16 +96,16 @@ INSERT INTO development.def_nutzungsart (bezeichnung, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
-# Beschreibt die Ereignisarten der Datierungen
-DROP TABLE IF EXISTS development.def_datierung;
-CREATE TABLE IF NOT EXISTS development.def_datierung
+-- # Beschreibt die Ereignisarten der Datierungen
+DROP TABLE IF EXISTS laugis.def_datierung;
+CREATE TABLE IF NOT EXISTS laugis.def_datierung
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_datierung (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES 
 	('Abbruch', 1),
 	('Abteufung', 2),
 	('Aufstellung', 3),
@@ -158,32 +122,33 @@ INSERT INTO development.def_datierung (bezeichnung, sortierung) VALUES
 	('Neubau', 14),
 	('Ortsabbruch', 15),
 	('Planung', 16),
-	('Restaurierung', 17),
-	('Rückbau', 18),
-	('Sanierung', 19),
-	('Teilabbruch', 20),
-	('Teilrückbau', 21),
-	('Translozierung', 22),
-	('Umbau', 22),
-	('Umsiedlung', 23),
-	('Veränderung', 24),
-	('Verfüllung', 25),
-	('Wiederaufbau', 26),
-	('Teilortsabbruch', 27),
+	('Produktion', 17),
+	('Restaurierung', 18),
+	('Rückbau', 19),
+	('Sanierung', 20),
+	('Teilabbruch', 21),
+	('Teilrückbau', 22),
+	('Translozierung', 23),
+	('Umbau', 24),
+	('Umsiedlung', 25),
+	('Veränderung', 26),
+	('Verfüllung', 27),
+	('Wiederaufbau', 28),
+	('Teilortsabbruch', 29),
 	('FREITEXT', 999)
 ;
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_material;
-CREATE TABLE IF NOT EXISTS development.def_material
+DROP TABLE IF EXISTS laugis.def_material;
+CREATE TABLE IF NOT EXISTS laugis.def_material
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_material (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_material (bezeichnung, sortierung) VALUES 
 ('Aluminium', 1),
 ('Beton', 2),
 ('Betonziegel', 3),
@@ -255,62 +220,63 @@ INSERT INTO development.def_material (bezeichnung, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_personen;
-CREATE TABLE IF NOT EXISTS development.def_personen
+DROP TABLE IF EXISTS laugis.def_personen;
+CREATE TABLE IF NOT EXISTS laugis.def_personen
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
-    is_ausführend bool,
+    is_ausfuehrend bool,
     sortierung integer
 );
 
-INSERT INTO development.def_personen (bezeichnung, is_ausführend, sortierung) VALUES 
+INSERT INTO laugis.def_personen (bezeichnung, is_ausfuehrend, sortierung) VALUES 
 ('Architekt:in', false, 1),
 ('Architekturbüro', false, 2),
 ('Auftraggeber:in', false, 3),
 ('Ausführung', true, 4),
 ('Bauausführung', true, 5),
 ('Bauherr:in', false, 6),
-('Umbau', true, 7),
-('Planung', false, 8),
-('Projektpartner:in', false, 9),
-('Bauleitung', false, 10),
-('Baumeister:in', true, 11),
-('Bauunternehmer:in', false, 12),
-('Eigentümer:in', false, 13),	
-('Betreiber:in', false, 14),
-('Entwurf', false, 15),
-('Projektleitung', false, 16),
-('Unterstützer:in', false, 17),
+('Hersteller', true, 7),
+('Umbau', true, 8),
+('Planung', false, 9),
+('Projektpartner:in', false, 10),
+('Bauleitung', false, 11),
+('Baumeister:in', true, 12),
+('Bauunternehmer:in', false, 13),
+('Eigentümer:in', false, 14),	
+('Betreiber:in', false, 15),
+('Entwurf', false, 16),
+('Projektleitung', false, 17),
+('Unterstützer:in', false, 18),
 ('FREITEXT', null, 999)
 ;
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_blickbeziehung;
-CREATE TABLE IF NOT EXISTS development.def_blickbeziehung
+DROP TABLE IF EXISTS laugis.def_blickbeziehung;
+CREATE TABLE IF NOT EXISTS laugis.def_blickbeziehung
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_blickbeziehung (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_blickbeziehung (bezeichnung, sortierung) VALUES 
 	('gerichtet', 1),
 	('ungerichtet', 2)
 ;
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_bearbeitung;
-CREATE TABLE IF NOT EXISTS development.def_bearbeitung
+DROP TABLE IF EXISTS laugis.def_bearbeitung;
+CREATE TABLE IF NOT EXISTS laugis.def_bearbeitung
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_bearbeitung (bezeichnung, sortierung) VALUES 
+INSERT INTO laugis.def_bearbeitung (bezeichnung, sortierung) VALUES 
 	('in Bearbeitung', 1),
 	('in Prüfung', 2),
 	('abgeschlossen', 3)
@@ -318,15 +284,15 @@ INSERT INTO development.def_bearbeitung (bezeichnung, sortierung) VALUES
 
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_dachform;
-CREATE TABLE IF NOT EXISTS development.def_dachform
+DROP TABLE IF EXISTS laugis.def_dachform;
+CREATE TABLE IF NOT EXISTS laugis.def_dachform
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_dachform (bezeichnung, sortierung) VALUES
+INSERT INTO laugis.def_dachform (bezeichnung, sortierung) VALUES
 ('Berliner Dach', 1),
 ('Bogendach', 2),
 ('Faltdach', 3),
@@ -363,18 +329,18 @@ INSERT INTO development.def_dachform (bezeichnung, sortierung) VALUES
 ('Wellendach', 34),
 ('Zeltdach', 35),
 ('FREITEXT', 999)
-
+;
 --------------------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS development.def_konstruktion;
-CREATE TABLE IF NOT EXISTS development.def_konstruktion
+DROP TABLE IF EXISTS laugis.def_konstruktion;
+CREATE TABLE IF NOT EXISTS laugis.def_konstruktion
 (
  	id integer PRIMARY KEY generated always as identity,
     bezeichnung text NOT NULL,
     sortierung integer
 );
 
-INSERT INTO development.def_konstruktion (bezeichnung, sortierung) VALUES
+INSERT INTO laugis.def_konstruktion (bezeichnung, sortierung) VALUES
 ('Binderkonstruktion', 1),
 ('Blockbauweise', 2),
 ('Blockbohlenbauweise', 3),
@@ -409,5 +375,5 @@ INSERT INTO development.def_konstruktion (bezeichnung, sortierung) VALUES
 ('Gerüstbauweise', 32),
 ('Hohlkastenkonstruktion', 33),
 ('FREITEXT', 999)
-
+;
 --------------------------------------------------------------------------------------
