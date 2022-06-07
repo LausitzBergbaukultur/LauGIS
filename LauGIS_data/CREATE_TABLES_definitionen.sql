@@ -5,17 +5,18 @@ CREATE TABLE IF NOT EXISTS laugis.def_erfasser
 (
  	id integer PRIMARY KEY generated always as identity,
     name text NOT NULL,
-    sortierung integer
+    sortierung integer,
+    username text
 );
 
-INSERT INTO laugis.def_Erfasser (name, sortierung) VALUES 
-	('Louise Warnow', 1),
-	('Franz Dietzmann', 2),
-	('Kirsten Krepelin', 3),
-	('Barbara Kuendiger', 4),
-	('Kaja Teschner', 5),
-	('Stefan Krug', 6),
-	('Tanja Trittel', 7)
+INSERT INTO laugis.def_Erfasser (name, sortierung, username) VALUES 
+	('Louise Warnow', 1, 'lwarnow'),
+	('Franz Dietzmann', 2, 'fdietzmann'),
+	('Kirsten Krepelin', 3, 'kkrepelin'),
+	('Barbara Kuendiger', 4, 'bkuendiger'),
+	('Kaja Teschner', 5, 'kteschner'),
+	('Stefan Krug', 6, 'skrug'),
+	('Tanja Trittel', 7, 'ttrittel')
 ;
 
 --------------------------------------------------------------------------------------
@@ -126,15 +127,16 @@ INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES
 	('Restaurierung', 18),
 	('Rückbau', 19),
 	('Sanierung', 20),
-	('Teilabbruch', 21),
-	('Teilrückbau', 22),
-	('Translozierung', 23),
-	('Umbau', 24),
-	('Umsiedlung', 25),
-	('Veränderung', 26),
-	('Verfüllung', 27),
-	('Wiederaufbau', 28),
-	('Teilortsabbruch', 29),
+	('Stilllegung', 21),
+	('Teilabbruch', 22),
+	('Teilrückbau', 23),
+	('Teilortsabbruch', 24),
+	('Translozierung', 25),
+	('Umbau', 26),
+	('Umsiedlung', 27),
+	('Veränderung', 28),
+	('Verfüllung', 29),
+	('Wiederaufbau', 30),
 	('FREITEXT', 999)
 ;
 

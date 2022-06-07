@@ -1,6 +1,15 @@
+#!/usr/bin/env python3  
+# -*- coding: utf-8 -*- 
+# --------------------------------------------------------------------------------------------------
+# @Author:      Stefan Krug
+# @Institution: Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+# @Date:        03.05.2022
+# @Links:       https://github.com/LausitzBergbaukultur/LauGIS
+# --------------------------------------------------------------------------------------------------
+
+import json
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox
-import json
 
 error_dialog = QErrorMessage()
 definitionen = list()
@@ -10,7 +19,6 @@ local_layer = None
 local_dialog = None
 
 def formOpen(dialog,layer,feature):
-    # Scope: Zugriff auf relevante Ressourcen ermöglichen
     global local_feature
     global local_layer
     global local_dialog
@@ -21,37 +29,40 @@ def formOpen(dialog,layer,feature):
     local_layer = layer
     local_dialog = dialog
  
-    ## check if initialised with actual feature
-    if len(feature.attributes()) > 0:
+    ## check if initialised with actual feature and correct .ui
+    if len(feature.attributes()) > 0 and dialog.findChild(QDialog, 'objektbereich') is not None:
         # create definitions table
         project = QgsProject.instance() 
-        try:
-            def_layer = project.mapLayersByName('definitionen')[0]
-        except:
-            error_dialog.showMessage('Der Definitionslayer *definitionen* konnte nicht gefunden werden.')
-        for feat in def_layer.getFeatures():
-            definitionen.append(
-                {'tabelle':         feat['tabelle'], 
-                 'id':              feat['id'], 
-                 'bezeichnung':     feat['bezeichnung'],
-                 'is_ausfuehrend':  feat['is_ausfuehrend']})
-        
-        # create sachbegriffe table    
-        try:
-            [def_layer] = project.mapLayersByName('sachbegriffe')
-        except:
-            error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
-        for feat in def_layer.getFeatures():
-            sachbegriffe.append(
-                {'id':                  feat['id'], 
-                 'sachbegriff':         feat['sachbegriff'], 
-                 'sachbegriff_ueber':   feat['sachbegriff_ueber'],
-                 'kategorie':           feat['kategorie'],
-                 'anlage':              feat['anlage'],
-                 'anlage_erweitert':    feat['anlage_erweitert'],
-                 'ref_sachbegriff_id':  feat['ref_sachbegriff_id'],
-                 'sortierung':          feat['sortierung']
-                 })
+        # check if list is already populated
+        if len(definitionen) == 0:
+            try:
+                def_layer = project.mapLayersByName('definitionen')[0]
+            except:
+                error_dialog.showMessage('Der Definitionslayer *definitionen* konnte nicht gefunden werden.')
+            for feat in def_layer.getFeatures():
+                definitionen.append(
+                    {'tabelle':         feat['tabelle'], 
+                     'id':              feat['id'], 
+                     'bezeichnung':     feat['bezeichnung'],
+                     'is_ausfuehrend':  feat['is_ausfuehrend']})
+        # check if list is already populated
+        if len(sachbegriffe) == 0:
+            # create sachbegriffe table    
+            try:
+                [def_layer] = project.mapLayersByName('sachbegriffe')
+            except:
+                error_dialog.showMessage('Der Definitionslayer *sachbegriffe* konnte nicht gefunden werden.')
+            for feat in def_layer.getFeatures():
+                sachbegriffe.append(
+                    {'id':                  feat['id'], 
+                     'sachbegriff':         feat['sachbegriff'], 
+                     'sachbegriff_ueber':   feat['sachbegriff_ueber'],
+                     'kategorie':           feat['kategorie'],
+                     'anlage':              feat['anlage'],
+                     'anlage_erweitert':    feat['anlage_erweitert'],
+                     'ref_sachbegriff_id':  feat['ref_sachbegriff_id'],
+                     'sortierung':          feat['sortierung']
+                     })
         
         # load all custom controls
         reload_controls()
@@ -129,7 +140,7 @@ def formOpen(dialog,layer,feature):
             True
         btn_literatur.clicked.connect(lambda: dlg_edit_literatur(QDialog()))
 
-##############################################################################
+####################################################################################################
 
 # refresh list on primary dialog
 def reload_controls():
@@ -180,12 +191,8 @@ def reload_controls():
     lbl_return_blickbeziehung.setText(' | '.join(blick))
 
 # Feld: Sachbegriff ###########################################################
- 
     sachbegriff = str()
-    # auf id filtern
-    if local_feature.attribute('sachbegriff') is not None:
-        #def_sachbegriffe.setSubsetString("ID = " + str(local_feature.attribute('sachbegriff')))    
-        
+    if local_feature.attribute('sachbegriff') is not None:        
         for feat in sachbegriffe:
             if str(feat['id']) == str(local_feature.attribute('sachbegriff')):
                 if feat['sachbegriff'] == 'FREITEXT':
@@ -215,13 +222,12 @@ def reload_controls():
     lbl_return_literatur = local_dialog.findChild(QLabel, 'lbl_return_literatur')
     lbl_return_literatur.setText('\n'.join(literatur))
 
-##############################################################################
+####################################################################################################
 # Feld: Datierung
-##############################################################################
+####################################################################################################
 
 # datierung definition ermitteln
 def get_def_datierung():
-    
     # build dict based upon def_datierung. unfortunately one can't simply export all features at once    
    return ({"id":feat['id'], "bezeichnung":feat['bezeichnung']}
             for feat in definitionen 
@@ -240,7 +246,7 @@ def get_rel_datierung():
     # [{"relation_id":,"datierung":"","ref_ereignis":"","alt_ereignis":""}]
     return rel_dates
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the date list
 def dlg_edit_datierung(dialog):    
@@ -316,7 +322,7 @@ def dlg_edit_datierung(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
 
 def add_row_datierung(table, date):   
     # get new row number
@@ -338,7 +344,7 @@ def add_row_datierung(table, date):
         # 3 Datierung Custom
         table.setItem(row, 3, QTableWidgetItem(date['alt_ereignis']))
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_datierung(dialog):
@@ -370,9 +376,9 @@ def accept_edit_datierung(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
       
-##############################################################################
+####################################################################################################
 # Feld: Funktion / Nutzung
-##############################################################################
+####################################################################################################
 
 # Liste mit Funktionen ermitteln
 def get_rel_nutzung():
@@ -383,7 +389,7 @@ def get_rel_nutzung():
     # [{"relation_id":,"nutzungsart":"","datierung":""}]
     return relations
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the nutzung list
 def dlg_edit_nutzung(dialog):    
@@ -459,7 +465,7 @@ def dlg_edit_nutzung(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
 
 def add_row_nutzung(table, rel):   
     # get new row number
@@ -474,7 +480,7 @@ def add_row_nutzung(table, rel):
         # 2 Datierung Custom
         table.setItem(row, 2, QTableWidgetItem(rel['datierung']))
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_nutzung(dialog):
@@ -500,9 +506,9 @@ def accept_edit_nutzung(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
-##############################################################################
+####################################################################################################
 # Feld: Personen
-##############################################################################
+####################################################################################################
 
 # datierung definition ermitteln
 def get_def_personen():
@@ -522,10 +528,9 @@ def get_rel_personen():
                       'alt_funktion'    :rel['alt_funktion'],
                       'is_sozietaet'    :rel['is_sozietaet']}
                      for rel in json.loads(local_feature.attribute('return_personen'))]
-    # [{"relation_id":,"bezeichnung":"","ref_funktion":"","alt_funktion":"", "is_sozietaet":bool}]
     return rel_person
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the date list
 def dlg_edit_personen(dialog):    
@@ -601,7 +606,7 @@ def dlg_edit_personen(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
 
 def add_row_personen(table, rel):   
     # get new row number
@@ -631,7 +636,7 @@ def add_row_personen(table, rel):
         # 4 set checkbox state
         is_sozietaet.setCheckState(Qt.Checked if rel['is_sozietaet'] else Qt.Unchecked) 
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_personen(dialog):
@@ -664,9 +669,9 @@ def accept_edit_personen(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
       
-##############################################################################
+####################################################################################################
 # Feld: Erfasser:in
-##############################################################################
+####################################################################################################
             
 # Ermittelt def_erfasser Liste und ergänzt diese Liste um die übergebenen Werte
 def get_rel_erfasser():   
@@ -693,7 +698,7 @@ def get_rel_erfasser():
     # return combined list
     return rel_erfasser
 
-###############################################################################
+####################################################################################################
 
 # defines and opens a dialog to edit the creator list
 def dlg_edit_erfasser(dialog):
@@ -768,7 +773,7 @@ def dlg_edit_erfasser(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_erfasser(dlg_erfasser):
@@ -794,9 +799,9 @@ def accept_edit_erfasser(dlg_erfasser):
     # Aktualisierung des Dialogs erzwingen
     reload_controls()
  
-##############################################################################
+####################################################################################################
 # Feld: Blickbeziehung
-##############################################################################
+####################################################################################################
 
 # datierung definition ermitteln
 def get_def_blickbeziehung():
@@ -819,7 +824,7 @@ def get_rel_blickbeziehung():
     # [{"relation_id":,"beschreibung":"","rel_objekt_nr":"","ref_blick":""}]
     return rel_blick
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the blickbeziehung list
 def dlg_edit_blickbeziehung(dialog):    
@@ -895,7 +900,7 @@ def dlg_edit_blickbeziehung(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
 
 def add_row_blickbeziehung(table, blick):   
     # get new row number
@@ -917,7 +922,7 @@ def add_row_blickbeziehung(table, blick):
         # 3 set combobox value
         cbx.setCurrentText(blick['ref_blick'])
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_blickbeziehung(dialog):
@@ -949,9 +954,9 @@ def accept_edit_blickbeziehung(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
-##############################################################################
+####################################################################################################
 # Feld: Sachbegriff
-##############################################################################
+####################################################################################################
 
 # defines and opens a dialog to edit the blickbeziehung list
 def dlg_edit_sachbegriff(dialog):    
@@ -1035,8 +1040,8 @@ def dlg_edit_sachbegriff(dialog):
         fill_table_sachbegriff(dialog, table_ober, None, alle_sachbegriffe.isChecked()))
             
     # setup layout & dialog
-    qhbox.addWidget(table_ober)
-    qhbox.addWidget(table_erw)
+    qhbox.addWidget(table_ober, 1)
+    qhbox.addWidget(table_erw, 1)
     form_left.setContentsMargins(6,12,6,12) # left, top, right, bottom
     form_left.addRow(QLabel('alle Sachbegriffe anzeigen:'), alle_sachbegriffe)
     form_left.addRow(QLabel('Sachbegriff alternativ:'), sachbegriff_alt)
@@ -1050,7 +1055,7 @@ def dlg_edit_sachbegriff(dialog):
     dialog.show()
     dialog.adjustSize()
     
-###############################################################################        
+####################################################################################################        
    
 # schreibt die rows für beide sachbegriff-tabellen    
 def fill_table_sachbegriff(dialog, dest_table, src_table, alle_sachbegriffe):
@@ -1130,8 +1135,9 @@ def fill_table_sachbegriff(dialog, dest_table, src_table, alle_sachbegriffe):
                 sachbegriff.setFlags(sachbegriff.flags() & ~Qt.ItemIsEditable)
                 dest_table.setItem(row, 0, QTableWidgetItem(str(feat['id'])))
                 dest_table.setItem(row, 1, sachbegriff)
+                dest_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
  
-###############################################################################        
+####################################################################################################        
    
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_sachbegriff(dialog):
@@ -1166,9 +1172,9 @@ def accept_edit_sachbegriff(dialog):
     
     reload_controls()    
     
-##############################################################################
+####################################################################################################
 # Feld: Bilder
-##############################################################################
+####################################################################################################
 
 # Liste mit Bildern ermitteln
 def get_rel_bilder():
@@ -1179,7 +1185,7 @@ def get_rel_bilder():
     # [{"relation_id":,"nutzungsart":"","datierung":""}]
     return relations
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the nutzung list
 def dlg_edit_bilder(dialog):    
@@ -1264,7 +1270,7 @@ def dlg_edit_bilder(dialog):
     dialog.show()
     dialog.adjustSize()
 
-###############################################################################        
+####################################################################################################        
 
 # prüft bilder_anmerkungen auf zu importierende Bildeinträge und fügt diese der Tabelle hinzu
 def check_bilder(table):
@@ -1273,7 +1279,7 @@ def check_bilder(table):
               in local_dialog.findChild(QLineEdit, 'bilder_anmerkung').text().split(';')]:
         add_row_bilder(table, {"relation_id": 'NULL',"dateiname":bild,"intern":False})
     
-###############################################################################        
+####################################################################################################        
 
 def add_row_bilder(table, rel):   
     # get new row number
@@ -1294,7 +1300,7 @@ def add_row_bilder(table, rel):
         # 2 kennzeichen inten
         intern.setCheckState(Qt.Checked if rel['intern'] else Qt.Unchecked) 
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_bilder(dialog):
@@ -1320,9 +1326,9 @@ def accept_edit_bilder(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
-##############################################################################
+####################################################################################################
 # Feld: Literatur
-##############################################################################
+####################################################################################################
 
 # Liste mit Literatur ermitteln
 def get_rel_literatur():
@@ -1333,7 +1339,7 @@ def get_rel_literatur():
     # [{"relation_id":,"literatur":"","lib_ref":""}]
     return relations
     
-###############################################################################        
+####################################################################################################        
 
 # defines and opens a dialog to edit the literatur list
 def dlg_edit_literatur(dialog):    
@@ -1409,7 +1415,7 @@ def dlg_edit_literatur(dialog):
     dialog.show()
     dialog.adjustSize()
 
-###############################################################################        
+####################################################################################################        
 
 def add_row_literatur(table, rel):   
     # get new row number
@@ -1422,9 +1428,9 @@ def add_row_literatur(table, rel):
         # 1 literaturangabe
         table.setItem(row, 1, QTableWidgetItem(rel['literatur']))
         # 2 lib referenz
-        table.setItem(row, 1, QTableWidgetItem(rel['lib_ref']))
+        table.setItem(row, 2, QTableWidgetItem(rel['lib_ref']))
     
-###############################################################################        
+####################################################################################################        
     
 # accept methode zur Übernahme geänderter Werte
 def accept_edit_literatur(dialog):
@@ -1450,30 +1456,4 @@ def accept_edit_literatur(dialog):
     # Aktualisierung des Hauptdialogs erzwingen
     reload_controls()
     
-###############################################################################
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+####################################################################################################

@@ -21,7 +21,7 @@ CREATE OR REPLACE FUNCTION laugis.update_obj_basis(
   _beschreibung text,              -- 9980
   _beschreibung_ergaenzung text,   -- 9980
   _lagebeschreibung text,          -- 5125
-   _notiz_intern text,              -- 9984 '9980 = Kommentar'
+  _notiz_intern text,              -- 9984 '9980 = Kommentar'
   _hida_nr text,                   -- 5000
   _bilder_anmerkung text,          -- temp und anmerkung
 

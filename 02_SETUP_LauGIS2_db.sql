@@ -4,7 +4,7 @@
 -- Befüllt Definitions-Tabellen mit den vorgegebenen Werten.
 -- Erwartet eine PostgreSQL Datenbank mit dem Schema 'laugis'.
 --
--- Stand: 2020-04-13
+-- Stand: 2020-04-27
 -- Autor: Stefan Krug
 --
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -40,12 +40,12 @@ INSERT INTO laugis.def_kategorie (bezeichnung, sortierung) VALUES
 DROP TABLE IF EXISTS laugis.def_sachbegriff;
 CREATE TABLE IF NOT EXISTS laugis.def_sachbegriff
 (
- 	id integer PRIMARY KEY generated always as identity,
+    id integer PRIMARY KEY generated always as identity,
     sachbegriff text NOT NULL,
-    kategorie smallint,		            -- fk
-    ref_sachbegriff_id integer,			-- fk Verweis auf übergeordnete Sachbegriffe
-    show_anlage bool,					-- TRUE wenn der Sachbegriff für Anlage-Objekte geeignet ist
-    sortierung integer,					
+    kategorie smallint,                 -- fk
+    ref_sachbegriff_id integer,         -- fk Verweis auf übergeordnete Sachbegriffe
+    show_anlage bool,                   -- TRUE wenn der Sachbegriff für Anlage-Objekte geeignet ist
+    sortierung integer,                 
 
 CONSTRAINT fkey_kategorie FOREIGN KEY (kategorie)
     REFERENCES laugis.def_kategorie (id) MATCH SIMPLE
@@ -340,10 +340,10 @@ VALUES
 (3,3114,3100,'Generator',FALSE,3014),
 (3,3115,3100,'Hammermühle',FALSE,3015),
 (3,3116,3100,'Kesselhaus',FALSE,3016),
-(3,3117,3100,'Kraftzentrale, elektrische',FALSE,3017),
+(3,3117,3100,'"Kraftzentrale, elektrische"',FALSE,3017),
 (3,3118,3100,'Kühlhaus',FALSE,3018),
 (3,3119,3100,'Kühlturm',FALSE,3019),
-(3,3120,3100,'Lagerhaus/‑gebäude',FALSE,3020),
+(3,3120,3100,'Lagerhaus/-gebäude',FALSE,3020),
 (3,3121,3100,'Laufkran',FALSE,3021),
 (3,3122,3100,'Lehrwerkstatt',TRUE,3022),
 (3,3123,3100,'Leitstand',FALSE,3023),
@@ -381,7 +381,7 @@ VALUES
 (3,3204,3200,'Schwefelgewinnungsanlage',FALSE,3055),
 (3,3205,3200,'Tanklager',FALSE,3056),
 (3,3001,NULL,'Montanwachsfabrik',FALSE,3057),
-(3,3300,3300,'Schwelerei/Schwelwerk',FALSE,3058),
+(3,3300,NULL,'Schwelerei/Schwelwerk',FALSE,3058),
 (3,3301,3300,'Laborgebäude',TRUE,3059),
 (3,3302,3300,'Magazin',FALSE,3060),
 (3,3303,3300,'Schornstein',TRUE,3061),
@@ -632,7 +632,6 @@ VALUES
 (5,5170,5160,'Systemgarten',FALSE,5038),
 (5,5180,5180,'Bürogebäude',FALSE,5039),
 (5,5181,5180,'Verwaltungsgebäude',FALSE,5040),
-(5,5012,NULL,'Café',FALSE,5041),
 (5,5200,5200,'Denkmal',FALSE,5042),
 (5,5201,5200,'1933/1945',FALSE,5043),
 (5,5202,5200,'1945/1989',FALSE,5044),
@@ -667,236 +666,238 @@ VALUES
 (5,5020,NULL,'Freibad',FALSE,5073),
 (5,5021,NULL,'Freilichtmuseum',FALSE,5074),
 (5,5022,NULL,'Gartenstadt',FALSE,5075),
-(5,5023,NULL,'Gästehaus',FALSE,5076),
-(5,5250,5250,'Gaststätte',FALSE,5077),
-(5,5251,5250,'Saal',FALSE,5078),
-(5,5260,5260,'Gastwirtschaftsgarten',FALSE,5079),
-(5,5261,5260,'Freisitzfläche',FALSE,5080),
-(5,5262,5260,'Freisitzterrasse',FALSE,5081),
-(5,5270,5270,'Gedenkstein',FALSE,5082),
-(5,5271,5270,'1933/1945',FALSE,5083),
-(5,5272,5270,'1945/1989',FALSE,5084),
-(5,5273,5270,'bis 1933',FALSE,5085),
-(5,5274,5270,'Gedenkstein 1. Weltkrieg',FALSE,5086),
-(5,5275,5270,'Gedenkstein 2. Weltkrieg',FALSE,5087),
-(5,5276,5270,'Gedenkstein Deutsche',FALSE,5088),
-(5,5277,5270,'Gedenkstein Deutsch-Franz. Krieg',FALSE,5089),
-(5,5278,5270,'Gedenkstein Franzosen',FALSE,5090),
-(5,5279,5270,'Gedenkstein Italiener',FALSE,5091),
-(5,5280,5270,'Gedenkstein Polen',FALSE,5092),
-(5,5281,5270,'Gedenkstein Sowjetbürger',FALSE,5093),
-(5,5282,5270,'Jüdisch',FALSE,5094),
-(5,5283,5270,'Napoleon',FALSE,5095),
-(5,5284,5270,'VdN/OdF',FALSE,5096),
-(5,5300,5300,'Gedenktafel',FALSE,5097),
-(5,5301,5300,'1933/1945',FALSE,5098),
-(5,5302,5300,'1945/1989',FALSE,5099),
-(5,5303,5300,'bis 1933',FALSE,5100),
-(5,5304,5300,'Gedenktafel 1. Weltkrieg',FALSE,5101),
-(5,5305,5300,'Gedenktafel 2. Weltkrieg',FALSE,5102),
-(5,5306,5300,'Gedenktafel Deutsche',FALSE,5103),
-(5,5307,5300,'Gedenktafel Deutsch-Franz. Krieg',FALSE,5104),
-(5,5308,5300,'Gedenktafel Franzosen',FALSE,5105),
-(5,5309,5300,'Gedenktafel Italiener',FALSE,5106),
-(5,5310,5300,'Gedenktafel Polen',FALSE,5107),
-(5,5311,5300,'Gedenktafel Sowjetbürger',FALSE,5108),
-(5,5312,5300,'Jüdisch',FALSE,5109),
-(5,5313,5300,'Napoleon',FALSE,5110),
-(5,5314,5300,'VdN/OdF',FALSE,5111),
-(5,5320,5320,'Gehölz',FALSE,5112),
-(5,5321,5320,'Dorfeiche',FALSE,5113),
-(5,5322,5320,'Dorflinde',FALSE,5114),
-(5,5323,5320,'Formgehölz',FALSE,5115),
-(5,5330,5330,'Geschäftshaus',FALSE,5116),
-(5,5331,5330,'Krankenkasse',TRUE,5117),
-(5,5332,5330,'Versicherungsgebäude',FALSE,5118),
-(5,5024,NULL,'Gewerbeschule',FALSE,5119),
-(5,5025,NULL,'Gewerkschaftshaus',FALSE,5120),
-(5,5026,NULL,'Hallenbad',FALSE,5121),
-(5,5027,NULL,'Handelshaus',FALSE,5122),
-(5,5028,NULL,'Handelsschule',FALSE,5123),
-(5,5340,5340,'Hausgarten/Wohngarten',FALSE,5124),
-(5,5341,5340,'Blumengarten',FALSE,5125),
-(5,5342,5340,'Gartenhof',FALSE,5126),
-(5,5343,5340,'Gartenplatz',FALSE,5127),
-(5,5344,5340,'Gemüsegarten',FALSE,5128),
-(5,5345,5340,'Obstgarten',FALSE,5129),
-(5,5346,5340,'Vorgarten',FALSE,5130),
-(5,5029,NULL,'Hochschule',FALSE,5131),
-(5,5350,5350,'Hotel',FALSE,5132),
-(5,5351,5350,'Kurhotel',FALSE,5133),
-(5,5030,NULL,'Internat',FALSE,5134),
-(5,5031,NULL,'Jugendheim/Kinderheim',FALSE,5135),
-(5,5032,NULL,'Jugendherberge/Ferienlager/Ferienheim',FALSE,5136),
-(5,5033,NULL,'Kantine',FALSE,5137),
-(5,5034,NULL,'Kaufhaus',FALSE,5138),
-(5,5035,NULL,'Kaufmannshaus',FALSE,5139),
-(5,5036,NULL,'Kegelbahn',FALSE,5140),
-(5,5037,NULL,'Kinderbewahranstalt',FALSE,5141),
-(5,5038,NULL,'Kindergarten',FALSE,5142),
-(5,5039,NULL,'Kinderheim',FALSE,5143),
-(5,5040,NULL,'Kinderkrippe',FALSE,5144),
-(5,5041,NULL,'Kino',FALSE,5145),
-(5,5042,NULL,'Kiosk',FALSE,5146),
-(5,5043,NULL,'Kommunikationszentrum',FALSE,5147),
-(5,5044,NULL,'Kulturhaus',FALSE,5148),
-(5,5360,5360,'Künstlerische Bauausstattung',FALSE,5149),
-(5,5361,5360,'Bleiglasfenster',FALSE,5150),
-(5,5362,5360,'Farbglasfenster',FALSE,5151),
-(5,5363,5360,'Fliesenfußboden',FALSE,5152),
-(5,5364,5360,'Handlauf',FALSE,5153),
-(5,5365,5360,'Holzdecke',FALSE,5154),
-(5,5366,5360,'Stuck',FALSE,5155),
-(5,5367,5360,'Wandvertäfelung',FALSE,5156),
-(5,5045,NULL,'Kurbad',FALSE,5157),
-(5,5046,NULL,'Kureinrichtung',FALSE,5158),
-(5,5370,5370,'Laden',FALSE,5159),
-(5,5371,5370,'Bäcker',FALSE,5160),
-(5,5372,5370,'Fleischer',FALSE,5161),
-(5,5373,5370,'Verkaufspavillon',FALSE,5162),
-(5,5047,NULL,'Lagerhaus',FALSE,5163),
-(5,5048,NULL,'Landhaus',FALSE,5164),
-(5,5049,NULL,'Ledigenwohnheim',FALSE,5165),
-(5,5050,NULL,'Lehrpfad',FALSE,5166),
-(5,5051,NULL,'Markthalle',FALSE,5167),
-(5,5380,5380,'Mietshaus',FALSE,5168),
-(5,5381,5380,'Doppelmietshaus',FALSE,5169),
-(5,5052,NULL,'Museum',FALSE,5170),
-(5,5400,5400,'Parkanlage',FALSE,5171),
-(5,5401,5400,'Blumengarten',FALSE,5172),
-(5,5402,5400,'Dahliengarten',FALSE,5173),
-(5,5403,5400,'Fabrikpark',FALSE,5174),
-(5,5404,5400,'Kulturpark',FALSE,5175),
-(5,5405,5400,'Rosengarten',FALSE,5176),
-(5,5406,5400,'Spielanlage',FALSE,5177),
-(5,5407,5400,'Sportanlage',FALSE,5178),
-(5,5408,5400,'Stadtpark',FALSE,5179),
-(5,5409,5400,'Staudengarten',FALSE,5180),
-(5,5410,5400,'Volkspark',FALSE,5181),
-(5,5411,5400,'Waldpark',FALSE,5182),
-(5,5420,5420,'Pension',FALSE,5183),
-(5,5421,5420,'Kurpension',FALSE,5184),
-(5,5053,NULL,'Pflegeheim',FALSE,5185),
-(5,5430,5430,'Platz',FALSE,5186),
-(5,5431,5430,'Festplatz',FALSE,5187),
-(5,5432,5430,'Marktplatz',FALSE,5188),
-(5,5054,NULL,'Poliklinik/ Krankenhaus',FALSE,5189),
-(5,5055,NULL,'Post',FALSE,5190),
-(5,5440,5440,'Sammlung',FALSE,5191),
-(5,5441,5440,'Technik',FALSE,5192),
-(5,5056,NULL,'Schlauchturm',FALSE,5193),
-(5,5450,5450,'Schlossgarten / -park',FALSE,5194),
-(5,5451,5450,'Baumgarten/Obstgarten',FALSE,5195),
-(5,5452,5450,'Boskett',FALSE,5196),
-(5,5453,5450,'Boulingrin',FALSE,5197),
-(5,5454,5450,'Eremitage',FALSE,5198),
-(5,5455,5450,'Küchengarten',FALSE,5199),
-(5,5456,5450,'Orangerieparterre',FALSE,5200),
-(5,5457,5450,'Parterre',FALSE,5201),
-(5,5458,5450,'Schlossterrasse',FALSE,5202),
-(5,5459,5450,'Ziergarten',FALSE,5203),
-(5,5460,5450,'Blumengarten',FALSE,5204),
-(5,5461,5450,'Pleasure-ground',FALSE,5205),
-(5,5462,5450,'Rosengarten',FALSE,5206),
-(5,5463,5450,'Schlossterrasse',FALSE,5207),
-(5,5057,NULL,'Schule',FALSE,5208),
-(5,5058,NULL,'Schutzhütte',FALSE,5209),
-(5,5059,NULL,'Seminar',FALSE,5210),
-(5,5470,5470,'Siedlung',FALSE,5211),
-(5,5471,5470,'Doppelwohnhaus',FALSE,5212),
-(5,5472,5470,'Einfamilienwohnhaus',FALSE,5213),
-(5,5473,5470,'Einfriedung',FALSE,5214),
-(5,5474,5470,'Eisenbahnersiedlung',FALSE,5215),
-(5,5475,5470,'Garage',FALSE,5216),
-(5,5476,5470,'Heizhaus',FALSE,5217),
-(5,5477,5470,'Mehrfamilienwohnhaus',FALSE,5218),
-(5,5478,5470,'Reihenhaus',FALSE,5219),
-(5,5479,5470,'Siedlungshaus',FALSE,5220),
-(5,5480,5470,'Waschhaus',FALSE,5221),
-(5,5481,5470,'Werkssiedlung',FALSE,5222),
-(5,5482,5470,'Wirtschaftsgebäude',FALSE,5223),
-(5,5483,5470,'Wohngrün',FALSE,5224),
-(5,5060,NULL,'Sozialeinrichtung',FALSE,5225),
-(5,5061,NULL,'Sparkasse',FALSE,5226),
-(5,5062,NULL,'Spedition',FALSE,5227),
-(5,5063,NULL,'Spielpavillon',FALSE,5228),
-(5,5064,NULL,'Sporthalle',FALSE,5229),
-(5,5065,NULL,'Sportlerheim',FALSE,5230),
-(5,5066,NULL,'Sportplatz',FALSE,5231),
-(5,5067,NULL,'Spritzenhaus',FALSE,5232),
-(5,5490,5490,'Stadion',FALSE,5233),
-(5,5491,5490,'Tribüne',FALSE,5234),
-(5,5500,5500,'Stadt- und Siedlungsgrün',FALSE,5235),
-(5,5501,5500,'Blockinnenhof',FALSE,5236),
-(5,5502,5500,'Gebäudevorplatz',FALSE,5237),
-(5,5503,5500,'Kirchplatz/Kirchpark',FALSE,5238),
-(5,5504,5500,'Mietergarten',TRUE,5239),
-(5,5505,5500,'Schmuckplatz',FALSE,5240),
-(5,5506,5500,'Siedlungsgrün',FALSE,5241),
-(5,5507,5500,'Spielplatz',FALSE,5242),
-(5,5508,5500,'Stadtplatz',FALSE,5243),
-(5,5509,5500,'Stadtwald',FALSE,5244),
-(5,5510,5500,'Straßengrün',FALSE,5245),
-(5,5511,5500,'Vorgarten',FALSE,5246),
-(5,5512,5500,'Wohngrün',FALSE,5247),
-(5,5068,NULL,'Stadtquartier',FALSE,5248),
-(5,5069,NULL,'Technikum',FALSE,5249),
-(5,5070,NULL,'Treppenanlage',FALSE,5250),
-(5,5071,NULL,'Turnhalle',FALSE,5251),
-(5,5072,NULL,'Verbrauchergenossenschaft',FALSE,5252),
-(5,5073,NULL,'Versorgungszentrum',FALSE,5253),
-(5,5520,5520,'Villa',FALSE,5254),
-(5,5521,5520,'Direktorenvilla',FALSE,5255),
-(5,5522,5520,'Fabrikantenvilla',FALSE,5256),
-(5,5530,5530,'Villengarten/Landhausgarten',FALSE,5257),
-(5,5531,5530,'Badegarten',FALSE,5258),
-(5,5532,5530,'Blumengarten',FALSE,5259),
-(5,5533,5530,'Gartenhof',FALSE,5260),
-(5,5534,5530,'Gartenplatz',FALSE,5261),
-(5,5535,5530,'Gemüsegarten',FALSE,5262),
-(5,5536,5530,'Obstgarten',FALSE,5263),
-(5,5537,5530,'Senkgarten',FALSE,5264),
-(5,5538,5530,'Tennisplatz',FALSE,5265),
-(5,5539,5530,'Vorgarten',FALSE,5266),
-(5,5074,NULL,'Waisenhaus',FALSE,5267),
-(5,5550,5550,'Wand- und Deckenbild',FALSE,5268),
-(5,5551,5550,'Malerei',FALSE,5269),
-(5,5552,5550,'Mosaik',FALSE,5270),
-(5,5553,5550,'Sgraffito',FALSE,5271),
-(5,5075,NULL,'Wasserelement',FALSE,5272),
-(5,5560,5560,'Wegesystem',FALSE,5273),
-(5,5561,5560,'Promenade',FALSE,5274),
-(5,5562,5560,'Sitzplatz',FALSE,5275),
-(5,5570,5570,'Werbung',FALSE,5276),
-(5,5571,5570,'Leuchtwerbung',FALSE,5277),
-(5,5076,NULL,'Wildgehege',FALSE,5278),
-(5,5077,NULL,'Wochenendhaus',FALSE,5279),
-(5,5078,NULL,'Wohn- und Bürogebäude',FALSE,5280),
-(5,5079,NULL,'Wohn- und Geschäftshaus',FALSE,5281),
-(5,5600,5600,'Wohnanlage',FALSE,5282),
-(5,5601,5600,'Doppelwohnhaus',FALSE,5283),
-(5,5602,5600,'Einfriedung',FALSE,5284),
-(5,5603,5600,'Garage',FALSE,5285),
-(5,5604,5600,'Heizhaus',FALSE,5286),
-(5,5605,5600,'Mehrfamilienwohnhaus',FALSE,5287),
-(5,5606,5600,'Reihenhaus',FALSE,5288),
-(5,5607,5600,'Waschhaus',FALSE,5289),
-(5,5608,5600,'Wirtschaftsgebäude',FALSE,5290),
-(5,5609,5600,'Wohngrün',FALSE,5291),
-(5,5080,NULL,'Wohnblock',FALSE,5292),
-(5,5620,5620,'Wohnhaus',FALSE,5293),
-(5,5621,5620,'Beamtenwohnhaus',FALSE,5294),
-(5,5622,5620,'Blockstube',FALSE,5295),
-(5,5623,5620,'Direktorenwohnhaus',FALSE,5296),
-(5,5624,5620,'Doppelwohnhaus',FALSE,5297),
-(5,5625,5620,'Einfamilienwohnhaus',FALSE,5298),
-(5,5626,5620,'Fabrikantenwohnhaus',FALSE,5299),
-(5,5627,5620,'Mehrfamilienwohnhaus',FALSE,5300),
-(5,5628,5620,'Oberlaube',FALSE,5301),
-(5,5629,5620,'Reihenhaus',FALSE,5302),
-(5,5630,5620,'Vorlaube',FALSE,5303),
-(5,5081,NULL,'Wohnturm',FALSE,5304),
-(5,5082,NULL,'Zeltplatz',FALSE,5305),
+(5,5640,5640,'Gastgewerbe',FALSE,5076),
+(5,5641,5640,'Ausflugslokal',FALSE,5077),
+(5,5642,5640,'Café',FALSE,5078),
+(5,5643,5640,'Gästehaus',FALSE,5079),
+(5,5644,5640,'Gaststätte',FALSE,5080),
+(5,5645,5640,'Gastwirtschaftsgarten',FALSE,5081),
+(5,5646,5640,'Hotel',FALSE,5082),
+(5,5647,5640,'Kurhotel',FALSE,5083),
+(5,5270,5270,'Gedenkstein',FALSE,5084),
+(5,5271,5270,'1933/1945',FALSE,5085),
+(5,5272,5270,'1945/1989',FALSE,5086),
+(5,5273,5270,'bis 1933',FALSE,5087),
+(5,5274,5270,'Gedenkstein 1. Weltkrieg',FALSE,5088),
+(5,5275,5270,'Gedenkstein 2. Weltkrieg',FALSE,5089),
+(5,5276,5270,'Gedenkstein Deutsche',FALSE,5090),
+(5,5277,5270,'Gedenkstein Deutsch-Franz. Krieg',FALSE,5091),
+(5,5278,5270,'Gedenkstein Franzosen',FALSE,5092),
+(5,5279,5270,'Gedenkstein Italiener',FALSE,5093),
+(5,5280,5270,'Gedenkstein Polen',FALSE,5094),
+(5,5281,5270,'Gedenkstein Sowjetbürger',FALSE,5095),
+(5,5282,5270,'Jüdisch',FALSE,5096),
+(5,5283,5270,'Napoleon',FALSE,5097),
+(5,5284,5270,'VdN/OdF',FALSE,5098),
+(5,5300,5300,'Gedenktafel',FALSE,5099),
+(5,5301,5300,'1933/1945',FALSE,5100),
+(5,5302,5300,'1945/1989',FALSE,5101),
+(5,5303,5300,'bis 1933',FALSE,5102),
+(5,5304,5300,'Gedenktafel 1. Weltkrieg',FALSE,5103),
+(5,5305,5300,'Gedenktafel 2. Weltkrieg',FALSE,5104),
+(5,5306,5300,'Gedenktafel Deutsche',FALSE,5105),
+(5,5307,5300,'Gedenktafel Deutsch-Franz. Krieg',FALSE,5106),
+(5,5308,5300,'Gedenktafel Franzosen',FALSE,5107),
+(5,5309,5300,'Gedenktafel Italiener',FALSE,5108),
+(5,5310,5300,'Gedenktafel Polen',FALSE,5109),
+(5,5311,5300,'Gedenktafel Sowjetbürger',FALSE,5110),
+(5,5312,5300,'Jüdisch',FALSE,5111),
+(5,5313,5300,'Napoleon',FALSE,5112),
+(5,5314,5300,'VdN/OdF',FALSE,5113),
+(5,5320,5320,'Gehölz',FALSE,5114),
+(5,5321,5320,'Dorfeiche',FALSE,5115),
+(5,5322,5320,'Dorflinde',FALSE,5116),
+(5,5323,5320,'Formgehölz',FALSE,5117),
+(5,5330,5330,'Geschäftshaus',FALSE,5118),
+(5,5331,5330,'Krankenkasse',TRUE,5119),
+(5,5332,5330,'Versicherungsgebäude',FALSE,5120),
+(5,5024,NULL,'Gewerbeschule',FALSE,5121),
+(5,5025,NULL,'Gewerkschaftshaus',FALSE,5122),
+(5,5026,NULL,'Hallenbad',FALSE,5123),
+(5,5027,NULL,'Handelshaus',FALSE,5124),
+(5,5028,NULL,'Handelsschule',FALSE,5125),
+(5,5340,5340,'Hausgarten/Wohngarten',FALSE,5126),
+(5,5341,5340,'Blumengarten',FALSE,5127),
+(5,5342,5340,'Gartenhof',FALSE,5128),
+(5,5343,5340,'Gartenplatz',FALSE,5129),
+(5,5344,5340,'Gemüsegarten',FALSE,5130),
+(5,5345,5340,'Obstgarten',FALSE,5131),
+(5,5346,5340,'Vorgarten',FALSE,5132),
+(5,5029,NULL,'Hochschule',FALSE,5133),
+(5,5350,5350,'Hotel',FALSE,5134),
+(5,5030,NULL,'Internat',FALSE,5135),
+(5,5031,NULL,'Jugendheim/Kinderheim',FALSE,5136),
+(5,5032,NULL,'Jugendherberge/Ferienlager/Ferienheim',FALSE,5137),
+(5,5033,NULL,'Kantine',FALSE,5138),
+(5,5034,NULL,'Kaufhaus',FALSE,5139),
+(5,5035,NULL,'Kaufmannshaus',FALSE,5140),
+(5,5036,NULL,'Kegelbahn',FALSE,5141),
+(5,5037,NULL,'Kinderbewahranstalt',FALSE,5142),
+(5,5038,NULL,'Kindergarten',FALSE,5143),
+(5,5039,NULL,'Kinderheim',FALSE,5144),
+(5,5040,NULL,'Kinderkrippe',FALSE,5145),
+(5,5041,NULL,'Kino',FALSE,5146),
+(5,5042,NULL,'Kiosk',FALSE,5147),
+(5,5043,NULL,'Kommunikationszentrum',FALSE,5148),
+(5,5044,NULL,'Kulturhaus',FALSE,5149),
+(5,5360,5360,'Künstlerische Bauausstattung',FALSE,5150),
+(5,5361,5360,'Bleiglasfenster',FALSE,5151),
+(5,5362,5360,'Farbglasfenster',FALSE,5152),
+(5,5363,5360,'Fliesenfußboden',FALSE,5153),
+(5,5364,5360,'Handlauf',FALSE,5154),
+(5,5365,5360,'Holzdecke',FALSE,5155),
+(5,5366,5360,'Stuck',FALSE,5156),
+(5,5367,5360,'Wandvertäfelung',FALSE,5157),
+(5,5045,NULL,'Kurbad',FALSE,5158),
+(5,5046,NULL,'Kureinrichtung',FALSE,5159),
+(5,5370,5370,'Laden',FALSE,5160),
+(5,5371,5370,'Bäckerei',FALSE,5161),
+(5,5372,5370,'Fleischerei',FALSE,5162),
+(5,5373,5370,'Verkaufspavillon',FALSE,5163),
+(5,5047,NULL,'Lagerhaus',FALSE,5164),
+(5,5048,NULL,'Landhaus',FALSE,5165),
+(5,5049,NULL,'Ledigenwohnheim',FALSE,5166),
+(5,5050,NULL,'Lehrpfad',FALSE,5167),
+(5,5051,NULL,'Markthalle',FALSE,5168),
+(5,5380,5380,'Mietshaus',FALSE,5169),
+(5,5381,5380,'Doppelmietshaus',FALSE,5170),
+(5,5052,NULL,'Museum',FALSE,5171),
+(5,5400,5400,'Parkanlage',FALSE,5172),
+(5,5401,5400,'Blumengarten',FALSE,5173),
+(5,5402,5400,'Dahliengarten',FALSE,5174),
+(5,5403,5400,'Fabrikpark',FALSE,5175),
+(5,5404,5400,'Kulturpark',FALSE,5176),
+(5,5405,5400,'Rosengarten',FALSE,5177),
+(5,5406,5400,'Spielanlage',FALSE,5178),
+(5,5407,5400,'Sportanlage',FALSE,5179),
+(5,5408,5400,'Stadtpark',FALSE,5180),
+(5,5409,5400,'Staudengarten',FALSE,5181),
+(5,5410,5400,'Volkspark',FALSE,5182),
+(5,5411,5400,'Waldpark',FALSE,5183),
+(5,5420,5420,'Pension',FALSE,5184),
+(5,5421,5420,'Kurpension',FALSE,5185),
+(5,5053,NULL,'Pflegeheim',FALSE,5186),
+(5,5430,5430,'Platz',FALSE,5187),
+(5,5431,5430,'Festplatz',FALSE,5188),
+(5,5432,5430,'Marktplatz',FALSE,5189),
+(5,5054,NULL,'Poliklinik/ Krankenhaus',FALSE,5190),
+(5,5055,NULL,'Post',FALSE,5191),
+(5,5440,5440,'Sammlung',FALSE,5192),
+(5,5441,5440,'Technik',FALSE,5193),
+(5,5056,NULL,'Schlauchturm',FALSE,5194),
+(5,5450,5450,'Schlossgarten / -park',FALSE,5195),
+(5,5451,5450,'Baumgarten/Obstgarten',FALSE,5196),
+(5,5452,5450,'Boskett',FALSE,5197),
+(5,5453,5450,'Boulingrin',FALSE,5198),
+(5,5454,5450,'Eremitage',FALSE,5199),
+(5,5455,5450,'Küchengarten',FALSE,5200),
+(5,5456,5450,'Orangerieparterre',FALSE,5201),
+(5,5457,5450,'Parterre',FALSE,5202),
+(5,5458,5450,'Schlossterrasse',FALSE,5203),
+(5,5459,5450,'Ziergarten',FALSE,5204),
+(5,5460,5450,'Blumengarten',FALSE,5205),
+(5,5461,5450,'Pleasure-ground',FALSE,5206),
+(5,5462,5450,'Rosengarten',FALSE,5207),
+(5,5463,5450,'Schlossterrasse',FALSE,5208),
+(5,5057,NULL,'Schule',FALSE,5209),
+(5,5058,NULL,'Schutzhütte',FALSE,5210),
+(5,5059,NULL,'Seminar',FALSE,5211),
+(5,5470,5470,'Siedlung',FALSE,5212),
+(5,5471,5470,'Doppelwohnhaus',FALSE,5213),
+(5,5472,5470,'Einfamilienwohnhaus',FALSE,5214),
+(5,5473,5470,'Einfriedung',FALSE,5215),
+(5,5474,5470,'Eisenbahnersiedlung',FALSE,5216),
+(5,5475,5470,'Garage',FALSE,5217),
+(5,5476,5470,'Heizhaus',FALSE,5218),
+(5,5477,5470,'Mehrfamilienwohnhaus',FALSE,5219),
+(5,5478,5470,'Reihenhaus',FALSE,5220),
+(5,5479,5470,'Siedlungshaus',FALSE,5221),
+(5,5480,5470,'Waschhaus',FALSE,5222),
+(5,5481,5470,'Werkssiedlung',FALSE,5223),
+(5,5482,5470,'Wirtschaftsgebäude',FALSE,5224),
+(5,5483,5470,'Wohngrün',FALSE,5225),
+(5,5060,NULL,'Sozialeinrichtung',FALSE,5226),
+(5,5061,NULL,'Sparkasse',FALSE,5227),
+(5,5062,NULL,'Spedition',FALSE,5228),
+(5,5063,NULL,'Spielpavillon',FALSE,5229),
+(5,5064,NULL,'Sporthalle',FALSE,5230),
+(5,5065,NULL,'Sportlerheim',FALSE,5231),
+(5,5066,NULL,'Sportplatz',FALSE,5232),
+(5,5067,NULL,'Spritzenhaus',FALSE,5233),
+(5,5490,5490,'Stadion',FALSE,5234),
+(5,5491,5490,'Tribüne',FALSE,5235),
+(5,5500,5500,'Stadt- und Siedlungsgrün',FALSE,5236),
+(5,5501,5500,'Blockinnenhof',FALSE,5237),
+(5,5502,5500,'Gebäudevorplatz',FALSE,5238),
+(5,5503,5500,'Kirchplatz/Kirchpark',FALSE,5239),
+(5,5504,5500,'Mietergarten',TRUE,5240),
+(5,5505,5500,'Schmuckplatz',FALSE,5241),
+(5,5506,5500,'Siedlungsgrün',FALSE,5242),
+(5,5507,5500,'Spielplatz',FALSE,5243),
+(5,5508,5500,'Stadtplatz',FALSE,5244),
+(5,5509,5500,'Stadtwald',FALSE,5245),
+(5,5510,5500,'Straßengrün',FALSE,5246),
+(5,5511,5500,'Vorgarten',FALSE,5247),
+(5,5512,5500,'Wohngrün',FALSE,5248),
+(5,5068,NULL,'Stadtquartier',FALSE,5249),
+(5,5069,NULL,'Technikum',FALSE,5250),
+(5,5083,NULL,'Torhaus',FALSE,5251),
+(5,5070,NULL,'Treppenanlage',FALSE,5252),
+(5,5071,NULL,'Turnhalle',FALSE,5253),
+(5,5072,NULL,'Verbrauchergenossenschaft',FALSE,5254),
+(5,5073,NULL,'Versorgungszentrum',FALSE,5255),
+(5,5520,5520,'Villa',FALSE,5256),
+(5,5521,5520,'Direktorenvilla',FALSE,5257),
+(5,5522,5520,'Fabrikantenvilla',FALSE,5258),
+(5,5530,5530,'Villengarten/Landhausgarten',FALSE,5259),
+(5,5531,5530,'Badegarten',FALSE,5260),
+(5,5532,5530,'Blumengarten',FALSE,5261),
+(5,5533,5530,'Gartenhof',FALSE,5262),
+(5,5534,5530,'Gartenplatz',FALSE,5263),
+(5,5535,5530,'Gemüsegarten',FALSE,5264),
+(5,5536,5530,'Obstgarten',FALSE,5265),
+(5,5537,5530,'Senkgarten',FALSE,5266),
+(5,5538,5530,'Tennisplatz',FALSE,5267),
+(5,5539,5530,'Vorgarten',FALSE,5268),
+(5,5074,NULL,'Waisenhaus',FALSE,5269),
+(5,5550,5550,'Wand- und Deckenbild',FALSE,5270),
+(5,5551,5550,'Malerei',FALSE,5271),
+(5,5552,5550,'Mosaik',FALSE,5272),
+(5,5553,5550,'Sgraffito',FALSE,5273),
+(5,5075,NULL,'Wasserelement',FALSE,5274),
+(5,5560,5560,'Wegesystem',FALSE,5275),
+(5,5561,5560,'Promenade',FALSE,5276),
+(5,5562,5560,'Sitzplatz',FALSE,5277),
+(5,5570,5570,'Werbung',FALSE,5278),
+(5,5571,5570,'Leuchtwerbung',FALSE,5279),
+(5,5076,NULL,'Wildgehege',FALSE,5280),
+(5,5077,NULL,'Wochenendhaus',FALSE,5281),
+(5,5078,NULL,'Wohn- und Bürogebäude',FALSE,5282),
+(5,5079,NULL,'Wohn- und Geschäftshaus',FALSE,5283),
+(5,5600,5600,'Wohnanlage',FALSE,5284),
+(5,5601,5600,'Doppelwohnhaus',FALSE,5285),
+(5,5602,5600,'Einfriedung',FALSE,5286),
+(5,5603,5600,'Garage',FALSE,5287),
+(5,5604,5600,'Heizhaus',FALSE,5288),
+(5,5605,5600,'Mehrfamilienwohnhaus',FALSE,5289),
+(5,5606,5600,'Reihenhaus',FALSE,5290),
+(5,5607,5600,'Waschhaus',FALSE,5291),
+(5,5608,5600,'Wirtschaftsgebäude',FALSE,5292),
+(5,5609,5600,'Wohngrün',FALSE,5293),
+(5,5080,NULL,'Wohnblock',FALSE,5294),
+(5,5620,5620,'Wohnhaus',FALSE,5295),
+(5,5621,5620,'Beamtenwohnhaus',FALSE,5296),
+(5,5622,5620,'Blockstube',FALSE,5297),
+(5,5623,5620,'Direktorenwohnhaus',FALSE,5298),
+(5,5624,5620,'Doppelwohnhaus',FALSE,5299),
+(5,5625,5620,'Einfamilienwohnhaus',FALSE,5300),
+(5,5626,5620,'Fabrikantenwohnhaus',FALSE,5301),
+(5,5627,5620,'Mehrfamilienwohnhaus',FALSE,5302),
+(5,5628,5620,'Oberlaube',FALSE,5303),
+(5,5629,5620,'Reihenhaus',FALSE,5304),
+(5,5630,5620,'Vorlaube',FALSE,5305),
+(5,5081,NULL,'Wohnturm',FALSE,5306),
+(5,5082,NULL,'Zeltplatz',FALSE,5307),
 --
 (6,6100,6100,'Bodenrelief',FALSE,6000),
 (6,6101,6100,'Stützmauer',FALSE,6001),
@@ -918,7 +919,7 @@ VALUES
 (6,6131,6120,'Kesselhaus',FALSE,6017),
 (6,6132,6120,'Kontorhaus',FALSE,6018),
 (6,6133,6120,'Maschinenhaus',TRUE,6019),
-(6,6134,6120,'Ofenhaus/‑gebäude',TRUE,6020),
+(6,6134,6120,'Ofenhaus/-gebäude',TRUE,6020),
 (6,6135,6120,'Pförtnerhaus',TRUE,6021),
 (6,6136,6120,'Röstanlage',TRUE,6022),
 (6,6137,6120,'Schornstein',TRUE,6023),
@@ -1000,34 +1001,135 @@ VALUES
 (6,6271,6260,'Kessel- und Maschinenhaus',FALSE,6099),
 (6,6272,6260,'Kontorhaus',FALSE,6100),
 (6,6273,6260,'Pförtnerhaus',TRUE,6101),
-(6,6274,6260,'Rahmenberg',FALSE,6102),
-(6,6275,6260,'Schornstein',FALSE,6103),
-(6,6276,6260,'Seilerei',FALSE,6104),
-(6,6277,6260,'Spinnerei',FALSE,6105),
-(6,6278,6260,'Stickerei',FALSE,6106),
-(6,6279,6260,'Strickerei',TRUE,6107),
-(6,6280,6260,'Strumpffabrik',FALSE,6108),
-(6,6281,6260,'Technische Ausstattung',TRUE,6109),
-(6,6282,6260,'Tuchfabrik',FALSE,6110),
-(6,6283,6260,'Verwaltungsgebäude',TRUE,6111),
-(6,6284,6260,'Weberei',TRUE,6112),
-(6,6285,6260,'Wirkerei',TRUE,6113),
-(6,6290,6290,'Walzwerk',FALSE,6114),
-(6,6291,6290,'Produktionsgebäude',TRUE,6115),
-(6,6292,6290,'Verwaltungsgebäude',FALSE,6116),
-(6,6300,6300,'Werkstatt',FALSE,6117),
-(6,6301,6300,'Schlosserei',FALSE,6118),
-(6,6302,6300,'Technische Ausstattung',TRUE,6119),
-(6,6310,6310,'Ziegelei',FALSE,6120),
-(6,6311,6310,'Hebe- und Fördertechnik',TRUE,6121),
-(6,6312,6310,'Ringbrandofen',FALSE,6122),
-(6,6313,6310,'Schornstein',FALSE,6123),
-(6,6314,6310,'Technische Ausstattung',FALSE,6124),
-(6,6315,6310,'Tongrube',FALSE,6125),
-(6,6316,6310,'Trockenschuppen',FALSE,6126),
-(6,6317,6310,'Verwaltungsgebäude',FALSE,6127),
-(6,6318,6310,'Ziegelbrennofen',FALSE,6128),
-(6,6006,NULL,'Zuckerfabrik',FALSE,6129),
+(6,6274,6260,'Remise',FALSE,6102),
+(6,6275,6260,'Rahmenberg',FALSE,6103),
+(6,6276,6260,'Schornstein',FALSE,6104),
+(6,6277,6260,'Seilerei',FALSE,6105),
+(6,6278,6260,'Spinnerei',FALSE,6106),
+(6,6279,6260,'Stickerei',FALSE,6107),
+(6,6280,6260,'Strickerei',TRUE,6108),
+(6,6281,6260,'Strumpffabrik',FALSE,6109),
+(6,6282,6260,'Technische Ausstattung',TRUE,6110),
+(6,6283,6260,'Tuchfabrik',FALSE,6111),
+(6,6284,6260,'Verwaltungsgebäude',TRUE,6112),
+(6,6285,6260,'Weberei',TRUE,6113),
+(6,6286,6260,'Wirkerei',TRUE,6114),
+(6,6290,6290,'Walzwerk',FALSE,6115),
+(6,6291,6290,'Produktionsgebäude',TRUE,6116),
+(6,6292,6290,'Verwaltungsgebäude',FALSE,6117),
+(6,6300,6300,'Werkstatt',FALSE,6118),
+(6,6301,6300,'Schlosserei',FALSE,6119),
+(6,6302,6300,'Technische Ausstattung',TRUE,6120),
+(6,6310,6310,'Ziegelei',FALSE,6121),
+(6,6311,6310,'Hebe- und Fördertechnik',TRUE,6122),
+(6,6312,6310,'Ringbrandofen',FALSE,6123),
+(6,6313,6310,'Schornstein',FALSE,6124),
+(6,6314,6310,'Technische Ausstattung',FALSE,6125),
+(6,6315,6310,'Tongrube',FALSE,6126),
+(6,6316,6310,'Trockenschuppen',FALSE,6127),
+(6,6317,6310,'Verwaltungsgebäude',FALSE,6128),
+(6,6318,6310,'Ziegelbrennofen',FALSE,6129),
+(6,6006,NULL,'Zuckerfabrik',FALSE,6130),
+--
+(7,7100,7100,'Altlastensanierung',FALSE,7001),
+(7,7101,7100,'Abproduktenhalde',FALSE,7002),
+(7,7102,7100,'Deponie',FALSE,7003),
+(7,7001,NULL,'Anlegestelle',FALSE,7004),
+(7,7110,7110,'Aussichtspunkt',FALSE,7005),
+(7,7111,7110,'Aussichtsplatz',FALSE,7006),
+(7,7112,7110,'Aussichtsturm',FALSE,7007),
+(7,7002,NULL,'Bauausstellung',FALSE,7008),
+(7,7003,NULL,'Bootshaus',FALSE,7009),
+(7,7004,NULL,'Brücke',FALSE,7010),
+(7,7005,NULL,'Forst',FALSE,7011),
+(7,7120,7120,'Gartenbau',FALSE,7012),
+(7,7121,7120,'Baumgarten / Obstanbau',FALSE,7013),
+(7,7122,7120,'Baumschule',FALSE,7014),
+(7,7123,7120,'Gärtnerei',FALSE,7015),
+(7,7006,NULL,'Gartenschau',FALSE,7016),
+(7,7007,NULL,'Gastwirtschaftsgarten',FALSE,7017),
+(7,7130,7130,'Gehölz',FALSE,7018),
+(7,7131,7130,'Allee',FALSE,7019),
+(7,7132,7130,'Baumgruppe',FALSE,7020),
+(7,7133,7130,'Baumpaar',FALSE,7021),
+(7,7134,7130,'Baumraster',FALSE,7022),
+(7,7135,7130,'Baumreihe',FALSE,7023),
+(7,7136,7130,'Baumrondell',FALSE,7024),
+(7,7137,7130,'Dorfeiche',FALSE,7025),
+(7,7138,7130,'Dorflinde',FALSE,7026),
+(7,7139,7130,'Formgehölz',FALSE,7027),
+(7,7140,7130,'Gedenkbaum',FALSE,7028),
+(7,7141,7130,'Hain',FALSE,7029),
+(7,7142,7130,'Solitärbaum',FALSE,7030),
+(7,7143,7130,'Tanzlinde',FALSE,7031),
+(7,7144,7130,'Torbaum',FALSE,7032),
+(7,7150,7150,'Geländerelief',FALSE,7033),
+(7,7151,7150,'Bodenmodellierung',FALSE,7034),
+(7,7152,7150,'Bruchfeld',FALSE,7035),
+(7,7153,7150,'Damm',FALSE,7036),
+(7,7154,7150,'Halde',FALSE,7037),
+(7,7155,7150,'Insel',FALSE,7038),
+(7,7156,7150,'Kippe',FALSE,7039),
+(7,7157,7150,'Stützmauer',FALSE,7040),
+(7,7158,7150,'Tagebaurestloch',FALSE,7041),
+(7,7159,7150,'Terrassierung',FALSE,7042),
+(7,7008,NULL,'Kleinbauwerk',FALSE,7043),
+(7,7170,7170,'Kleingartenanlage',FALSE,7044),
+(7,7171,7170,'Kleingarten',FALSE,7045),
+(7,7172,7170,'Kleingartenlaube',FALSE,7046),
+(7,7173,7170,'Vereinsplatz',FALSE,7047),
+(7,7180,7180,'Landwirtschaft',FALSE,7048),
+(7,7181,7180,'Ackerbau',FALSE,7049),
+(7,7182,7180,'Energiepflanzen',FALSE,7050),
+(7,7183,7180,'Weinberg',FALSE,7051),
+(7,7184,7180,'Weingut',FALSE,7052),
+(7,7009,NULL,'Naherholungsgebiet',FALSE,7053),
+(7,7190,7190,'Parkanlage',FALSE,7054),
+(7,7191,7190,'Fabrikpark',FALSE,7055),
+(7,7192,7190,'Kulturpark',FALSE,7056),
+(7,7193,7190,'Sondergarten',FALSE,7057),
+(7,7194,7190,'Stadtpark',FALSE,7058),
+(7,7195,7190,'Volkspark',FALSE,7059),
+(7,7196,7190,'Waldpark',FALSE,7060),
+(7,7010,NULL,'Renaturierung',FALSE,7061),
+(7,7200,7200,'"Freizeitanlage (Spiel, Sport)"',FALSE,7062),
+(7,7201,7200,'Badesee',FALSE,7063),
+(7,7202,7200,'Rodelbahn',FALSE,7064),
+(7,7203,7200,'Spielplatz',FALSE,7065),
+(7,7204,7200,'Sportplatz',FALSE,7066),
+(7,7205,7200,'Strandbad',FALSE,7067),
+(7,7206,7200,'Wassersportanlage',FALSE,7068),
+(7,7210,7210,'Straßen / Wege',FALSE,7069),
+(7,7211,7210,'Dammweg',FALSE,7070),
+(7,7212,7210,'Promenade',FALSE,7071),
+(7,7213,7210,'Straßenverlegung',FALSE,7072),
+(7,7214,7210,'Treppenanlage',FALSE,7073),
+(7,7215,7210,'Wanderweg',FALSE,7074),
+(7,7216,7210,'Zufahrt',FALSE,7075),
+(7,7011,NULL,'Tagebaurestsee',FALSE,7076),
+(7,7220,7220,'Tierpark/Wildpark',FALSE,7077),
+(7,7221,7220,'Fasanerie',FALSE,7078),
+(7,7222,7220,'Tiergehege',FALSE,7079),
+(7,7223,7220,'Wildgehege',FALSE,7080),
+(7,7230,7230,'Wasserbauliche Einrichtung',FALSE,7081),
+(7,7231,7230,'Fischweg',FALSE,7082),
+(7,7232,7230,'Flutrinne',FALSE,7083),
+(7,7233,7230,'Gewässerverlegung',FALSE,7084),
+(7,7234,7230,'Kanal',FALSE,7085),
+(7,7235,7230,'Pegelhaus',FALSE,7086),
+(7,7236,7230,'Quellenanlage',FALSE,7087),
+(7,7237,7230,'Rückhaltebecken',FALSE,7088),
+(7,7238,7230,'Schiffshebewerk',FALSE,7089),
+(7,7239,7230,'Schleuse',FALSE,7090),
+(7,7240,7230,'Speicherbecken',FALSE,7091),
+(7,7241,7230,'Staudamm',FALSE,7092),
+(7,7242,7230,'Staumauer',FALSE,7093),
+(7,7243,7230,'Stausee',FALSE,7094),
+(7,7244,7230,'Überlaufgraben',FALSE,7095),
+(7,7245,7230,'Wassergraben',FALSE,7096),
+(7,7246,7230,'Wasserreservoir',FALSE,7097),
+(7,7247,7230,'Wehr',FALSE,7098),
+--
 (NULL,9999,NULL,'FREITEXT',TRUE,9999)
 ;
 
@@ -1040,17 +1142,18 @@ CREATE TABLE IF NOT EXISTS laugis.def_erfasser
 (
     id integer PRIMARY KEY generated always as identity,
     name text NOT NULL,
-    sortierung integer
+    sortierung integer,
+    username text
 );
 
-INSERT INTO laugis.def_Erfasser (name, sortierung) VALUES 
-    ('Louise Warnow', 1),
-    ('Franz Dietzmann', 2),
-    ('Kirsten Krepelin', 3),
-    ('Barbara Kuendiger', 4),
-    ('Kaja Teschner', 5),
-    ('Stefan Krug', 6),
-    ('Tanja Trittel', 7)
+INSERT INTO laugis.def_Erfasser (name, sortierung, username) VALUES 
+    ('Louise Warnow', 1, 'lwarnow'),
+    ('Franz Dietzmann', 2, 'fdietzmann'),
+    ('Kirsten Krepelin', 3, 'kkrepelin'),
+    ('Barbara Kuendiger', 4, 'bkuendiger'),
+    ('Kaja Teschner', 5, 'kteschner'),
+    ('Stefan Krug', 6, 'skrug'),
+    ('Tanja Trittel', 7, 'ttrittel')
 ;
 
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -1118,6 +1221,7 @@ INSERT INTO laugis.def_nutzungsart (bezeichnung, sortierung) VALUES
 -- # def_datierung
 --------------------------------------------------------------------------------------------------------------------------------------
 
+-- # Beschreibt die Ereignisarten der Datierungen
 DROP TABLE IF EXISTS laugis.def_datierung;
 CREATE TABLE IF NOT EXISTS laugis.def_datierung
 (
@@ -1147,15 +1251,16 @@ INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES
     ('Restaurierung', 18),
     ('Rückbau', 19),
     ('Sanierung', 20),
-    ('Teilabbruch', 21),
-    ('Teilrückbau', 22),
-    ('Translozierung', 23),
-    ('Umbau', 24),
-    ('Umsiedlung', 25),
-    ('Veränderung', 26),
-    ('Verfüllung', 27),
-    ('Wiederaufbau', 28),
-    ('Teilortsabbruch', 29),
+    ('Stilllegung', 21),
+    ('Teilabbruch', 22),
+    ('Teilrückbau', 23),
+    ('Teilortsabbruch', 24),
+    ('Translozierung', 25),
+    ('Umbau', 26),
+    ('Umsiedlung', 27),
+    ('Veränderung', 28),
+    ('Verfüllung', 29),
+    ('Wiederaufbau', 30),
     ('FREITEXT', 999)
 ;
 
@@ -1290,7 +1395,8 @@ CREATE TABLE IF NOT EXISTS laugis.def_blickbeziehung
 
 INSERT INTO laugis.def_blickbeziehung (bezeichnung, sortierung) VALUES 
     ('gerichtet', 1),
-    ('ungerichtet', 2)
+    ('ungerichtet', 2),
+    ('undefiniert', 3)
 ;
 
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -1855,6 +1961,93 @@ CONSTRAINT fkey_datierung_id FOREIGN KEY (ref_funktion_id)
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 );
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # obj_lwk
+--------------------------------------------------------------------------------------------------------------------------------------
+
+-- Bildet die Landschaftswandel-Objekte ab.
+-- Wird analog zur obj_basis mit geo-Objekten verknüpft.
+
+DROP TABLE IF EXISTS laugis.obj_lwk;
+CREATE TABLE IF NOT EXISTS laugis.obj_lwk
+(   
+    -- # Metadaten
+    objekt_id integer PRIMARY KEY generated always as identity, -- PK
+    erfassungsdatum date,           -- 9580
+    aenderungsdatum date,           -- 9950
+    letzte_aenderung timestamp,     -- meta zur Filterung
+    geloescht bool,                 -- meta zur Filterung
+    erfassung smallint,
+
+    -- Identifikatoren
+    beschriftung text,              -- Bezeichnung und Identifikation
+    jahresschnitt smallint,
+    nutzungsart smallint,
+    
+    -- geo -> rel
+
+    CONSTRAINT fkey_erfassung FOREIGN KEY (erfassung)
+    REFERENCES laugis.def_erfasser (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION,
+
+    CONSTRAINT fkey_jahresschnitt FOREIGN KEY (jahresschnitt)
+    REFERENCES laugis.def_jahresschnitt (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION,
+
+    CONSTRAINT fkey_nutzungsart FOREIGN KEY (nutzungsart)
+    REFERENCES laugis.def_nutzungsart (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+);
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # geo_lwk_line
+--------------------------------------------------------------------------------------------------------------------------------------
+
+-- In dieser Tabelle werden Geometrien vom Typ 'Multiline' vorgehalten.
+-- Über den fk_objekt_id wird die Geometrie einem lwk-Objekt zugeordnet 
+
+DROP TABLE IF EXISTS laugis.geo_lwk_line;
+CREATE TABLE IF NOT EXISTS laugis.geo_lwk_line
+(     
+    -- # Metadaten
+    geo_id integer PRIMARY KEY generated always as identity, -- PK
+    ref_objekt_id integer,          -- fk NOT NULL
+    geom geometry(MultiLinestring, 25833),
+
+-- Referenz zur übergeordneten Objekt-Base
+CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
+    REFERENCES laugis.obj_lwk (objekt_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+);
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # geo_lwk_poly
+--------------------------------------------------------------------------------------------------------------------------------------
+
+-- In dieser Tabelle werden Geometrien vom Typ 'Multipolygon' vorgehalten.
+-- Über den fk_objekt_id wird die Geometrie einem LWK-Objekt zugeordnet 
+
+DROP TABLE IF EXISTS laugis.geo_lwk_poly;
+CREATE TABLE IF NOT EXISTS laugis.geo_lwk_poly
+(     
+    -- # Metadaten
+    geo_id integer PRIMARY KEY generated always as identity, -- PK
+    ref_objekt_id integer,          -- fk NOT NULL
+    geom geometry(MultiPolygon, 25833),
+
+-- Referenz zur übergeordneten Objekt-Base
+CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
+    REFERENCES laugis.obj_lwk (objekt_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+);
+
 
 
 
@@ -3237,5 +3430,157 @@ BEGIN
 -- return (inserted) rel id
 RETURN _relation_id;
 
+END;
+$$ LANGUAGE plpgsql;
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # get_erfasserid_by_user
+--------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION laugis.get_erfasserid_by_user()
+RETURNS integer AS $$
+BEGIN 
+    RETURN(SELECT erf.id
+        FROM laugis.def_erfasser as erf
+        WHERE erf.username = current_user
+        LIMIT 1);
+END;
+$$ LANGUAGE plpgsql;
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # update_obj_lwk
+--------------------------------------------------------------------------------------------------------------------------------------
+
+-- Setzt die Werte für ein bestehendes oder neues LWK-Objekt
+-- Legt entsprechend der Geometrie-Art einen passenden verknüpften Eintrag an
+-- Setzt das Flag 'geloescht' auf false
+-- Fügt in 'letzte_aenderung' den aktuellen Timestamp
+-- Gibt die ID des bearbeiteten Eintrags zurück
+
+CREATE OR REPLACE FUNCTION laugis.update_obj_lwk(
+  -- # Metadaten  
+  _objekt_id integer, -- PK
+  _erfassungsdatum date,     -- 9580
+  _aenderungsdatum date,     -- 9950
+  _erfassung smallint,
+
+  -- Identifikatoren
+  _beschriftung text,        -- Bezeichnung und Identifikation
+  _jahresschnitt smallint,
+  _nutzungsart smallint,
+
+  -- # Geometrie
+  _geom geometry                   -- undefined geometry
+  ) 
+RETURNS INTEGER AS $$
+
+DECLARE
+  _ob_id integer = _objekt_id;
+  _is_update bool = NULL;
+BEGIN
+
+  -- check if UPDATE or INSERT
+  IF (_objekt_id IS NOT NULL) THEN
+    _is_update = TRUE;
+  ELSE
+    _is_update = FALSE;
+  END IF;
+
+---------------------------------------------------------------------------------------------------------------
+-- Handle obj_basis entries
+---------------------------------------------------------------------------------------------------------------
+
+  IF (_is_update) THEN
+    UPDATE laugis.obj_lwk
+    SET
+        erfassungsdatum         = _erfassungsdatum,
+        aenderungsdatum         = _aenderungsdatum,
+        letzte_aenderung        = NOW(),
+        erfassung               = _erfassung,
+        beschriftung            = _beschriftung,
+        jahresschnitt           = _jahresschnitt,
+        nutzungsart             = _nutzungsart
+    WHERE objekt_id             = _ob_id;
+  ELSE
+    INSERT INTO laugis.obj_lwk(
+        erfassungsdatum,
+        aenderungsdatum,
+        letzte_aenderung,
+        geloescht,
+        erfassung,
+        beschriftung,
+        jahresschnitt,
+        nutzungsart
+        )
+      VALUES (
+        _erfassungsdatum,
+        _aenderungsdatum,
+        NOW(),
+        FALSE,
+        _erfassung,
+        _beschriftung,
+        _jahresschnitt,
+        _nutzungsart
+        )
+      RETURNING obj_lwk.objekt_id INTO _ob_id;
+  END IF;
+
+---------------------------------------------------------------------------------------------------------------
+-- Geometry handling
+---------------------------------------------------------------------------------------------------------------
+
+  IF (ST_GeometryType(_geom) = 'ST_MultiPolygon') THEN 
+    
+    IF (_is_update) THEN
+        UPDATE laugis.geo_lwk_poly
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;  
+    ELSE 
+        INSERT INTO laugis.geo_lwk_poly(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF;  
+  
+  ELSEIF (ST_GeometryType(_geom) = 'ST_MultiLineString') THEN
+    
+    IF (_is_update) THEN
+        UPDATE laugis.geo_lwk_line
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;    
+    ELSE  
+        INSERT INTO laugis.geo_lwk_line(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF; 
+  END IF;
+
+-- return (inserted) object id
+RETURN _ob_id;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- delete_lwk
+---------------------------------------------------------------------------------------------------------------
+
+-- Setzt das Flag 'geloescht' auf true
+
+CREATE OR REPLACE FUNCTION laugis.delete_lwk(_objekt_id integer)
+RETURNS VOID
+AS $$
+BEGIN
+  UPDATE laugis.obj_lwk
+  SET geloescht = TRUE
+  WHERE objekt_id = _objekt_id;
 END;
 $$ LANGUAGE plpgsql;

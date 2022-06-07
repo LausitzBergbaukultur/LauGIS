@@ -85,44 +85,56 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 -- Relation: Erfasser
 ---------------------------------------------------------------------------------------------------------------
 
-	-- determine text[] for old relation-ids to compare against 
-   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
-   	INTO _rel_old_ids;
-	
-	-- determine text[] of new relation-ids to compare against 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
-   	INTO _rel_new_ids;
-
-	-- delete diff old/new
-	FOR _rel_id in SELECT erf_old
-		FROM unnest(_rel_old_ids) AS erf_old
-		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
-	LOOP
-		PERFORM laugis.remove_erfasser(_rel_id::integer);
-	END LOOP;
-	
-	-- determine json[] for new/updated entries 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
-   	INTO _rel_new;
-	
-  	IF array_length(_rel_new, 1) > 0 THEN
-		FOREACH _rel IN ARRAY(_rel_new)
-		LOOP
-			-- catch 'NULL' in rel_id -> used to identify new entries
-			_rel_id = (_rel->>'relation_id')::text;
-			IF _rel_id = 'NULL' THEN
-				_rel_id = NULL;
-			END IF;
-			
-			-- call update function
-			PERFORM laugis.update_erfasser(
-			_rel_id::integer,
+	IF OLD.return_erfasser IS NULL AND NEW.return_erfasser IS NULL THEN
+		-- insert Erfasser according to user
+		PERFORM laugis.update_erfasser(
+			NULL,
 			_obj_id,
-			(_rel->>'ref_erfasser_id')::integer,
-			(_rel->>'is_creator')::bool
+			laugis.get_erfasserid_by_user(),
+			true
 			);
+
+	ELSE
+		
+		-- determine text[] for old relation-ids to compare against 
+	   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_old_ids;
+		
+		-- determine text[] of new relation-ids to compare against 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_new_ids;
+
+		-- delete diff old/new
+		FOR _rel_id in SELECT erf_old
+			FROM unnest(_rel_old_ids) AS erf_old
+			WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+		LOOP
+			PERFORM laugis.remove_erfasser(_rel_id::integer);
 		END LOOP;
-	END IF;   
+		
+		-- determine json[] for new/updated entries 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
+	   	INTO _rel_new;
+		
+	  	IF array_length(_rel_new, 1) > 0 THEN
+			FOREACH _rel IN ARRAY(_rel_new)
+			LOOP
+				-- catch 'NULL' in rel_id -> used to identify new entries
+				_rel_id = (_rel->>'relation_id')::text;
+				IF _rel_id = 'NULL' THEN
+					_rel_id = NULL;
+				END IF;
+				
+				-- call update function
+				PERFORM laugis.update_erfasser(
+				_rel_id::integer,
+				_obj_id,
+				(_rel->>'ref_erfasser_id')::integer,
+				(_rel->>'is_creator')::bool
+				);
+			END LOOP;
+		END IF;   
+	END IF;
 
 	-- clean variables
 	_rel_old_ids = NULL;
@@ -429,9 +441,3 @@ END;
 $$ LANGUAGE plpgsql;
 
 --------------------------------------------------------------------------------------------------------------- 
-
-    RETURN NEW;
-
-END IF;
-END;
-$$ LANGUAGE plpgsql;

@@ -4,7 +4,7 @@
 -- Erwartet eine PostgreSQL Datenbank mit dem Schema 'lauqgis' sowie
 -- einem mittels "setup_db_LAUGIS.sql" befüllten Schema 'laugis'.
 --
--- Stand: 2020-04-13
+-- Stand: 2020-04-27
 -- Autor: Stefan Krug
 --
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -28,9 +28,9 @@ DECLARE
 	_rel json;				-- iterator
 BEGIN 
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- inkorrekte ID-Übernahme abfangen
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 	
 	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
 		
@@ -42,9 +42,9 @@ BEGIN
 
 	END IF;
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Löschprüfung. Bei Erfolg werden Objekte als gelöscht markiert.
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
 IF (TG_OP = 'DELETE') THEN
 
@@ -53,9 +53,9 @@ IF (TG_OP = 'DELETE') THEN
     
 ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
 	SELECT laugis.update_obj_basis(
 	    -- # Metadaten
@@ -72,7 +72,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 		NEW.sachbegriff_alt,
 		NEW.beschreibung, 
 		NEW.beschreibung_ergaenzung, 
-		NEW.lagebeschreibung,
+		NEW.lagebeschreibung, 
 		NEW.notiz_intern,
 		NEW.hida_nr,
 		NEW.bilder_anmerkung,
@@ -97,9 +97,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	)
 	INTO _obj_id;
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- zugehöriges Architektur-Objekt anlegen/updaten
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
   	PERFORM laugis.update_obj_tech(
 	    _obj_id,                   -- fk zu angelegter Objekt-Basis, NOT NULL
@@ -118,56 +118,68 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
         New.gewicht		
   	);
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Erfasser
------------------------------------------------------------------------------------------
-
-	-- determine text[] for old relation-ids to compare against 
-   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
-   	INTO _rel_old_ids;
+---------------------------------------------------------------------------------------------------------------
 	
-	-- determine text[] of new relation-ids to compare against 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
-   	INTO _rel_new_ids;
-
-	-- delete diff old/new
-	FOR _rel_id in SELECT erf_old
-		FROM unnest(_rel_old_ids) AS erf_old
-		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
-	LOOP
-		PERFORM laugis.remove_erfasser(_rel_id::integer);
-	END LOOP;
-	
-	-- determine json[] for new/updated entries 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
-   	INTO _rel_new;
-	
-  	IF array_length(_rel_new, 1) > 0 THEN
-		FOREACH _rel IN ARRAY(_rel_new)
-		LOOP
-			-- catch 'NULL' in rel_id -> used to identify new entries
-			_rel_id = (_rel->>'relation_id')::text;
-			IF _rel_id = 'NULL' THEN
-				_rel_id = NULL;
-			END IF;
-			
-			-- call update function
-			PERFORM laugis.update_erfasser(
-			_rel_id::integer,
+	IF OLD.return_erfasser IS NULL AND NEW.return_erfasser IS NULL THEN
+		-- insert Erfasser according to user
+		PERFORM laugis.update_erfasser(
+			NULL,
 			_obj_id,
-			(_rel->>'ref_erfasser_id')::integer,
-			(_rel->>'is_creator')::bool
+			laugis.get_erfasserid_by_user(),
+			true
 			);
+
+	ELSE
+		-- determine text[] for old relation-ids to compare against 
+	   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_old_ids;
+		
+		-- determine text[] of new relation-ids to compare against 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_new_ids;
+
+		-- delete diff old/new
+		FOR _rel_id in SELECT erf_old
+			FROM unnest(_rel_old_ids) AS erf_old
+			WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+		LOOP
+			PERFORM laugis.remove_erfasser(_rel_id::integer);
 		END LOOP;
-	END IF;   
+		
+		-- determine json[] for new/updated entries 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
+	   	INTO _rel_new;
+		
+	  	IF array_length(_rel_new, 1) > 0 THEN
+			FOREACH _rel IN ARRAY(_rel_new)
+			LOOP
+				-- catch 'NULL' in rel_id -> used to identify new entries
+				_rel_id = (_rel->>'relation_id')::text;
+				IF _rel_id = 'NULL' THEN
+					_rel_id = NULL;
+				END IF;
+				
+				-- call update function
+				PERFORM laugis.update_erfasser(
+				_rel_id::integer,
+				_obj_id,
+				(_rel->>'ref_erfasser_id')::integer,
+				(_rel->>'is_creator')::bool
+				);
+			END LOOP;
+
+		END IF;   
+	END IF;
 
 	-- clean variables
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	
-------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Datierung
-------------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_datierung::json)->>'relation_id')
@@ -213,9 +225,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Nutzung / Funktion
----------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
@@ -260,9 +272,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Personen
------------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_personen::json)->>'relation_id')
@@ -309,9 +321,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Blickbeziehung
----------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
@@ -365,9 +377,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_new_ids = NULL;
 	_rel_temp = NULL;
 
---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Bilder
---------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_bilder::json)->>'relation_id')
@@ -412,9 +424,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Material
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_material::json)->>'relation_id')
@@ -458,9 +470,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Dachform
-----------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_dachform::json)->>'relation_id')
@@ -504,9 +516,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
--------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Konstruktion
-------------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_konstruktion::json)->>'relation_id')
@@ -550,9 +562,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Literatur
-----------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_literatur::json)->>'relation_id')
@@ -604,7 +616,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 --------------------------------------------------------------------------------------------------------------------------------------
--- # trf_einzelobjekt (trigger function)
+-- # trf_objektbereich (trigger function)
 --------------------------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION lauqgis.trf_objektbereich()
@@ -621,9 +633,9 @@ DECLARE
 	_rel json;				-- iterator
 BEGIN 
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- inkorrekte ID-Übernahme abfangen
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 	
 	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
 		
@@ -635,9 +647,9 @@ BEGIN
 
 	END IF;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Löschprüfung. Bei Erfolg werden Objekte als gelöscht markiert.
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
 IF (TG_OP = 'DELETE') THEN
 
@@ -646,9 +658,9 @@ IF (TG_OP = 'DELETE') THEN
     
 ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
 	SELECT laugis.update_obj_basis(
 	    -- # Metadaten
@@ -690,56 +702,68 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	)
 	INTO _obj_id;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Erfasser
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
-	-- determine text[] for old relation-ids to compare against 
-   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
-   	INTO _rel_old_ids;
-	
-	-- determine text[] of new relation-ids to compare against 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
-   	INTO _rel_new_ids;
-
-	-- delete diff old/new
-	FOR _rel_id in SELECT erf_old
-		FROM unnest(_rel_old_ids) AS erf_old
-		WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
-	LOOP
-		PERFORM laugis.remove_erfasser(_rel_id::integer);
-	END LOOP;
-	
-	-- determine json[] for new/updated entries 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
-   	INTO _rel_new;
-	
-  	IF array_length(_rel_new, 1) > 0 THEN
-		FOREACH _rel IN ARRAY(_rel_new)
-		LOOP
-			-- catch 'NULL' in rel_id -> used to identify new entries
-			_rel_id = (_rel->>'relation_id')::text;
-			IF _rel_id = 'NULL' THEN
-				_rel_id = NULL;
-			END IF;
-			
-			-- call update function
-			PERFORM laugis.update_erfasser(
-			_rel_id::integer,
+	IF OLD.return_erfasser IS NULL AND NEW.return_erfasser IS NULL THEN
+		-- insert Erfasser according to user
+		PERFORM laugis.update_erfasser(
+			NULL,
 			_obj_id,
-			(_rel->>'ref_erfasser_id')::integer,
-			(_rel->>'is_creator')::bool
+			laugis.get_erfasserid_by_user(),
+			true
 			);
+
+	ELSE
+		
+		-- determine text[] for old relation-ids to compare against 
+	   	SELECT ARRAY(SELECT json_array_elements(OLD.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_old_ids;
+		
+		-- determine text[] of new relation-ids to compare against 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json)->>'relation_id')
+	   	INTO _rel_new_ids;
+
+		-- delete diff old/new
+		FOR _rel_id in SELECT erf_old
+			FROM unnest(_rel_old_ids) AS erf_old
+			WHERE erf_old NOT IN (SELECT erf_new FROM unnest(_rel_new_ids) as erf_new)
+		LOOP
+			PERFORM laugis.remove_erfasser(_rel_id::integer);
 		END LOOP;
-	END IF;   
+		
+		-- determine json[] for new/updated entries 
+		SELECT ARRAY(SELECT json_array_elements(NEW.return_erfasser::json))
+	   	INTO _rel_new;
+		
+	  	IF array_length(_rel_new, 1) > 0 THEN
+			FOREACH _rel IN ARRAY(_rel_new)
+			LOOP
+				-- catch 'NULL' in rel_id -> used to identify new entries
+				_rel_id = (_rel->>'relation_id')::text;
+				IF _rel_id = 'NULL' THEN
+					_rel_id = NULL;
+				END IF;
+				
+				-- call update function
+				PERFORM laugis.update_erfasser(
+				_rel_id::integer,
+				_obj_id,
+				(_rel->>'ref_erfasser_id')::integer,
+				(_rel->>'is_creator')::bool
+				);
+			END LOOP;
+		END IF;   
+	END IF;
 
 	-- clean variables
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Datierung
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_datierung::json)->>'relation_id')
@@ -785,9 +809,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Nutzung / Funktion
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
@@ -832,9 +856,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Personen
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_personen::json)->>'relation_id')
@@ -881,9 +905,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Blickbeziehung
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
@@ -937,9 +961,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_new_ids = NULL;
 	_rel_temp = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Bilder
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_bilder::json)->>'relation_id')
@@ -984,9 +1008,9 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- Relation: Literatur
----------------------------------------------------------------------------------------- 	
+--------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
    	SELECT ARRAY(SELECT json_array_elements(OLD.return_literatur::json)->>'relation_id')
@@ -1188,6 +1212,172 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_poly
     FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_einzelobjekt();
 
 --------------------------------------------------------------------------------------------------------------------------------------
+-- # einzelobjekt_punkt (view)
+-------------------------------------------------------------------------------------------------------------------------------------- 
+
+-- Die View repräsentiert die Struktur "Einzelobjekt"
+-- Die zugehörigen Geometrie ist Multipoint
+-- Einzelobjekte definierenw sich über deinen zusammenhängenden Datensatz in obj_basis und obj_tech
+-- Komplexe Daten werden als text(json[]) übergebem.
+-- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
+
+CREATE OR REPLACE VIEW lauqgis.einzelobjekt_punkt AS
+
+SELECT 
+    -- # Metadaten
+    	ob.objekt_id,
+		ob.objekt_nr,
+		ob.rel_objekt_nr,
+		ob.status_bearbeitung,
+		ob.erfassungsdatum, 
+		ob.aenderungsdatum, 
+		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+
+    -- # Deskriptoren 
+		ob.kategorie,
+		ob.sachbegriff,
+    	ob.sachbegriff_alt,
+		ob.beschreibung, 
+		ob.beschreibung_ergaenzung, 
+		ob.lagebeschreibung, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur, 
+		ob.notiz_intern, 
+		ob.hida_nr, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+		ob.bilder_anmerkung,
+
+    -- # Stammdaten  
+		ob.bezeichnung, 
+		ob.bauwerksname_eigenname,
+		ob.schutzstatus, 
+		ob.foerderfaehig,
+
+	-- # Lokalisatoren
+		ob.kreis, 
+		ob.gemeinde, 
+		ob.ort, 
+		ob.sorbisch, 
+		ob.strasse, 
+		ob.hausnummer, 
+		ob.gem_flur,
+		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+   
+	-- # Deskriptoren
+		tech.techn_anlage,
+	    laugis.return_material(ob.objekt_id) AS return_material,
+	    tech.material_alt,
+	    laugis.return_konstruktion(ob.objekt_id) AS return_konstruktion,
+	    tech.konstruktion_alt,
+	-- # Deskrptoren - Architektur
+	    tech.geschosszahl,
+	    tech.achsenzahl,
+	    tech.grundriss,
+	    laugis.return_dachform(ob.objekt_id) AS return_dachform,
+	    tech.dachform_alt,
+	-- # Deskriptoren - Technik
+		tech.antrieb,
+		tech.abmessung,
+		tech.gewicht,
+
+	-- # Geometrie 
+		geo.geom
+
+	FROM laugis.obj_basis AS ob
+	JOIN laugis.geo_point AS geo ON ob.objekt_id = geo.ref_objekt_id
+	JOIN laugis.obj_tech AS tech ON ob.objekt_id = tech.ref_objekt_id
+	WHERE ob.geloescht IS NOT TRUE;
+
+CREATE TRIGGER tr_instead_einzelobjekt
+INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_punkt
+    FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_einzelobjekt();
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # einzelobjekt_linie (view)
+-------------------------------------------------------------------------------------------------------------------------------------- 
+
+-- Die View repräsentiert die Struktur "Einzelobjekt"
+-- Die zugehörigen Geometrie ist Multiline
+-- Einzelobjekte definierenw sich über deinen zusammenhängenden Datensatz in obj_basis und obj_tech
+-- Komplexe Daten werden als text(json[]) übergebem.
+-- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
+
+CREATE OR REPLACE VIEW lauqgis.einzelobjekt_linie AS
+
+SELECT 
+    -- # Metadaten
+    	ob.objekt_id,
+		ob.objekt_nr,
+		ob.rel_objekt_nr,
+		ob.status_bearbeitung,
+		ob.erfassungsdatum, 
+		ob.aenderungsdatum, 
+		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+
+    -- # Deskriptoren 
+		ob.kategorie,
+		ob.sachbegriff,
+    	ob.sachbegriff_alt,
+		ob.beschreibung, 
+		ob.beschreibung_ergaenzung, 
+		ob.lagebeschreibung, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur, 
+		ob.notiz_intern, 
+		ob.hida_nr, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+		ob.bilder_anmerkung,
+
+    -- # Stammdaten  
+		ob.bezeichnung, 
+		ob.bauwerksname_eigenname,
+		ob.schutzstatus, 
+		ob.foerderfaehig,
+
+	-- # Lokalisatoren
+		ob.kreis, 
+		ob.gemeinde, 
+		ob.ort, 
+		ob.sorbisch, 
+		ob.strasse, 
+		ob.hausnummer, 
+		ob.gem_flur,
+		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+   
+	-- # Deskriptoren
+		tech.techn_anlage,
+	    laugis.return_material(ob.objekt_id) AS return_material,
+	    tech.material_alt,
+	    laugis.return_konstruktion(ob.objekt_id) AS return_konstruktion,
+	    tech.konstruktion_alt,
+	-- # Deskrptoren - Architektur
+	    tech.geschosszahl,
+	    tech.achsenzahl,
+	    tech.grundriss,
+	    laugis.return_dachform(ob.objekt_id) AS return_dachform,
+	    tech.dachform_alt,
+	-- # Deskriptoren - Technik
+		tech.antrieb,
+		tech.abmessung,
+		tech.gewicht,
+
+	-- # Geometrie 
+		geo.geom
+
+	FROM laugis.obj_basis AS ob
+	JOIN laugis.geo_line AS geo ON ob.objekt_id = geo.ref_objekt_id
+	JOIN laugis.obj_tech AS tech ON ob.objekt_id = tech.ref_objekt_id
+	WHERE ob.geloescht IS NOT TRUE;
+
+CREATE TRIGGER tr_instead_einzelobjekt
+INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_linie
+    FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_einzelobjekt();
+
+--------------------------------------------------------------------------------------------------------------------------------------
 -- # objektbereich_poly (view)
 -------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1257,3 +1447,203 @@ SELECT
 CREATE TRIGGER tr_instead_objektbereich
 INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.objektbereich_poly
     FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_objektbereich();
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # objektbereich_linie (view)
+-------------------------------------------------------------------------------------------------------------------------------------- 
+
+-- Die View repräsentiert die Struktur "Objektbereich"
+-- Die zugehörigen Geometrie ist Multiline
+-- Objektbereiche definieren sich durch einen Eintrag in der obj_basis und die Abwesenheit einer Referenz zu obj_tech
+-- Komplexe Daten werden als text(json[]) übergebem.
+-- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
+
+CREATE OR REPLACE VIEW lauqgis.objektbereich_linie AS
+
+SELECT 
+    -- # Metadaten
+    	ob.objekt_id,
+		ob.objekt_nr,
+		ob.rel_objekt_nr,
+		ob.status_bearbeitung,
+		ob.erfassungsdatum, 
+		ob.aenderungsdatum, 
+		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+
+    -- # Deskriptoren 
+		ob.kategorie,
+		ob.sachbegriff,
+    	ob.sachbegriff_alt,
+		ob.beschreibung, 
+		ob.beschreibung_ergaenzung, 
+		ob.lagebeschreibung, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		ob.notiz_intern, 
+		ob.hida_nr, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+		ob.bilder_anmerkung,
+
+    -- # Stammdaten  
+		ob.bezeichnung, 
+		ob.bauwerksname_eigenname,
+		ob.schutzstatus, 
+		ob.foerderfaehig,
+
+	-- # Lokalisatoren
+		ob.kreis, 
+		ob.gemeinde, 
+		ob.ort, 
+		ob.sorbisch, 
+		ob.strasse, 
+		ob.hausnummer, 
+		ob.gem_flur,
+		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+
+	-- # Geometrie 
+		geo.geom
+		
+	FROM laugis.obj_basis AS ob
+	JOIN laugis.geo_line AS geo ON ob.objekt_id = geo.ref_objekt_id
+	WHERE ob.geloescht IS NOT TRUE
+		-- # explizit kein Einzelobjekt
+		AND NOT EXISTS (
+		SELECT FROM laugis.obj_tech AS tech
+		WHERE ob.objekt_id = tech.ref_objekt_id
+		)
+;
+	
+CREATE TRIGGER tr_instead_objektbereich
+INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.objektbereich_linie
+    FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_objektbereich();
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # trf_landschaftswandel (trigger function)
+-------------------------------------------------------------------------------------------------------------------------------------- 
+
+CREATE OR REPLACE FUNCTION lauqgis.trf_landschaftswandel()
+RETURNS TRIGGER AS $$
+DECLARE
+	_obj_id integer;
+BEGIN 
+
+---------------------------------------------------------------------------------------------------------------
+-- inkorrekte ID-Übernahme abfangen
+---------------------------------------------------------------------------------------------------------------
+	
+	IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+		
+		_obj_id = OLD.objekt_id;
+
+	ELSIF (TG_OP = 'INSERT') THEN
+	
+		_obj_id = NULL;
+
+	END IF;
+
+---------------------------------------------------------------------------------------------------------------
+-- Löschprüfung. Bei Erfolg werden Objekte als gelöscht markiert.
+---------------------------------------------------------------------------------------------------------------
+
+IF (TG_OP = 'DELETE') THEN
+
+	PERFORM laugis.delete_lwk(_obj_id);
+    RETURN NULL;
+    
+ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+
+---------------------------------------------------------------------------------------------------------------
+-- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
+---------------------------------------------------------------------------------------------------------------
+
+	SELECT laugis.update_obj_lwk(
+	    -- # Metadaten
+	    _obj_id,				-- pk IF NOT NULL -> UPDATE
+		NEW.erfassungsdatum,     -- 9580
+		NEW.aenderungsdatum,     -- 9950
+		NEW.erfassung,
+
+		-- Identifikatoren
+		NEW.beschriftung,        -- Bezeichnung und Identifikation
+		NEW.jahresschnitt,
+		NEW.nutzungsart,
+
+		  -- # Geometrie
+  		NEW.geom   
+	)
+	INTO _obj_id;
+
+	RETURN NEW;
+
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- landschaftswandel_bereich (view)
+---------------------------------------------------------------------------------------------------------------
+
+-- Die View repräsentiert die Struktur "Landschaftswandelkarte"
+-- Die zugehörigen Geometrie ist Multipolygon
+-- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
+
+CREATE OR REPLACE VIEW lauqgis.landschaftswandel_bereich AS
+
+SELECT 
+    lwk.objekt_id,
+	lwk.erfassungsdatum,			-- 9580
+	lwk.aenderungsdatum,			-- 9950
+    lwk.erfassung,
+
+    -- Identifikatoren
+   	lwk.beschriftung,				-- Bezeichnung und Identifikation
+    lwk.jahresschnitt,
+    lwk.nutzungsart,
+
+	-- # Geometrie 
+	geo.geom
+		
+	FROM laugis.obj_lwk AS lwk
+	JOIN laugis.geo_lwk_poly AS geo ON lwk.objekt_id = geo.ref_objekt_id
+	WHERE lwk.geloescht IS NOT TRUE
+;
+	
+CREATE TRIGGER tr_instead_lwk_bereich
+INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.landschaftswandel_bereich
+    FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_landschaftswandel();
+
+---------------------------------------------------------------------------------------------------------------
+-- landschaftswandel_strecke (view)
+---------------------------------------------------------------------------------------------------------------
+
+-- Die View repräsentiert die Struktur "Landschaftswandelkarte"
+-- Die zugehörigen Geometrie ist Multilinestring
+-- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
+
+CREATE OR REPLACE VIEW lauqgis.landschaftswandel_strecke AS
+
+SELECT 
+    lwk.objekt_id,
+	lwk.erfassungsdatum,			-- 9580
+	lwk.aenderungsdatum,			-- 9950
+    lwk.erfassung,
+
+    -- Identifikatoren
+   	lwk.beschriftung,				-- Bezeichnung und Identifikation
+    lwk.jahresschnitt,
+    lwk.nutzungsart,
+
+	-- # Geometrie 
+	geo.geom
+		
+	FROM laugis.obj_lwk AS lwk
+	JOIN laugis.geo_lwk_line AS geo ON lwk.objekt_id = geo.ref_objekt_id
+	WHERE lwk.geloescht IS NOT TRUE
+;
+	
+CREATE TRIGGER tr_instead_lwk_strcke
+INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.landschaftswandel_strecke
+    FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_landschaftswandel();
