@@ -2,7 +2,7 @@ Im Rahmen des [Projekts zur Erfassung der lausitzer Braunkohle- & Industriekultu
 
 Grundlage ist eine PostgreSQL-Datenbank mit PostGIS-Aufsatz. Gestaltungsschwerpunkte des Systems sind die Sicherstellung der Datenintegrität, die Nach- und Nebennutzbarkeit der Sammlung sowie Vereinfachung des Erfassungsprozesses. Zur Erfassung und Pflege der Datensätze wird [QGIS](https://github.com/qgis/QGIS) eingesetzt. QGIS-spezifische Systemteile tragen folglich die Bezeichnung LauQGIS.
 
-[<img src=".//Dokumentation/Datenbankschema\_vereinfacht.png" width="350"/>](.//Dokumentation/Datenbankschema_vereinfacht.png)
+[<img src=".//Dokumentation/Datenbankschema_vereinfacht.png" width="350"/>](.//Dokumentation/Datenbankschema_vereinfacht.png)
 
 ## Repositorium
 
