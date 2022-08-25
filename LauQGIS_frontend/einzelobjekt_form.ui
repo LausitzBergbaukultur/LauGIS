@@ -734,7 +734,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
          <item row="5" column="0">
           <widget class="QLabel" name="lblLage">
            <property name="text">
-            <string>Lagebschreibung</string>
+            <string>Lagebeschreibung</string>
            </property>
           </widget>
          </item>
