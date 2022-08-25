@@ -14,18 +14,18 @@ CREATE TABLE IF NOT EXISTS laugis.obj_lwk
 
     -- Identifikatoren
    	beschriftung text,				-- Bezeichnung und Identifikation
-    jahresschnitt smallint,
+    grundlage smallint,
     nutzungsart smallint,
     
-    -- geo -> rel
+    -- geo -> relation
 
     CONSTRAINT fkey_erfassung FOREIGN KEY (erfassung)
     REFERENCES laugis.def_erfasser (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 
-    CONSTRAINT fkey_jahresschnitt FOREIGN KEY (jahresschnitt)
-    REFERENCES laugis.def_jahresschnitt (id) MATCH SIMPLE
+    CONSTRAINT fkey_grundlage FOREIGN KEY (grundlage)
+    REFERENCES laugis.rel_grundlage (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
 

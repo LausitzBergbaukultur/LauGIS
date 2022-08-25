@@ -42,7 +42,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 
 		-- Identifikatoren
 		NEW.beschriftung,        -- Bezeichnung und Identifikation
-		NEW.jahresschnitt,
+		NEW.grundlage,
 		NEW.nutzungsart,
 
 		  -- # Geometrie

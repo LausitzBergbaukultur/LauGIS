@@ -1,5 +1,5 @@
 -- Gibt für ein Objekt die Fotoliste rel_fotos als JSON(text) zurück
--- Format: [{relation_id, objekt_id, dateiname, intern}]
+-- Format: [{relation_id, objekt_id, dateiname, intern, titelbild}]
 
 CREATE OR REPLACE FUNCTION laugis.return_bilder(
   _objekt_id integer              -- pk

@@ -13,8 +13,9 @@ CREATE OR REPLACE FUNCTION laugis.update_obj_lwk(
 
   -- Identifikatoren
   _beschriftung text,        -- Bezeichnung und Identifikation
-  _grundlage smallint,
+  _jahresschnitt smallint,
   _nutzungsart smallint,
+  _grundlage smallint,
 
   -- # Geometrie
   _geom geometry                   -- undefined geometry
@@ -45,8 +46,9 @@ BEGIN
         letzte_aenderung        = NOW(),
         erfassung               = _erfassung,
         beschriftung            = _beschriftung,
-        grundlage               = _grundlage,
-        nutzungsart             = _nutzungsart
+        jahresschnitt           = _jahresschnitt,
+        nutzungsart             = _nutzungsart,
+        grundlage               = _grundlage
     WHERE objekt_id             = _ob_id;
   ELSE
     INSERT INTO laugis.obj_lwk(
@@ -56,8 +58,9 @@ BEGIN
         geloescht,
         erfassung,
         beschriftung,
-        grundlage,
-        nutzungsart
+        jahresschnitt,
+        nutzungsart,
+        grundlage
         )
       VALUES (
         _erfassungsdatum,
@@ -66,8 +69,9 @@ BEGIN
         FALSE,
         _erfassung,
         _beschriftung,
-        _grundlage,
-        _nutzungsart
+        _jahresschnitt,
+        _nutzungsart,
+        _grundlage
         )
       RETURNING obj_lwk.objekt_id INTO _ob_id;
   END IF;

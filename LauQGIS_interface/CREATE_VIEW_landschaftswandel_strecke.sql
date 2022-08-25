@@ -2,7 +2,8 @@
 -- Die zugehörigen Geometrie ist Multilinestring
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.landschaftswandel_strecke AS
+DROP VIEW lauqgis.landschaftswandel_strecke;
+CREATE VIEW lauqgis.landschaftswandel_strecke AS
 
 SELECT 
     lwk.objekt_id,
@@ -12,7 +13,9 @@ SELECT
 
     -- Identifikatoren
    	lwk.beschriftung,				-- Bezeichnung und Identifikation
-    lwk.jahresschnitt,
+    lwk.grundlage,
+    COALESCE(grl.bezeichnung, '') || ': ' || COALESCE(grl.autorschaft, '') || ', ' || COALESCE(grl.erstellt, '') AS read_grundlage,
+    grl.jahresschnitt,
     lwk.nutzungsart,
 
 	-- # Geometrie 
@@ -20,6 +23,7 @@ SELECT
 		
 	FROM laugis.obj_lwk AS lwk
 	JOIN laugis.geo_lwk_line AS geo ON lwk.objekt_id = geo.ref_objekt_id
+	LEFT JOIN laugis.rel_grundlage AS grl ON lwk.grundlage = grl.id
 	WHERE lwk.geloescht IS NOT TRUE
 ;
 	

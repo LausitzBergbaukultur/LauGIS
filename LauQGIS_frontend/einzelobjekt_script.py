@@ -3,14 +3,15 @@
 # --------------------------------------------------------------------------------------------------
 # @Author:      Stefan Krug
 # @Institution: Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
-# @Date:        03.05.2022
+# @Date:        19.08.2022
 # @Links:       https://github.com/LausitzBergbaukultur/LauGIS
 # --------------------------------------------------------------------------------------------------
 
 import json
 import operator
+import webbrowser
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QWidget, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox, QTabWidget
+from PyQt5.QtWidgets import QDialog, QWidget, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox, QTabWidget, QMessageBox
 
 error_dialog = QErrorMessage()
 definitionen = list()
@@ -18,6 +19,7 @@ sachbegriffe = list()
 local_feature = None
 local_layer = None
 local_dialog = None
+url_manual = 'http://lausitzcloud.ddns.net:36329/index.php/s/TNjx9nmkqZ8XrzE'
 
 def formOpen(dialog,layer,feature):
     # Scope: Zugriff auf relevante Ressourcen ermöglichen
@@ -167,7 +169,7 @@ def formOpen(dialog,layer,feature):
         btn_konstruktion.clicked.connect(lambda: dlg_edit_konstruktion(QDialog()))
         btn_konstruktion2.clicked.connect(lambda: dlg_edit_konstruktion(QDialog()))
 
-# Feld: Literatur ###############################################        
+# Feld: Literatur #############################################################        
         btn_literatur = local_dialog.findChild(QToolButton, 'btn_literatur')
         try:
             btn_literatur.disconnect()
@@ -179,6 +181,23 @@ def formOpen(dialog,layer,feature):
 # Feld: Technische Anlage #####################################################
         chk_techn_anlage = local_dialog.findChild(QCheckBox, 'techn_anlage')
         chk_techn_anlage.stateChanged.connect(setAnlage)
+        
+# Menueleiste #################################################################
+        btn_changetype = dialog.findChild(QToolButton, 'btn_changetype')
+        try:
+            btn_changetype.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_changetype.clicked.connect(lambda: changetype_object(QDialog()))
+        
+        btn_manual = dialog.findChild(QToolButton, 'btn_manual')
+        try:
+            btn_manual.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_manual.clicked.connect(lambda: webbrowser.open(url_manual, new=0, autoraise=True))        
         
 ####################################################################################################
 
@@ -251,10 +270,16 @@ def reload_controls():
     lbl_sachbegriff.setText(sachbegriff)
 
 # Feld: Bilder ################################################################
-    bilder = [rel['dateiname'] + ' (intern)' 
-              if rel['intern'] 
-              else rel['dateiname'] 
-              for rel in get_rel_bilder()] 
+    bilder = list()
+    for rel in get_rel_bilder():
+        if rel['titelbild'] and rel['intern']:
+            bilder.append(rel['dateiname'] + ' (Titelbild, intern)')
+        elif rel['intern']:
+            bilder.append(rel['dateiname'] + ' (intern)')
+        elif rel['titelbild']:
+            bilder.append(rel['dateiname'] + ' (Titelbild)')
+        else:
+            bilder.append(rel['dateiname'])
     # control ermitteln und text einfügen
     lbl_return_bilder = local_dialog.findChild(QLabel, 'lbl_return_bilder')
     lbl_return_bilder.setText('\n'.join(bilder))
@@ -320,6 +345,23 @@ def setAnlage():
     
     tabTechnik.setEnabled(techn_anlage)
     tabArchitektur.setEnabled(operator.not_(techn_anlage))
+
+####################################################################################################
+# Menueleiste
+####################################################################################################
+    
+# wechselt Objektart zwischen Einzelobjekt und Objektbereich
+def changetype_object(dialog):
+    dlg = QMessageBox()
+    dlg.setWindowTitle('Sicherheitsabfrage')
+    dlg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    dlg.setIcon(QMessageBox.Warning)
+    dlg.setText('Soll der Objekttyp wirklich gewechselt werden?\n\nVorsicht: Beim Wechsel von Einzelobjekten zu Objektbereichen gehen einzelobjekt-spezifische Inhalte verloren!\n\nDie Änderung wird nach dem Speichern wirksam.')
+    if dlg.exec() == QMessageBox.Yes:
+        # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert
+        local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('api'), 'CHANGE_TYPE')
+        # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
+        local_feature['api'] = 'CHANGE_TYPE'
     
 ####################################################################################################
 # Feld: Datierung
@@ -1350,7 +1392,6 @@ def get_rel_bilder():
     # check if object isnt none
     if isinstance(local_feature.attribute('return_bilder'), str):     
         relations = [rel for rel in json.loads(local_feature.attribute('return_bilder'))]
-    # [{"relation_id":,"nutzungsart":"","datierung":""}]
     return relations
     
 ####################################################################################################        
@@ -1414,9 +1455,12 @@ def dlg_edit_bilder(dialog):
     btn_box.rejected.connect(dialog.reject)
        
     # setup table
-    table.setColumnCount(3)
-    table.setHorizontalHeaderLabels(['relation_id', 'Dateiname', 'intern'])
-    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    table.setColumnCount(4)
+    table.setHorizontalHeaderLabels(['relation_id', 'Dateiname', 'intern', 'Titelbild'])
+    header = table.horizontalHeader()
+    header.setSectionResizeMode(1, QHeaderView.Stretch)
+    header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+    header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
     
     # hide irrelevant columns
     table.setColumnHidden(0, True)
@@ -1445,7 +1489,7 @@ def check_bilder(table):
     
     for bild in [bild.strip() for bild 
               in local_dialog.findChild(QLineEdit, 'bilder_anmerkung').text().split(';')]:
-        add_row_bilder(table, {"relation_id": 'NULL',"dateiname":bild,"intern":False})
+        add_row_bilder(table, {"relation_id": 'NULL',"dateiname":bild,"intern":False, "titelbild":False})
     
 ####################################################################################################    
 
@@ -1460,6 +1504,12 @@ def add_row_bilder(table, rel):
     intern.setCheckState(Qt.Unchecked)
     table.setItem(row, 2, intern)  
     
+    # 2 chk titelbild (bei jeder Row vorhanden)
+    titel = QTableWidgetItem()
+    titel.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+    titel.setCheckState(Qt.Unchecked)
+    table.setItem(row, 3, titel)  
+    
     if rel is not None:
         # 0 relation_id
         table.setItem(row, 0, QTableWidgetItem(str(rel['relation_id'])))
@@ -1467,6 +1517,11 @@ def add_row_bilder(table, rel):
         table.setItem(row, 1, QTableWidgetItem(rel['dateiname']))
         # 2 kennzeichen inten
         intern.setCheckState(Qt.Checked if rel['intern'] else Qt.Unchecked) 
+        # 3 kennzeichen titelbild
+        titel.setCheckState(Qt.Checked if (rel['titelbild'] is not None and rel['titelbild']) else Qt.Unchecked) 
+    elif row == 0:
+        # 3 kennzeichen titelbild in erster row
+        titel.setCheckState(Qt.Checked) 
     
 ####################################################################################################        
     
@@ -1484,7 +1539,8 @@ def accept_edit_bilder(dialog):
                     if table.item(row, 0) is not None and table.item(row, 0).text().isnumeric() else 'NULL',
                 'ref_objekt_id'     : local_feature.attribute('objekt_id'),
                 'dateiname'         : table.item(row, 1).text() if table.item(row, 1) is not None else 'NULL',
-                'intern'            : True if table.item(row, 2).checkState() > 0 else False
+                'intern'            : True if table.item(row, 2).checkState() > 0 else False,
+                'titelbild'         : True if table.item(row, 3).checkState() > 0 else False
                 })                       
             
     # speichern auf Layerebene, nur so werden bestehende Objekte aktualisiert

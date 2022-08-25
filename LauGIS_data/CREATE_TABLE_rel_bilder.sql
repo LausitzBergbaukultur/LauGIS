@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS laugis.rel_bilder
     ref_objekt_id integer,          -- fk NOT NULL
     dateiname text,                 -- Dateiname incl. Endung
     intern bool,                    -- Kennzeichen 'nicht zur Veröffentlichung'
+    titelbild bool,                 -- Kennzeichen des primaer zu veroeffentlichenden Bildes
 
 -- Referenz zur übergeordneten Objekt-Base
 CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)

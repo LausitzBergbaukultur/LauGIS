@@ -378,7 +378,8 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'dateiname')::text,
-			(_rel->>'intern')::bool
+			(_rel->>'intern')::bool,
+			(_rel->>'titelbild')::bool
 			);
 		END LOOP;
 	END IF;   
@@ -434,6 +435,14 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	
+---------------------------------------------------------------------------------------------------------------
+-- Prüfung API: Change Type
+--------------------------------------------------------------------------------------------------------------- 	
+
+	IF NEW.api = 'CHANGE_TYPE' THEN
+		PERFORM laugis.change_objecttype(_obj_id);
+	END IF;
+
     RETURN NEW;
 
 END IF;

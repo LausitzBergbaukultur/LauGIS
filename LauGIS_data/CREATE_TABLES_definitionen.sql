@@ -14,7 +14,7 @@ INSERT INTO laugis.def_Erfasser (name, sortierung, username) VALUES
 	('Franz Dietzmann', 2, 'fdietzmann'),
 	('Kirsten Krepelin', 3, 'kkrepelin'),
 	('Barbara Kuendiger', 4, 'bkuendiger'),
-	('Kaja Teschner', 5, 'kteschner'),
+	('Kaja Boelcke', 5, 'kteschner'),
 	('Stefan Krug', 6, 'skrug'),
 	('Tanja Trittel', 7, 'ttrittel')
 ;
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS laugis.def_jahresschnitt
 );
 
 INSERT INTO laugis.def_jahresschnitt (bezeichnung, sortierung) VALUES 
-	('1936-1943', 1),
-	('1989', 2),
+	('1846', 1),
+	('1936-1943', 2),
 	('2021', 3)
 ;
 
@@ -378,4 +378,34 @@ INSERT INTO laugis.def_konstruktion (bezeichnung, sortierung) VALUES
 ('Hohlkastenkonstruktion', 33),
 ('FREITEXT', 999)
 ;
+--------------------------------------------------------------------------------------
+
+-- Beschreibt die Quellengrundlagen, die in obj_lwk referenziert werden.
+-- Über den Verweis auf def_jahresschnitt werden über rel_grundlage implizit Zuordnungen zu den Jahresschnitten getroffen.
+
+DROP TABLE IF EXISTS laugis.rel_grundlage;
+CREATE TABLE IF NOT EXISTS laugis.rel_grundlage
+(
+ 	id integer PRIMARY KEY generated always as identity,
+	bezeichnung text NOT NULL,
+	autorschaft text,
+	herkunft text,
+	zeitraum text,
+	jahresschnitt integer, --fk
+	erstellt text,
+	kommentar text,
+
+-- Referenz zur erfasser-Tabelle
+CONSTRAINT fkey_jahresschnitt_id FOREIGN KEY (jahresschnitt)
+    REFERENCES laugis.def_jahresschnitt (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+);
+
+INSERT INTO laugis.rel_grundlage (bezeichnung, autorschaft, herkunft, zeitraum, jahresschnitt, erstellt, kommentar) VALUES 
+	('Landnutzung 1846', 'Lausitzer und Mitteldeutsche Bergbau-Verwaltungsgesellschaft mbH', 'Preußische Ur-Messtischblätter (1822-1872); Topographische Karte des Deutschen Reiches (1877-1921); Quadratmeilenblätter (1816-1821)','1846', 1, '2021',NULL),
+	('Karte des Deutschen Reiches 1:25 000 – Messtischblatt / DR Messtischblätter 25', 'Landesvermessung und Geobasisinformation Brandenburg (LGB)', NULL, 'um 1945', 2, 'Erstellung 31.12.1919; Aktualisierung 31.12.1949', '© GeoBasis-DE/LGB, dl-de/by-2-0'),
+	('Datensatz ''Tatsächliche Nutzung'' des Amtlichen Liegenschaftskatasterinformationssystems (ALKIS-Daten)ALKIS', 'LGB (Landesvermessung und Geobasisinformation Brandenburg)', NULL, '2021', 3, '28.02.2013, kontinuierliche Aktualisierung', '© GeoBasis-DE/LGB, dl-de/by-2-0')
+;
+
 --------------------------------------------------------------------------------------

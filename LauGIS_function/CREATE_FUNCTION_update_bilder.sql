@@ -5,7 +5,8 @@ CREATE OR REPLACE FUNCTION laugis.update_bilder(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _dateiname text,
-  _intern bool
+  _intern bool,
+  _titelbild bool
   ) 
 
 RETURNS INTEGER AS $$
@@ -27,18 +28,21 @@ BEGIN
     SET
         ref_objekt_id = _ref_objekt_id,
         dateiname = _dateiname,
-        intern = _intern
+        intern = _intern,
+        titelbild = _titelbild
     WHERE relation_id = _relation_id;
   ELSE
     INSERT INTO laugis.rel_bilder(
         ref_objekt_id,
         dateiname,
-        intern
+        intern,
+        titelbild
         )
       VALUES (
         _ref_objekt_id,
         _dateiname,
-        _intern
+        _intern,
+        _titelbild
         )
       RETURNING rel_bilder.relation_id INTO _relation_id;
   END IF;

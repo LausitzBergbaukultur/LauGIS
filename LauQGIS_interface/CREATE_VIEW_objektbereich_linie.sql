@@ -4,7 +4,8 @@
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.objektbereich_linie AS
+DROP VIEW lauqgis.objektbereich_linie;
+CREATE VIEW lauqgis.objektbereich_linie AS
 
 SELECT 
     -- # Metadaten
@@ -15,6 +16,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -24,12 +26,17 @@ SELECT
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
 		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
 		ob.hida_nr, 
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -47,9 +54,13 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 		
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_line AS geo ON ob.objekt_id = geo.ref_objekt_id
