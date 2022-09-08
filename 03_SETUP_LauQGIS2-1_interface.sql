@@ -4,7 +4,7 @@
 -- Erwartet eine PostgreSQL Datenbank mit dem Schema 'lauqgis' sowie
 -- einem mittels "setup_db_LAUGIS.sql" befüllten Schema 'laugis'.
 --
--- Stand: 2020-04-27
+-- Stand: 2022-09-08
 -- Autor: Stefan Krug
 --
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,6 @@
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # trf_einzelobjekt (trigger function)
 --------------------------------------------------------------------------------------------------------------------------------------
-
 CREATE OR REPLACE FUNCTION lauqgis.trf_einzelobjekt()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -415,7 +414,8 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'dateiname')::text,
-			(_rel->>'intern')::bool
+			(_rel->>'intern')::bool,
+			(_rel->>'titelbild')::bool
 			);
 		END LOOP;
 	END IF;   
@@ -609,6 +609,14 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	
+---------------------------------------------------------------------------------------------------------------
+-- Prüfung API: Change Type
+--------------------------------------------------------------------------------------------------------------- 	
+
+	IF NEW.api = 'CHANGE_TYPE' THEN
+		PERFORM laugis.change_objecttype(_obj_id);
+	END IF;
+
     RETURN NEW;
 
 END IF;
@@ -999,7 +1007,8 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 			_rel_id::integer,
 			_obj_id,
 			(_rel->>'dateiname')::text,
-			(_rel->>'intern')::bool
+			(_rel->>'intern')::bool,
+			(_rel->>'titelbild')::bool
 			);
 		END LOOP;
 	END IF;   
@@ -1055,6 +1064,14 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 	_rel_old_ids = NULL;
 	_rel_new_ids = NULL;
 	
+---------------------------------------------------------------------------------------------------------------
+-- Prüfung API: Change Type
+--------------------------------------------------------------------------------------------------------------- 	
+
+	IF NEW.api = 'CHANGE_TYPE' THEN
+		PERFORM laugis.change_objecttype(_obj_id);
+	END IF;
+
     RETURN NEW;
 
 END IF;
@@ -1138,7 +1155,8 @@ ORDER BY sb_erw.sortierung
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.einzelobjekt_poly AS
+DROP VIEW lauqgis.einzelobjekt_poly;
+CREATE VIEW lauqgis.einzelobjekt_poly AS
 
 SELECT 
     -- # Metadaten
@@ -1149,6 +1167,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -1157,13 +1176,18 @@ SELECT
 		ob.beschreibung, 
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
-		laugis.return_literatur(ob.objekt_id) AS return_literatur, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
-		ob.hida_nr,
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		ob.hida_nr, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -1181,18 +1205,22 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
    
 	-- # Deskriptoren
 		tech.techn_anlage,
 	    laugis.return_material(ob.objekt_id) AS return_material,
+	    laugis.read_material(ob.objekt_id) AS read_material,
 	    tech.material_alt,
 	    laugis.return_konstruktion(ob.objekt_id) AS return_konstruktion,
+	    laugis.read_konstruktion(ob.objekt_id) AS read_konstruktion,
 	    tech.konstruktion_alt,
-	-- # Deskrptoren - Architektur
+	-- # Deskriptoren - Architektur
 	    tech.geschosszahl,
 	    tech.achsenzahl,
 	    tech.grundriss,
 	    laugis.return_dachform(ob.objekt_id) AS return_dachform,
+	    laugis.read_dachform(ob.objekt_id) AS read_dachform,
 	    tech.dachform_alt,
 	-- # Deskriptoren - Technik
 		tech.antrieb,
@@ -1200,7 +1228,10 @@ SELECT
 		tech.gewicht,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_poly AS geo ON ob.objekt_id = geo.ref_objekt_id
@@ -1216,12 +1247,13 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_poly
 -------------------------------------------------------------------------------------------------------------------------------------- 
 
 -- Die View repräsentiert die Struktur "Einzelobjekt"
--- Die zugehörigen Geometrie ist Multipoint
+-- Die zugehörigen Geometrie ist Mulitpoint
 -- Einzelobjekte definierenw sich über deinen zusammenhängenden Datensatz in obj_basis und obj_tech
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.einzelobjekt_punkt AS
+DROP VIEW lauqgis.einzelobjekt_punkt;
+CREATE VIEW lauqgis.einzelobjekt_punkt AS
 
 SELECT 
     -- # Metadaten
@@ -1232,6 +1264,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -1240,13 +1273,18 @@ SELECT
 		ob.beschreibung, 
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
-		laugis.return_literatur(ob.objekt_id) AS return_literatur, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
 		ob.hida_nr, 
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -1264,18 +1302,22 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
    
 	-- # Deskriptoren
 		tech.techn_anlage,
 	    laugis.return_material(ob.objekt_id) AS return_material,
+	    laugis.read_material(ob.objekt_id) AS read_material,
 	    tech.material_alt,
 	    laugis.return_konstruktion(ob.objekt_id) AS return_konstruktion,
+	    laugis.read_konstruktion(ob.objekt_id) AS read_konstruktion,
 	    tech.konstruktion_alt,
-	-- # Deskrptoren - Architektur
+	-- # Deskriptoren - Architektur
 	    tech.geschosszahl,
 	    tech.achsenzahl,
 	    tech.grundriss,
 	    laugis.return_dachform(ob.objekt_id) AS return_dachform,
+	    laugis.read_dachform(ob.objekt_id) AS read_dachform,
 	    tech.dachform_alt,
 	-- # Deskriptoren - Technik
 		tech.antrieb,
@@ -1283,7 +1325,10 @@ SELECT
 		tech.gewicht,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_point AS geo ON ob.objekt_id = geo.ref_objekt_id
@@ -1304,7 +1349,8 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_punkt
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.einzelobjekt_linie AS
+DROP VIEW lauqgis.einzelobjekt_linie;
+CREATE VIEW lauqgis.einzelobjekt_linie AS
 
 SELECT 
     -- # Metadaten
@@ -1315,6 +1361,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -1323,13 +1370,18 @@ SELECT
 		ob.beschreibung, 
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
-		laugis.return_literatur(ob.objekt_id) AS return_literatur, 
+		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
 		ob.hida_nr, 
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -1347,18 +1399,22 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
    
 	-- # Deskriptoren
 		tech.techn_anlage,
 	    laugis.return_material(ob.objekt_id) AS return_material,
+	    laugis.read_material(ob.objekt_id) AS read_material,
 	    tech.material_alt,
 	    laugis.return_konstruktion(ob.objekt_id) AS return_konstruktion,
+	    laugis.read_konstruktion(ob.objekt_id) AS read_konstruktion,
 	    tech.konstruktion_alt,
-	-- # Deskrptoren - Architektur
+	-- # Deskriptoren - Architektur
 	    tech.geschosszahl,
 	    tech.achsenzahl,
 	    tech.grundriss,
 	    laugis.return_dachform(ob.objekt_id) AS return_dachform,
+	    laugis.read_dachform(ob.objekt_id) AS read_dachform,
 	    tech.dachform_alt,
 	-- # Deskriptoren - Technik
 		tech.antrieb,
@@ -1366,7 +1422,10 @@ SELECT
 		tech.gewicht,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_line AS geo ON ob.objekt_id = geo.ref_objekt_id
@@ -1387,7 +1446,8 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.einzelobjekt_linie
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.objektbereich_poly AS
+DROP VIEW lauqgis.objektbereich_poly;
+CREATE VIEW lauqgis.objektbereich_poly AS
 
 SELECT 
     -- # Metadaten
@@ -1398,6 +1458,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -1407,12 +1468,17 @@ SELECT
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
 		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
 		ob.hida_nr, 
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -1430,9 +1496,13 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 		
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_poly AS geo ON ob.objekt_id = geo.ref_objekt_id
@@ -1458,7 +1528,8 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.objektbereich_poly
 -- Komplexe Daten werden als text(json[]) übergebem.
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.objektbereich_linie AS
+DROP VIEW lauqgis.objektbereich_linie;
+CREATE VIEW lauqgis.objektbereich_linie AS
 
 SELECT 
     -- # Metadaten
@@ -1469,6 +1540,7 @@ SELECT
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 
 		laugis.return_erfasser(ob.objekt_id) AS return_erfasser, 
+		laugis.read_erfasser(ob.objekt_id, true) AS read_erfasser, 
 
     -- # Deskriptoren 
 		ob.kategorie,
@@ -1478,12 +1550,17 @@ SELECT
 		ob.beschreibung_ergaenzung, 
 		ob.lagebeschreibung, 
 		laugis.return_literatur(ob.objekt_id) AS return_literatur,
+		laugis.read_literatur(ob.objekt_id) AS read_literatur,
 		ob.notiz_intern, 
 		ob.hida_nr, 
-		laugis.return_datierung(ob.objekt_id) AS return_datierung, 
+		laugis.return_datierung(ob.objekt_id) AS return_datierung,
+		laugis.read_datierung(ob.objekt_id) AS read_datierung, 
 		laugis.return_nutzung(ob.objekt_id) AS return_nutzung,
+		laugis.read_nutzung(ob.objekt_id) AS read_nutzung,
 	    laugis.return_personen(ob.objekt_id) AS return_personen,
+	    laugis.read_personen(ob.objekt_id) AS read_personen,
 	    laugis.return_bilder(ob.objekt_id) AS return_bilder,
+	    laugis.read_bilder(ob.objekt_id) AS read_bilder,
 		ob.bilder_anmerkung,
 
     -- # Stammdaten  
@@ -1501,9 +1578,13 @@ SELECT
 		ob.hausnummer, 
 		ob.gem_flur,
 		laugis.return_blickbeziehung(ob.objekt_id) AS return_blickbeziehung,
+		laugis.read_blickbeziehung(ob.objekt_id) AS read_blickbeziehung,
 
 	-- # Geometrie 
-		geo.geom
+		geo.geom,
+
+	-- # interface (explicit text, nulled)
+		NULL::text AS api
 		
 	FROM laugis.obj_basis AS ob
 	JOIN laugis.geo_line AS geo ON ob.objekt_id = geo.ref_objekt_id
@@ -1519,6 +1600,130 @@ CREATE TRIGGER tr_instead_objektbereich
 INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.objektbereich_linie
     FOR EACH ROW EXECUTE FUNCTION lauqgis.trf_objektbereich();
 
+--------------------------------------------------------------------------------------------------------------------------------------
+-- # update_obj_lwk (function)
+-------------------------------------------------------------------------------------------------------------------------------------- 
+
+-- Setzt die Werte für ein bestehendes oder neues LWK-Objekt
+-- Legt entsprechend der Geometrie-Art einen passenden verknüpften Eintrag an
+-- Setzt das Flag 'geloescht' auf false
+-- Fügt in 'letzte_aenderung' den aktuellen Timestamp
+-- Gibt die ID des bearbeiteten Eintrags zurück
+
+CREATE OR REPLACE FUNCTION laugis.update_obj_lwk(
+  -- # Metadaten  
+  _objekt_id integer, -- PK
+  _erfassungsdatum date,     -- 9580
+  _aenderungsdatum date,     -- 9950
+  _erfassung smallint,
+
+  -- Identifikatoren
+  _beschriftung text,        -- Bezeichnung und Identifikation
+  _jahresschnitt smallint,
+  _nutzungsart smallint,
+  _grundlage smallint,
+
+  -- # Geometrie
+  _geom geometry                   -- undefined geometry
+  ) 
+RETURNS INTEGER AS $$
+
+DECLARE
+  _ob_id integer = _objekt_id;
+  _is_update bool = NULL;
+BEGIN
+
+  -- check if UPDATE or INSERT
+  IF (_objekt_id IS NOT NULL) THEN
+    _is_update = TRUE;
+  ELSE
+    _is_update = FALSE;
+  END IF;
+
+---------------------------------------------------------------------------------------------------------------
+-- Handle obj_basis entries
+---------------------------------------------------------------------------------------------------------------
+
+  IF (_is_update) THEN
+    UPDATE laugis.obj_lwk
+    SET
+        erfassungsdatum         = _erfassungsdatum,
+        aenderungsdatum         = _aenderungsdatum,
+        letzte_aenderung        = NOW(),
+        erfassung               = _erfassung,
+        beschriftung            = _beschriftung,
+        jahresschnitt           = _jahresschnitt,
+        nutzungsart             = _nutzungsart,
+        grundlage               = _grundlage
+    WHERE objekt_id             = _ob_id;
+  ELSE
+    INSERT INTO laugis.obj_lwk(
+        erfassungsdatum,
+        aenderungsdatum,
+        letzte_aenderung,
+        geloescht,
+        erfassung,
+        beschriftung,
+        jahresschnitt,
+        nutzungsart,
+        grundlage
+        )
+      VALUES (
+        _erfassungsdatum,
+        _aenderungsdatum,
+        NOW(),
+        FALSE,
+        _erfassung,
+        _beschriftung,
+        _jahresschnitt,
+        _nutzungsart,
+        _grundlage
+        )
+      RETURNING obj_lwk.objekt_id INTO _ob_id;
+  END IF;
+
+---------------------------------------------------------------------------------------------------------------
+-- Geometry handling
+---------------------------------------------------------------------------------------------------------------
+
+  IF (ST_GeometryType(_geom) = 'ST_MultiPolygon') THEN 
+    
+    IF (_is_update) THEN
+        UPDATE laugis.geo_lwk_poly
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;  
+    ELSE 
+        INSERT INTO laugis.geo_lwk_poly(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF;  
+  
+  ELSEIF (ST_GeometryType(_geom) = 'ST_MultiLineString') THEN
+    
+    IF (_is_update) THEN
+        UPDATE laugis.geo_lwk_line
+        SET geom = _geom
+        WHERE ref_objekt_id = _ob_id;    
+    ELSE  
+        INSERT INTO laugis.geo_lwk_line(
+            ref_objekt_id,
+            geom
+            )
+          VALUES (
+            _ob_id,
+            _geom);
+    END IF; 
+  END IF;
+
+-- return (inserted) object id
+RETURN _ob_id;
+
+END;
+$$ LANGUAGE plpgsql;
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # trf_landschaftswandel (trigger function)
@@ -1568,7 +1773,7 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 
 		-- Identifikatoren
 		NEW.beschriftung,        -- Bezeichnung und Identifikation
-		NEW.jahresschnitt,
+		NEW.grundlage,
 		NEW.nutzungsart,
 
 		  -- # Geometrie
@@ -1590,7 +1795,8 @@ $$ LANGUAGE plpgsql;
 -- Die zugehörigen Geometrie ist Multipolygon
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.landschaftswandel_bereich AS
+DROP VIEW lauqgis.landschaftswandel_bereich;
+CREATE VIEW lauqgis.landschaftswandel_bereich AS
 
 SELECT 
     lwk.objekt_id,
@@ -1600,7 +1806,9 @@ SELECT
 
     -- Identifikatoren
    	lwk.beschriftung,				-- Bezeichnung und Identifikation
-    lwk.jahresschnitt,
+    lwk.grundlage,
+    COALESCE(grl.bezeichnung, '') || ': ' || COALESCE(grl.autorschaft, '') || ', ' || COALESCE(grl.erstellt, '') AS read_grundlage,
+    grl.jahresschnitt,
     lwk.nutzungsart,
 
 	-- # Geometrie 
@@ -1608,6 +1816,7 @@ SELECT
 		
 	FROM laugis.obj_lwk AS lwk
 	JOIN laugis.geo_lwk_poly AS geo ON lwk.objekt_id = geo.ref_objekt_id
+	LEFT JOIN laugis.rel_grundlage AS grl ON lwk.grundlage = grl.id
 	WHERE lwk.geloescht IS NOT TRUE
 ;
 	
@@ -1623,7 +1832,8 @@ INSTEAD OF INSERT OR UPDATE OR DELETE ON lauqgis.landschaftswandel_bereich
 -- Die zugehörigen Geometrie ist Multilinestring
 -- Datensätze mit Flag 'geloescht' werden nicht berücksichtigt.
 
-CREATE OR REPLACE VIEW lauqgis.landschaftswandel_strecke AS
+DROP VIEW lauqgis.landschaftswandel_strecke;
+CREATE VIEW lauqgis.landschaftswandel_strecke AS
 
 SELECT 
     lwk.objekt_id,
@@ -1633,7 +1843,9 @@ SELECT
 
     -- Identifikatoren
    	lwk.beschriftung,				-- Bezeichnung und Identifikation
-    lwk.jahresschnitt,
+    lwk.grundlage,
+    COALESCE(grl.bezeichnung, '') || ': ' || COALESCE(grl.autorschaft, '') || ', ' || COALESCE(grl.erstellt, '') AS read_grundlage,
+    grl.jahresschnitt,
     lwk.nutzungsart,
 
 	-- # Geometrie 
@@ -1641,6 +1853,7 @@ SELECT
 		
 	FROM laugis.obj_lwk AS lwk
 	JOIN laugis.geo_lwk_line AS geo ON lwk.objekt_id = geo.ref_objekt_id
+	LEFT JOIN laugis.rel_grundlage AS grl ON lwk.grundlage = grl.id
 	WHERE lwk.geloescht IS NOT TRUE
 ;
 	

@@ -5,7 +5,7 @@
 -- Die Schemata 'laugis' und 'lauqgis' dürfen noch nicht vergeben sein.
 -- [user] steht stellvertretend für alle berechtigten user accounts.
 --
--- Stand: 2020-04-27
+-- Stand: 2022-09-08
 -- Autor: Stefan Krug
 --
 --------------------------------------------------------------------------------------------------------------------------------------

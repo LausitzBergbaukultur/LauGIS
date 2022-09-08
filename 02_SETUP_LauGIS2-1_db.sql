@@ -4,7 +4,7 @@
 -- Befüllt Definitions-Tabellen mit den vorgegebenen Werten.
 -- Erwartet eine PostgreSQL Datenbank mit dem Schema 'laugis'.
 --
--- Stand: 2020-04-27
+-- Stand: 2022-09-08
 -- Autor: Stefan Krug
 --
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -61,150 +61,152 @@ CONSTRAINT fkey_sachbegriff FOREIGN KEY (ref_sachbegriff_id)
 INSERT INTO laugis.def_sachbegriff (kategorie, id, ref_sachbegriff_id, sachbegriff, show_anlage, sortierung) 
 OVERRIDING SYSTEM VALUE
 VALUES 
-(1,1100,1100,'Bergbauanlage',FALSE,1000),
-(1,1101,1100,'Abbaufeld',FALSE,1001),
-(1,1102,1100,'Abproduktenhalde',FALSE,1002),
-(1,1103,1100,'Altbergbaugebiet',FALSE,1003),
-(1,1104,1100,'Auffahrrampe',FALSE,1004),
-(1,1105,1100,'Befund',FALSE,1005),
-(1,1106,1100,'Bergamt',FALSE,1006),
-(1,1107,1100,'Bergschmiede',FALSE,1007),
-(1,1108,1100,'Bethaus',FALSE,1008),
-(1,1109,1100,'Bruchfeld',FALSE,1009),
-(1,1110,1100,'Bunker',FALSE,1010),
-(1,1111,1100,'Damm',FALSE,1011),
-(1,1112,1100,'Devastierungsfläche',FALSE,1012),
-(1,1113,1100,'Fahrtrum',TRUE,1013),
-(1,1114,1100,'Fluterhaus',FALSE,1014),
-(1,1115,1100,'Fördergerüst',TRUE,1015),
-(1,1116,1100,'Fördermaschinengebäude',FALSE,1016),
-(1,1117,1100,'Fördertrum',TRUE,1017),
-(1,1118,1100,'Förderturm',TRUE,1018),
-(1,1119,1100,'Gewässerverlegung',FALSE,1019),
-(1,1120,1100,'Grube',FALSE,1020),
-(1,1121,1100,'Grubeneinbauten',FALSE,1021),
-(1,1122,1100,'Grubenwehrgebäude',FALSE,1022),
-(1,1123,1100,'Halde',FALSE,1023),
-(1,1124,1100,'Hochwasserschutzanlage',FALSE,1024),
-(1,1125,1100,'Huthaus',FALSE,1025),
-(1,1126,1100,'Kaue',FALSE,1026),
-(1,1127,1100,'Kesselhaus',FALSE,1027),
-(1,1128,1100,'Kompressorenstation',TRUE,1028),
-(1,1129,1100,'Kunsttrum',TRUE,1029),
-(1,1130,1100,'Leitstand',FALSE,1030),
-(1,1131,1100,'Lichtloch',FALSE,1031),
-(1,1132,1100,'Magazin',FALSE,1032),
-(1,1133,1100,'Mannschaftsbad',FALSE,1033),
-(1,1134,1100,'Maschinenhaus',FALSE,1034),
-(1,1135,1100,'Mundloch',FALSE,1035),
-(1,1136,1100,'Pinge',FALSE,1036),
-(1,1137,1100,'Planum',FALSE,1037),
-(1,1138,1100,'Rampe',FALSE,1038),
-(1,1139,1100,'Rekultivierungsfläche',FALSE,1039),
-(1,1140,1100,'Schacht',TRUE,1040),
-(1,1141,1100,'Schachtaufsattelung',FALSE,1041),
-(1,1142,1100,'Schachteinbauten',FALSE,1042),
-(1,1143,1100,'Schachtgebäude',FALSE,1043),
-(1,1144,1100,'Seilbahn',FALSE,1044),
-(1,1145,1100,'Siebgebäude',FALSE,1045),
-(1,1146,1100,'Sohle',FALSE,1046),
-(1,1147,1100,'Sozialgebäude',FALSE,1047),
-(1,1148,1100,'Spitzkehre',FALSE,1048),
-(1,1149,1100,'Stapelplatz',FALSE,1049),
-(1,1150,1100,'Stollen',FALSE,1050),
-(1,1151,1100,'Straßenverlegung',FALSE,1051),
-(1,1152,1100,'Tagebaufläche',FALSE,1052),
-(1,1153,1100,'Tagebaurestloch',FALSE,1053),
-(1,1154,1100,'Tagebauvorfeld',FALSE,1054),
-(1,1155,1100,'Tagegebäude/Tagesanlagen',FALSE,1055),
-(1,1156,1100,'Tankanlage',FALSE,1056),
-(1,1157,1100,'Turbinenhaus',FALSE,1057),
-(1,1158,1100,'Übergabestation',TRUE,1058),
-(1,1159,1100,'Umspurrampe',TRUE,1059),
-(1,1160,1100,'Verladeanlage',FALSE,1060),
-(1,1161,1100,'Verschiebebandanlage',FALSE,1061),
-(1,1162,1100,'Verwaltungsgebäude',FALSE,1062),
-(1,1163,1100,'Wache',FALSE,1063),
-(1,1164,1100,'Waschkaue',FALSE,1064),
-(1,1165,1100,'Wassersammelbecken',FALSE,1065),
-(1,1166,1100,'Werkstattgebäude',FALSE,1066),
-(1,1200,1200,'Bergbaugerät',FALSE,1067),
-(1,1201,1200,'Abraumförderbrücke',TRUE,1068),
-(1,1202,1200,'Absetzer',TRUE,1069),
-(1,1203,1200,'Aufgabe-Trichter-Fahrzeug',FALSE,1070),
-(1,1204,1200,'Bandanlage',TRUE,1071),
-(1,1205,1200,'Bandantriebsstation',FALSE,1072),
-(1,1206,1200,'Bandbrücke',TRUE,1073),
-(1,1207,1200,'Bandrückmaschine',TRUE,1074),
-(1,1208,1200,'Bandschleifenwagen',TRUE,1075),
-(1,1209,1200,'Bandwagen',TRUE,1076),
-(1,1210,1200,'Birkpflug',FALSE,1077),
-(1,1211,1200,'Brecheranlage',FALSE,1078),
-(1,1212,1200,'Dampfkessel',TRUE,1079),
-(1,1213,1200,'Dampfturbine',TRUE,1080),
-(1,1214,1200,'Eimerkettenbagger',TRUE,1081),
-(1,1215,1200,'Fördergutträger',TRUE,1082),
-(1,1216,1200,'Fördermaschine',TRUE,1083),
-(1,1217,1200,'Förderwagen',TRUE,1084),
-(1,1218,1200,'Generator',TRUE,1085),
-(1,1219,1200,'Gleisrückmaschine',TRUE,1086),
-(1,1220,1200,'Grubenbahn',TRUE,1087),
-(1,1221,1200,'Hängebank',FALSE,1088),
-(1,1222,1200,'Hilfsgerät',TRUE,1089),
-(1,1223,1200,'Kabeltrommelwagen',TRUE,1090),
-(1,1224,1200,'Kohlebahn',TRUE,1091),
-(1,1225,1200,'Kompressor',TRUE,1092),
-(1,1226,1200,'Kratzerkettenförderer',FALSE,1093),
-(1,1227,1200,'Kreuzungsbauwerk',FALSE,1094),
-(1,1228,1200,'Leitungstrommel',FALSE,1095),
-(1,1229,1200,'Maschinen-/Anlagenteil',TRUE,1096),
-(1,1230,1200,'Rückladegerät',TRUE,1097),
-(1,1231,1200,'Schachtbohrgerät',TRUE,1098),
-(1,1232,1200,'Schaufelradbagger',TRUE,1099),
-(1,1233,1200,'Sprühanlage',TRUE,1100),
-(1,1234,1200,'Waage',TRUE,1101),
-(1,1235,1200,'Wasserrad',TRUE,1102),
-(1,1236,1200,'Wasserturbine',TRUE,1103),
-(1,1300,1300,'Bergbauwasserwirtschaftliche Anlage',FALSE,1104),
-(1,1301,1300,'Abschlag',FALSE,1105),
-(1,1302,1300,'Absetzbecken',TRUE,1106),
-(1,1303,1300,'Aquädukt',FALSE,1107),
-(1,1304,1300,'Belüftungsanlagen',TRUE,1108),
-(1,1305,1300,'Brunnen',FALSE,1109),
-(1,1306,1300,'Dichtwand',FALSE,1110),
-(1,1307,1300,'Entwässerungsbrunnen',TRUE,1111),
-(1,1308,1300,'Entwässerungsstrecke',TRUE,1112),
-(1,1309,1300,'Filterbrunnen',TRUE,1113),
-(1,1310,1300,'Grubenentwässerungsanlage',FALSE,1114),
-(1,1311,1300,'Grubenwasserreinigungsanlage',FALSE,1115),
-(1,1312,1300,'Kalksilos',TRUE,1116),
-(1,1313,1300,'Leitungssystem',TRUE,1117),
-(1,1314,1300,'Leitungssystem',TRUE,1118),
-(1,1315,1300,'Pegel',FALSE,1119),
-(1,1316,1300,'Vorfluter',FALSE,1120),
-(1,1001,NULL,'Feuerlöschteich',FALSE,1121),
-(1,1002,NULL,'Feuerwache',FALSE,1122),
-(1,1003,NULL,'Feuerwachturm',FALSE,1123),
-(1,1004,NULL,'Feuerwehr-Fahrzeuge',TRUE,1124),
-(1,1400,1400,'Kran',FALSE,1125),
-(1,1401,1400,'Drehkran',TRUE,1126),
-(1,1402,1400,'Laufkran',TRUE,1127),
-(1,1403,1400,'Portalkran',TRUE,1128),
-(1,1005,NULL,'Schlauchturm',FALSE,1129),
-(1,1006,NULL,'Schütz',FALSE,1130),
-(1,1500,1500,'Schutzbauwerke',FALSE,1131),
-(1,1501,1500,'Damm',FALSE,1132),
-(1,1502,1500,'Flutrinne',FALSE,1133),
-(1,1503,1500,'Haben',FALSE,1134),
-(1,1504,1500,'Hochwassermarke',FALSE,1135),
-(1,1505,1500,'Überlaufgraben',FALSE,1136),
-(1,1007,NULL,'Spritzenhaus',FALSE,1137),
-(1,1008,NULL,'Staudamm',FALSE,1138),
-(1,1600,1600,'Talsperre',FALSE,1139),
-(1,1601,1600,'Schieberhaus',FALSE,1140),
-(1,1602,1600,'Tosbecken',FALSE,1141),
-(1,1603,1600,'Wärterhaus',FALSE,1142),
-(1,1009,NULL,'Wehr',FALSE,1143),
+(1,1100 ,1100,'Bergbauanlage',false,1000),
+(1,1101 ,1100,'Abbaufeld',false,1001),
+(1,1102 ,1100,'Abproduktenhalde',false,1002),
+(1,1103 ,1100,'Altbergbaugebiet',false,1003),
+(1,1104 ,1100,'Auffahrrampe',false,1004),
+(1,1105 ,1100,'Befund',false,1005),
+(1,1106 ,1100,'Bergamt',false,1006),
+(1,1107 ,1100,'Bergschmiede',false,1007),
+(1,1108 ,1100,'Bethaus',false,1008),
+(1,1109 ,1100,'Bruchfeld',false,1009),
+(1,1110 ,1100,'Bunker',false,1010),
+(1,1111 ,1100,'Damm',false,1011),
+(1,1112 ,1100,'Devastierungsfläche',false,1012),
+(1,1113 ,1100,'Fahrtrum',true ,1013),
+(1,1114 ,1100,'Fluterhaus',false,1014),
+(1,1115 ,1100,'Fördergerüst',true ,1015),
+(1,1116 ,1100,'Fördermaschinengebäude',false,1016),
+(1,1117 ,1100,'Fördertrum',true ,1017),
+(1,1118 ,1100,'Förderturm',true ,1018),
+(1,1119 ,1100,'Gewässerverlegung',false,1019),
+(1,1120 ,1100,'Grube',false,1020),
+(1,1121 ,1100,'Grubeneinbauten',false,1021),
+(1,1122 ,1100,'Grubenwehrgebäude',false,1022),
+(1,1123 ,1100,'Halde',false,1023),
+(1,1124 ,1100,'Hochwasserschutzanlage',false,1024),
+(1,1125 ,1100,'Huthaus',false,1025),
+(1,1126 ,1100,'Kaue',false,1026),
+(1,1127 ,1100,'Kesselhaus',false,1027),
+(1,1128 ,1100,'Kompressorenstation',true ,1028),
+(1,1129 ,1100,'Kunsttrum',true ,1029),
+(1,1130 ,1100,'Leitstand',false,1030),
+(1,1131 ,1100,'Lichtloch',false,1031),
+(1,1132 ,1100,'Magazin',false,1032),
+(1,1133 ,1100,'Mannschaftsbad',false,1033),
+(1,1134 ,1100,'Maschinenhaus',false,1034),
+(1,1135 ,1100,'Mundloch',false,1035),
+(1,1136 ,1100,'Pinge',false,1036),
+(1,1137 ,1100,'Planum',false,1037),
+(1,1138 ,1100,'Rampe',false,1038),
+(1,1139 ,1100,'Rekultivierungsfläche',false,1039),
+(1,1140 ,1100,'Schacht',true ,1040),
+(1,1141 ,1100,'Schachtaufsattelung',false,1041),
+(1,1142 ,1100,'Schachteinbauten',false,1042),
+(1,1143 ,1100,'Schachtgebäude',false,1043),
+(1,1144 ,1100,'Seilbahn',false,1044),
+(1,1145 ,1100,'Siebgebäude',false,1045),
+(1,1146 ,1100,'Sohle',false,1046),
+(1,1147 ,1100,'Sozialgebäude',false,1047),
+(1,1148 ,1100,'Spitzkehre',false,1048),
+(1,1149 ,1100,'Stapelplatz',false,1049),
+(1,1150 ,1100,'Stollen',false,1050),
+(1,1151 ,1100,'Straßenverlegung',false,1051),
+(1,1152 ,1100,'Tagebaufläche',false,1052),
+(1,1153 ,1100,'Tagebaurestloch',false,1053),
+(1,1154 ,1100,'Tagebauvorfeld',false,1054),
+(1,1155 ,1100,'Tagegebäude/Tagesanlagen',false,1055),
+(1,1156 ,1100,'Tankanlage',false,1056),
+(1,1167 ,1100,'Tiefbaufläche',false,1057),
+(1,1168 ,1100,'Tief- und Tagebaufläche',false,1058),
+(1,1157 ,1100,'Turbinenhaus',false,1059),
+(1,1158 ,1100,'Übergabestation',true ,1060),
+(1,1159 ,1100,'Umspurrampe',true ,1061),
+(1,1160 ,1100,'Verladeanlage',false,1062),
+(1,1161 ,1100,'Verschiebebandanlage',false,1063),
+(1,1162 ,1100,'Verwaltungsgebäude',false,1064),
+(1,1163 ,1100,'Wache',false,1065),
+(1,1164 ,1100,'Waschkaue',false,1066),
+(1,1165 ,1100,'Wassersammelbecken',false,1067),
+(1,1166 ,1100,'Werkstattgebäude',false,1068),
+(1,1200 ,1200,'Bergbaugerät',false,1069),
+(1,1201 ,1200,'Abraumförderbrücke',true ,1070),
+(1,1202 ,1200,'Absetzer',true ,1071),
+(1,1203 ,1200,'Aufgabe-Trichter-Fahrzeug',false,1072),
+(1,1204 ,1200,'Bandanlage',true ,1073),
+(1,1205 ,1200,'Bandantriebsstation',false,1074),
+(1,1206 ,1200,'Bandbrücke',true ,1075),
+(1,1207 ,1200,'Bandrückmaschine',true ,1076),
+(1,1208 ,1200,'Bandschleifenwagen',true ,1077),
+(1,1209 ,1200,'Bandwagen',true ,1078),
+(1,1210 ,1200,'Birkpflug',false,1079),
+(1,1211 ,1200,'Brecheranlage',false,1080),
+(1,1212 ,1200,'Dampfkessel',true ,1081),
+(1,1213 ,1200,'Dampfturbine',true ,1082),
+(1,1214 ,1200,'Eimerkettenbagger',true ,1083),
+(1,1215 ,1200,'Fördergutträger',true ,1084),
+(1,1216 ,1200,'Fördermaschine',true ,1085),
+(1,1217 ,1200,'Förderwagen',true ,1086),
+(1,1218 ,1200,'Generator',true ,1087),
+(1,1219 ,1200,'Gleisrückmaschine',true ,1088),
+(1,1220 ,1200,'Grubenbahn',true ,1089),
+(1,1221 ,1200,'Hängebank',false,1090),
+(1,1222 ,1200,'Hilfsgerät',true ,1091),
+(1,1223 ,1200,'Kabeltrommelwagen',true ,1092),
+(1,1224 ,1200,'Kohlebahn',true ,1093),
+(1,1225 ,1200,'Kompressor',true ,1094),
+(1,1226 ,1200,'Kratzerkettenförderer',false,1095),
+(1,1227 ,1200,'Kreuzungsbauwerk',false,1096),
+(1,1228 ,1200,'Leitungstrommel',false,1097),
+(1,1229 ,1200,'Maschinen-/Anlagenteil',true ,1098),
+(1,1230 ,1200,'Rückladegerät',true ,1099),
+(1,1231 ,1200,'Schachtbohrgerät',true ,1100),
+(1,1232 ,1200,'Schaufelradbagger',true ,1101),
+(1,1233 ,1200,'Sprühanlage',true ,1102),
+(1,1234 ,1200,'Waage',true ,1103),
+(1,1235 ,1200,'Wasserrad',true ,1104),
+(1,1236 ,1200,'Wasserturbine',true ,1105),
+(1,1300 ,1300,'Bergbauwasserwirtschaftliche Anlage',false,1106),
+(1,1301 ,1300,'Abschlag',false,1107),
+(1,1302 ,1300,'Absetzbecken',true ,1108),
+(1,1303 ,1300,'Aquädukt',false,1109),
+(1,1304 ,1300,'Belüftungsanlagen',true ,1110),
+(1,1305 ,1300,'Brunnen',false,1111),
+(1,1306 ,1300,'Dichtwand',false,1112),
+(1,1307 ,1300,'Entwässerungsbrunnen',true ,1113),
+(1,1308 ,1300,'Entwässerungsstrecke',true ,1114),
+(1,1309 ,1300,'Filterbrunnen',true ,1115),
+(1,1310 ,1300,'Grubenentwässerungsanlage',false,1116),
+(1,1311 ,1300,'Grubenwasserreinigungsanlage',false,1117),
+(1,1312 ,1300,'Kalksilos',true ,1118),
+(1,1313 ,1300,'Leitungssystem',true ,1119),
+(1,1314 ,1300,'Leitungssystem',true ,1120),
+(1,1315 ,1300,'Pegel',false,1121),
+(1,1316 ,1300,'Vorfluter',false,1122),
+(1,1001 ,NULL,'Feuerlöschteich',false,1123),
+(1,1002 ,NULL,'Feuerwache',false,1124),
+(1,1003 ,NULL,'Feuerwachturm',false,1125),
+(1,1004 ,NULL,'Feuerwehr-Fahrzeuge',true ,1126),
+(1,1400 ,1400,'Kran',false,1127),
+(1,1401 ,1400,'Drehkran',true ,1128),
+(1,1402 ,1400,'Laufkran',true ,1129),
+(1,1403 ,1400,'Portalkran',true ,1130),
+(1,1005 ,NULL,'Schlauchturm',false,1131),
+(1,1006 ,NULL,'Schütz',false,1132),
+(1,1500 ,1500,'Schutzbauwerke',false,1133),
+(1,1501 ,1500,'Damm',false,1134),
+(1,1502 ,1500,'Flutrinne',false,1135),
+(1,1503 ,1500,'Haben',false,1136),
+(1,1504 ,1500,'Hochwassermarke',false,1137),
+(1,1505 ,1500,'Überlaufgraben',false,1138),
+(1,1007 ,NULL,'Spritzenhaus',false,1139),
+(1,1008 ,NULL,'Staudamm',false,1140),
+(1,1600 ,1600,'Talsperre',false,1141),
+(1,1601 ,1600,'Schieberhaus',false,1142),
+(1,1602 ,1600,'Tosbecken',false,1143),
+(1,1603 ,1600,'Wärterhaus',false,1144),
+(1,1009 ,NULL,'Wehr',false,1145),
 --
 (2,2001,NULL,'Energiespeicheranlage',TRUE,2000),
 (2,2100,2100,'Erneuerbare Energien',FALSE,2001),
@@ -480,10 +482,10 @@ VALUES
 (4,4017,NULL,'Läutewerk',FALSE,4085),
 (4,4410,4410,'Leitungssystem',FALSE,4086),
 (4,4411,4410,'Fernwärmekanal',FALSE,4087),
-(4,4420,4420,'Lokomotive',FALSE,4088),
-(4,4421,4420,'Dampflokomotive',FALSE,4089),
-(4,4422,4420,'Diesellokomotive',FALSE,4090),
-(4,4423,4420,'Elektrolokomotive',FALSE,4091),
+(4,4420,4420,'Lokomotive',TRUE,4088),
+(4,4421,4420,'Dampflokomotive',TRUE,4089),
+(4,4422,4420,'Diesellokomotive',TRUE,4090),
+(4,4423,4420,'Elektrolokomotive',TRUE,4091),
 (4,4430,4430,'Nahverkehrsbauten',FALSE,4092),
 (4,4431,4430,'Betriebshof',FALSE,4093),
 (4,4432,4430,'Busbahnhof',FALSE,4094),
@@ -803,15 +805,15 @@ VALUES
 (5,5058,NULL,'Schutzhütte',FALSE,5210),
 (5,5059,NULL,'Seminar',FALSE,5211),
 (5,5470,5470,'Siedlung',FALSE,5212),
-(5,5471,5470,'Doppelwohnhaus',FALSE,5213),
-(5,5472,5470,'Einfamilienwohnhaus',FALSE,5214),
+(5,5471,5470,'Doppelwohnhäuser',FALSE,5213),
+(5,5472,5470,'Einfamilienwohnhäuser',FALSE,5214),
 (5,5473,5470,'Einfriedung',FALSE,5215),
 (5,5474,5470,'Eisenbahnersiedlung',FALSE,5216),
 (5,5475,5470,'Garage',FALSE,5217),
 (5,5476,5470,'Heizhaus',FALSE,5218),
-(5,5477,5470,'Mehrfamilienwohnhaus',FALSE,5219),
-(5,5478,5470,'Reihenhaus',FALSE,5220),
-(5,5479,5470,'Siedlungshaus',FALSE,5221),
+(5,5477,5470,'Mehrfamilienwohnhäuser',FALSE,5219),
+(5,5478,5470,'Reihenhäuser',FALSE,5220),
+(5,5479,5470,'Siedlungshäuser',FALSE,5221),
 (5,5480,5470,'Waschhaus',FALSE,5222),
 (5,5481,5470,'Werkssiedlung',FALSE,5223),
 (5,5482,5470,'Wirtschaftsgebäude',FALSE,5224),
@@ -898,6 +900,7 @@ VALUES
 (5,5630,5620,'Vorlaube',FALSE,5305),
 (5,5081,NULL,'Wohnturm',FALSE,5306),
 (5,5082,NULL,'Zeltplatz',FALSE,5307),
+(5,5650,5650,'Kirche',FALSE,5308),
 --
 (6,6100,6100,'Bodenrelief',FALSE,6000),
 (6,6101,6100,'Stützmauer',FALSE,6001),
@@ -1151,7 +1154,7 @@ INSERT INTO laugis.def_Erfasser (name, sortierung, username) VALUES
     ('Franz Dietzmann', 2, 'fdietzmann'),
     ('Kirsten Krepelin', 3, 'kkrepelin'),
     ('Barbara Kuendiger', 4, 'bkuendiger'),
-    ('Kaja Teschner', 5, 'kteschner'),
+    ('Kaja Boelcke', 5, 'kteschner'),
     ('Stefan Krug', 6, 'skrug'),
     ('Tanja Trittel', 7, 'ttrittel')
 ;
@@ -1217,6 +1220,117 @@ INSERT INTO laugis.def_nutzungsart (bezeichnung, sortierung) VALUES
     ('Erneuerbare Energien', 11) -- Schraffur
 ;
 
+-- Erweiterung Nutzungsart um Hierarchisierung
+ALTER TABLE IF EXISTS laugis.def_nutzungsart
+    ADD COLUMN uebergeordnet smallint,
+    ADD CONSTRAINT "fkey uebernutzungsart" FOREIGN KEY (uebergeordnet)
+    REFERENCES laugis.def_nutzungsart (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+-- Alteinträge migrieren
+-- Alteinträge sind stets übergeordnet
+ UPDATE laugis.def_nutzungsart
+    SET uebergeordnet = id;
+
+INSERT INTO laugis.def_nutzungsart (bezeichnung, uebergeordnet) VALUES 
+    ('Mischwald', 2),
+    ('Laubwald', 2),
+    ('Nadelwald', 2),
+    ('Weidefläche', 4),
+    ('Garten, Parkanlage', 4),
+    ('Unland (Sümpfe, Moore)', 4),
+    ('Baumschule', 5),
+    ('Obtsanbau', 5),
+    ('Weinbau', 5),
+    ('Tagebau', 6)
+;
+
+-- Sortierung in def_nutzungsart anpassen
+UPDATE laugis.def_nutzungsart
+SET sortierung = 1
+WHERE id = 1;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 2
+WHERE id = 2;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 3
+WHERE id = 12;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 4
+WHERE id = 13;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 5
+WHERE id = 14;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 6
+WHERE id = 4;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 7
+WHERE id = 15;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 8
+WHERE id = 16;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 9
+WHERE id = 17;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 10
+WHERE id = 5;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 11
+WHERE id = 18;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 12
+WHERE id = 19;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 13
+WHERE id = 20;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 14
+WHERE id = 6;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 15
+WHERE id = 21;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 16
+WHERE id = 7;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 17
+WHERE id = 8;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 18
+WHERE id = 9;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 19
+WHERE id = 10;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 20
+WHERE id = 11;
+
+UPDATE laugis.def_nutzungsart
+SET sortierung = 21
+WHERE id = 3;
+
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # def_datierung
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -1263,6 +1377,154 @@ INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES
     ('Wiederaufbau', 30),
     ('FREITEXT', 999)
 ;
+
+INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES 
+('Aufschluss', 31),
+('Abbau', 32),
+('Entwässerung', 33);
+
+UPDATE laugis.def_datierung
+SET sortierung = 1
+WHERE id = 33;
+
+UPDATE laugis.def_datierung
+SET sortierung = 2
+WHERE id = 1;
+
+UPDATE laugis.def_datierung
+SET sortierung = 3
+WHERE id = 2;
+
+UPDATE laugis.def_datierung
+SET sortierung = 4
+WHERE id = 32;
+
+UPDATE laugis.def_datierung
+SET sortierung = 5
+WHERE id = 3;
+
+UPDATE laugis.def_datierung
+SET sortierung = 6
+WHERE id = 4;
+
+UPDATE laugis.def_datierung
+SET sortierung = 7
+WHERE id = 5;
+
+UPDATE laugis.def_datierung
+SET sortierung = 8
+WHERE id = 6;
+
+UPDATE laugis.def_datierung
+SET sortierung = 9
+WHERE id = 7;
+
+UPDATE laugis.def_datierung
+SET sortierung = 10
+WHERE id = 34;
+
+UPDATE laugis.def_datierung
+SET sortierung = 11
+WHERE id = 8;
+
+UPDATE laugis.def_datierung
+SET sortierung = 12
+WHERE id = 9;
+
+UPDATE laugis.def_datierung
+SET sortierung = 13
+WHERE id = 10;
+
+UPDATE laugis.def_datierung
+SET sortierung = 14
+WHERE id = 11;
+
+UPDATE laugis.def_datierung
+SET sortierung = 15
+WHERE id = 12;
+
+UPDATE laugis.def_datierung
+SET sortierung = 16
+WHERE id = 13;
+
+UPDATE laugis.def_datierung
+SET sortierung = 17
+WHERE id = 14;
+
+UPDATE laugis.def_datierung
+SET sortierung = 18
+WHERE id = 15;
+
+UPDATE laugis.def_datierung
+SET sortierung = 19
+WHERE id = 16;
+
+UPDATE laugis.def_datierung
+SET sortierung = 20
+WHERE id = 17;
+
+UPDATE laugis.def_datierung
+SET sortierung = 21
+WHERE id = 18;
+
+UPDATE laugis.def_datierung
+SET sortierung = 22
+WHERE id = 19;
+
+UPDATE laugis.def_datierung
+SET sortierung = 23
+WHERE id = 20;
+
+UPDATE laugis.def_datierung
+SET sortierung = 24
+WHERE id = 21;
+
+UPDATE laugis.def_datierung
+SET sortierung = 25
+WHERE id = 22;
+
+UPDATE laugis.def_datierung
+SET sortierung = 26
+WHERE id = 24;
+
+UPDATE laugis.def_datierung
+SET sortierung = 27
+WHERE id = 23;
+
+UPDATE laugis.def_datierung
+SET sortierung = 28
+WHERE id = 25;
+
+UPDATE laugis.def_datierung
+SET sortierung = 29
+WHERE id = 26;
+
+UPDATE laugis.def_datierung
+SET sortierung = 30
+WHERE id = 27;
+
+UPDATE laugis.def_datierung
+SET sortierung = 31
+WHERE id = 28;
+
+UPDATE laugis.def_datierung
+SET sortierung = 32
+WHERE id = 29;
+
+UPDATE laugis.def_datierung
+SET sortierung = 33
+WHERE id = 30;
+
+UPDATE laugis.def_datierung
+SET sortierung = (sortierung*10);
+
+UPDATE laugis.def_datierung
+SET sortierung = 35
+WHERE id = 35;
+
+UPDATE laugis.def_datierung
+SET sortierung = 205
+WHERE id = 36;
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # def_material
@@ -1346,6 +1608,274 @@ INSERT INTO laugis.def_material (bezeichnung, sortierung) VALUES
 ('FREITEXT', 999)
 ;
 
+UPDATE laugis.def_material
+SET sortierung = 1
+WHERE id = 1;
+
+UPDATE laugis.def_material
+SET sortierung = 2
+WHERE id = 62;
+
+UPDATE laugis.def_material
+SET sortierung = 3
+WHERE id = 2;
+
+UPDATE laugis.def_material
+SET sortierung = 4
+WHERE id = 3;
+
+UPDATE laugis.def_material
+SET sortierung = 5
+WHERE id = 4;
+
+UPDATE laugis.def_material
+SET sortierung = 6
+WHERE id = 5;
+
+UPDATE laugis.def_material
+SET sortierung = 7
+WHERE id = 65;
+
+UPDATE laugis.def_material
+SET sortierung = 8
+WHERE id = 6;
+
+UPDATE laugis.def_material
+SET sortierung = 9
+WHERE id = 7;
+
+UPDATE laugis.def_material
+SET sortierung = 10
+WHERE id = 66;
+
+UPDATE laugis.def_material
+SET sortierung = 11
+WHERE id = 8;
+
+UPDATE laugis.def_material
+SET sortierung = 12
+WHERE id = 9;
+
+UPDATE laugis.def_material
+SET sortierung = 999
+WHERE id = 67;
+
+UPDATE laugis.def_material
+SET sortierung = 14
+WHERE id = 59;
+
+UPDATE laugis.def_material
+SET sortierung = 15
+WHERE id = 10;
+
+UPDATE laugis.def_material
+SET sortierung = 16
+WHERE id = 11;
+
+UPDATE laugis.def_material
+SET sortierung = 17
+WHERE id = 12;
+
+UPDATE laugis.def_material
+SET sortierung = 17
+WHERE id = 13;
+
+UPDATE laugis.def_material
+SET sortierung = 18
+WHERE id = 14;
+
+UPDATE laugis.def_material
+SET sortierung = 19
+WHERE id = 15;
+
+UPDATE laugis.def_material
+SET sortierung = 20
+WHERE id = 16;
+
+UPDATE laugis.def_material
+SET sortierung = 21
+WHERE id = 17;
+
+UPDATE laugis.def_material
+SET sortierung = 22
+WHERE id = 18;
+
+UPDATE laugis.def_material
+SET sortierung = 23
+WHERE id = 19;
+
+UPDATE laugis.def_material
+SET sortierung = 24
+WHERE id = 20;
+
+UPDATE laugis.def_material
+SET sortierung = 25
+WHERE id = 21;
+
+UPDATE laugis.def_material
+SET sortierung = 26
+WHERE id = 22;
+
+UPDATE laugis.def_material
+SET sortierung = 27
+WHERE id = 23;
+
+UPDATE laugis.def_material
+SET sortierung = 28
+WHERE id = 24;
+
+UPDATE laugis.def_material
+SET sortierung = 29
+WHERE id = 63;
+
+UPDATE laugis.def_material
+SET sortierung = 30
+WHERE id = 25;
+
+UPDATE laugis.def_material
+SET sortierung = 31
+WHERE id = 26;
+
+UPDATE laugis.def_material
+SET sortierung = 32
+WHERE id = 27;
+
+UPDATE laugis.def_material
+SET sortierung = 33
+WHERE id = 28;
+
+UPDATE laugis.def_material
+SET sortierung = 34
+WHERE id = 29;
+
+UPDATE laugis.def_material
+SET sortierung = 35
+WHERE id = 30;
+
+UPDATE laugis.def_material
+SET sortierung = 36
+WHERE id = 31;
+
+UPDATE laugis.def_material
+SET sortierung = 37
+WHERE id = 32;
+
+UPDATE laugis.def_material
+SET sortierung = 38
+WHERE id = 33;
+
+UPDATE laugis.def_material
+SET sortierung = 39
+WHERE id = 34;
+
+UPDATE laugis.def_material
+SET sortierung = 40
+WHERE id = 35;
+
+UPDATE laugis.def_material
+SET sortierung = 41
+WHERE id = 36;
+
+UPDATE laugis.def_material
+SET sortierung = 42
+WHERE id = 37;
+
+UPDATE laugis.def_material
+SET sortierung = 43
+WHERE id = 38;
+
+UPDATE laugis.def_material
+SET sortierung = 44
+WHERE id = 58;
+
+UPDATE laugis.def_material
+SET sortierung = 45
+WHERE id = 39;
+
+UPDATE laugis.def_material
+SET sortierung = 46
+WHERE id = 61;
+
+UPDATE laugis.def_material
+SET sortierung = 47
+WHERE id = 40;
+
+UPDATE laugis.def_material
+SET sortierung = 48
+WHERE id = 41;
+
+UPDATE laugis.def_material
+SET sortierung = 49
+WHERE id = 42;
+
+UPDATE laugis.def_material
+SET sortierung = 50
+WHERE id = 43;
+
+UPDATE laugis.def_material
+SET sortierung = 51
+WHERE id = 44;
+
+UPDATE laugis.def_material
+SET sortierung = 52
+WHERE id = 45;
+
+UPDATE laugis.def_material
+SET sortierung = 53
+WHERE id = 46;
+
+UPDATE laugis.def_material
+SET sortierung = 54
+WHERE id = 47;
+
+UPDATE laugis.def_material
+SET sortierung = 55
+WHERE id = 48;
+
+UPDATE laugis.def_material
+SET sortierung = 56
+WHERE id = 49;
+
+UPDATE laugis.def_material
+SET sortierung = 57
+WHERE id = 50;
+
+UPDATE laugis.def_material
+SET sortierung = 58
+WHERE id = 60;
+
+UPDATE laugis.def_material
+SET sortierung = 59
+WHERE id = 51;
+
+UPDATE laugis.def_material
+SET sortierung = 60
+WHERE id = 52;
+
+UPDATE laugis.def_material
+SET sortierung = 61
+WHERE id = 53;
+
+UPDATE laugis.def_material
+SET sortierung = 62
+WHERE id = 64;
+
+UPDATE laugis.def_material
+SET sortierung = 63
+WHERE id = 54;
+
+UPDATE laugis.def_material
+SET sortierung = 64
+WHERE id = 55;
+
+UPDATE laugis.def_material
+SET sortierung = 65
+WHERE id = 56;
+
+UPDATE laugis.def_material
+SET sortierung = 66
+WHERE id = 57;
+
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # def_personen
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -1380,6 +1910,79 @@ INSERT INTO laugis.def_personen (bezeichnung, is_ausfuehrend, sortierung) VALUES
 ('Unterstützer:in', false, 18),
 ('FREITEXT', null, 999)
 ;
+
+
+UPDATE laugis.def_personen
+SET sortierung = 1
+WHERE id = 1;
+
+UPDATE laugis.def_personen
+SET sortierung = 2
+WHERE id = 2;
+
+UPDATE laugis.def_personen
+SET sortierung = 3
+WHERE id = 3;
+
+UPDATE laugis.def_personen
+SET sortierung = 4
+WHERE id = 4;
+
+UPDATE laugis.def_personen
+SET sortierung = 5
+WHERE id = 5;
+
+UPDATE laugis.def_personen
+SET sortierung = 6
+WHERE id = 6;
+
+UPDATE laugis.def_personen
+SET sortierung = 7
+WHERE id = 11;
+
+UPDATE laugis.def_personen
+SET sortierung = 8
+WHERE id = 12;
+
+UPDATE laugis.def_personen
+SET sortierung = 9
+WHERE id = 13;
+
+UPDATE laugis.def_personen
+SET sortierung = 10
+WHERE id = 15;
+
+UPDATE laugis.def_personen
+SET sortierung = 11
+WHERE id = 14;
+
+UPDATE laugis.def_personen
+SET sortierung = 12
+WHERE id = 16;
+
+UPDATE laugis.def_personen
+SET sortierung = 13
+WHERE id = 7;
+
+UPDATE laugis.def_personen
+SET sortierung = 14
+WHERE id = 9;
+
+UPDATE laugis.def_personen
+SET sortierung = 15
+WHERE id = 17;
+
+UPDATE laugis.def_personen
+SET sortierung = 16
+WHERE id = 10;
+
+UPDATE laugis.def_personen
+SET sortierung = 17
+WHERE id = 8;
+
+UPDATE laugis.def_personen
+SET sortierung = 18
+WHERE id = 18;
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # def_blickbeziehung
@@ -1516,6 +2119,30 @@ INSERT INTO laugis.def_konstruktion (bezeichnung, sortierung) VALUES
 ('Hohlkastenkonstruktion', 33),
 ('FREITEXT', 999)
 ;
+
+UPDATE laugis.def_konstruktion
+SET sortierung = (sortierung*10);
+
+UPDATE laugis.def_konstruktion
+SET sortierung = 85
+WHERE id = 24;
+
+UPDATE laugis.def_konstruktion
+SET sortierung = 235
+WHERE id = 31;
+
+UPDATE laugis.def_konstruktion
+SET sortierung = 65
+WHERE id = 32;
+
+UPDATE laugis.def_konstruktion
+SET sortierung = 95
+WHERE id = 33;
+
+UPDATE laugis.def_konstruktion
+SET sortierung = 105
+WHERE id = 26;
+
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -- # obj_basis
@@ -2048,6 +2675,40 @@ CONSTRAINT fkey_objekt_id FOREIGN KEY (ref_objekt_id)
     ON DELETE NO ACTION
 );
 
+-- obj_lwk um neue Referenz-Spalte erweitern
+ALTER TABLE IF EXISTS laugis.obj_lwk
+    ADD COLUMN grundlage smallint,
+    ADD CONSTRAINT fkey_grundlage FOREIGN KEY (grundlage)
+    REFERENCES laugis.rel_grundlage (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    ;
+
+-- Altdaten migrieren
+UPDATE laugis.obj_lwk
+    SET grundlage = jahresschnitt
+    ;
+
+-- obj_lwk anpassen
+ALTER TABLE IF EXISTS laugis.obj_lwk DROP CONSTRAINT IF EXISTS fkey_jahresschnitt;
+ALTER TABLE IF EXISTS laugis.obj_lwk DROP COLUMN IF EXISTS jahresschnitt
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2283,7 +2944,7 @@ $$ LANGUAGE plpgsql;
 --------------------------------------------------------------------------------------------------------------------------------------
 
 -- Gibt für ein Objekt die Fotoliste rel_fotos als JSON(text) zurück
--- Format: [{relation_id, objekt_id, dateiname, intern}]
+-- Format: [{relation_id, objekt_id, dateiname, intern, titelbild}]
 
 CREATE OR REPLACE FUNCTION laugis.return_bilder(
   _objekt_id integer              -- pk
@@ -2377,7 +3038,7 @@ DECLARE
   _ar text;
 BEGIN
 
-SELECT (json_agg(row_to_json(rel))) AS row_value
+SELECT (json_agg(row_to_json(rel) ORDER BY LEFT(NULLIF(regexp_replace(rel.datierung, '\D','','g'), ''), 4))) AS row_value
     FROM laugis.obj_basis AS obb
         JOIN laugis.rel_datierung AS rel ON rel.ref_objekt_id = obb.objekt_id
         JOIN laugis.def_datierung AS def ON rel.ref_ereignis_id = def.id
@@ -2517,7 +3178,7 @@ DECLARE
   _ar text;
 BEGIN
 
-SELECT (json_agg(row_to_json(rel))) AS row_value
+SELECT (json_agg(row_to_json(rel) ORDER BY LEFT(NULLIF(regexp_replace(rel.datierung, '\D','','g'), ''), 4))) AS row_value
     FROM laugis.obj_basis AS obb
         JOIN laugis.rel_nutzung AS rel ON rel.ref_objekt_id = obb.objekt_id
         WHERE obb.objekt_id = _objekt_id
@@ -2567,7 +3228,8 @@ CREATE OR REPLACE FUNCTION laugis.update_bilder(
   _relation_id integer,            -- pk IF NOT NULL -> UPDATE
   _ref_objekt_id integer,          -- fk
   _dateiname text,
-  _intern bool
+  _intern bool,
+  _titelbild bool
   ) 
 
 RETURNS INTEGER AS $$
@@ -2589,18 +3251,21 @@ BEGIN
     SET
         ref_objekt_id = _ref_objekt_id,
         dateiname = _dateiname,
-        intern = _intern
+        intern = _intern,
+        titelbild = _titelbild
     WHERE relation_id = _relation_id;
   ELSE
     INSERT INTO laugis.rel_bilder(
         ref_objekt_id,
         dateiname,
-        intern
+        intern,
+        titelbild
         )
       VALUES (
         _ref_objekt_id,
         _dateiname,
-        _intern
+        _intern,
+        _titelbild
         )
       RETURNING rel_bilder.relation_id INTO _relation_id;
   END IF;
@@ -3467,7 +4132,7 @@ CREATE OR REPLACE FUNCTION laugis.update_obj_lwk(
 
   -- Identifikatoren
   _beschriftung text,        -- Bezeichnung und Identifikation
-  _jahresschnitt smallint,
+  _grundlage smallint,
   _nutzungsart smallint,
 
   -- # Geometrie
@@ -3499,7 +4164,7 @@ BEGIN
         letzte_aenderung        = NOW(),
         erfassung               = _erfassung,
         beschriftung            = _beschriftung,
-        jahresschnitt           = _jahresschnitt,
+        grundlage               = _grundlage,
         nutzungsart             = _nutzungsart
     WHERE objekt_id             = _ob_id;
   ELSE
@@ -3510,7 +4175,7 @@ BEGIN
         geloescht,
         erfassung,
         beschriftung,
-        jahresschnitt,
+        grundlage,
         nutzungsart
         )
       VALUES (
@@ -3520,7 +4185,7 @@ BEGIN
         FALSE,
         _erfassung,
         _beschriftung,
-        _jahresschnitt,
+        _grundlage,
         _nutzungsart
         )
       RETURNING obj_lwk.objekt_id INTO _ob_id;
@@ -3582,5 +4247,325 @@ BEGIN
   UPDATE laugis.obj_lwk
   SET geloescht = TRUE
   WHERE objekt_id = _objekt_id;
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- change_objecttype
+---------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION laugis.change_objecttype(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS VOID AS $$
+
+BEGIN
+-- check current type
+IF (SELECT COUNT(*)
+    FROM laugis.obj_basis AS ob
+    JOIN laugis.obj_tech AS ot ON ot.ref_objekt_id = ob.objekt_id
+    WHERE ob.objekt_id = _objekt_id) > 0 THEN
+
+  -- Objekt ist ein Einzelobjekt -> obj_tech-Eintrag entfernen
+  DELETE FROM laugis.obj_tech AS ot
+    WHERE ot.ref_objekt_id = _objekt_id;
+
+ELSE
+  -- Objekt ist Objektbereich -> obj_tech-Eintrag anlegen
+  PERFORM laugis.update_obj_tech(
+    _objekt_id,
+    NULL,
+    NULL,
+    NULL,
+    NULL, 
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  );
+END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_bilder
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Bildereinträge zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_bilder(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(COALESCE(rel.dateiname, ''), ' | ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_bilder AS rel ON rel.ref_objekt_id = ob.objekt_id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_blickbeziehung
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Blickbeziehungen zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_blickbeziehung(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(def.bezeichnung || ': ' || COALESCE(rel.beschreibung, '') || ' -> ' || COALESCE(rel_ob.bezeichnung, ''), ' | ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_blickbeziehung AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_blickbeziehung AS def ON rel.ref_blick_id = def.id
+        LEFT JOIN laugis.obj_basis AS rel_ob ON rel.rel_objekt_nr = rel_ob.objekt_nr
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_dachform
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Dachformen zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_dachform(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(def.bezeichnung, ', ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_dachform AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_dachform AS def ON rel.ref_dachform_id = def.id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_datierung
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Datierungseinträge zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_datierung(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(subquery.bezeichnung || ': ' || COALESCE(subquery.datierung, ''), ' | ')) AS row_value
+FROM (
+  SELECT def.bezeichnung, rel.datierung
+  FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_datierung AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_datierung AS def ON rel.ref_ereignis_id = def.id
+    WHERE ob.objekt_id = _objekt_id
+    ORDER BY LEFT(NULLIF(regexp_replace(rel.datierung, '\D','','g'), ''), 4)
+    ) AS subquery
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_erfasser
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die primäre Ersteller:in oder nur die Beitragenden read only zurück.
+-- Das Kennzeichen _only_ceator::bool bestimmt den Modus. 
+-- Mehrere Erfasser:innen werden aggregiert übergeben.
+
+CREATE OR REPLACE FUNCTION laugis.read_erfasser(
+  _objekt_id integer,              -- pk
+  _only_creator bool                -- kennzeichen
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+  
+SELECT (string_agg(def.name, ', ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_erfasser AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_erfasser AS def ON rel.ref_erfasser_id = def.id
+        WHERE ob.objekt_id = _objekt_id
+          AND rel.is_creator = _only_creator
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_konstruktion
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Konstruktionsarten/Techniken zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_konstruktion(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(def.bezeichnung, ', ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_konstruktion AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_konstruktion AS def ON rel.ref_konstruktion_id = def.id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_literatur
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Literatureinträge zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_literatur(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT string_agg(rel.literatur, ' | ') AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_literatur AS rel ON rel.ref_objekt_id = ob.objekt_id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_material
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Materialien zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_material(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(def.bezeichnung, ', ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_material AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_material AS def ON rel.ref_material_id = def.id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_nutzung
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten und sortierten Nutzungseinträge zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_nutzung(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(COALESCE(subquery.nutzungsart, '') || ' ' || COALESCE(subquery.datierung, ''), ' | ')) AS row_value
+FROM (
+  SELECT rel.nutzungsart, rel.datierung
+  FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_nutzung AS rel ON rel.ref_objekt_id = ob.objekt_id
+    WHERE ob.objekt_id = _objekt_id
+    ORDER BY LEFT(NULLIF(regexp_replace(rel.datierung, '\D','','g'), ''), 4)
+        ) AS subquery
+INTO _ar;
+
+RETURN _ar;
+
+END;
+$$ LANGUAGE plpgsql;
+
+---------------------------------------------------------------------------------------------------------------
+-- read_personen
+---------------------------------------------------------------------------------------------------------------
+
+-- Gibt für ein Objekt die aggregierten Personeneinträge zurück (read only)
+
+CREATE OR REPLACE FUNCTION laugis.read_personen(
+  _objekt_id integer              -- pk
+  ) 
+RETURNS text AS $$
+
+DECLARE 
+  _ar text;
+BEGIN
+
+SELECT (string_agg(def.bezeichnung || ': ' || COALESCE(rel.bezeichnung, ''), ' | ')) AS row_value
+    FROM laugis.obj_basis AS ob
+        JOIN laugis.rel_personen AS rel ON rel.ref_objekt_id = ob.objekt_id
+        JOIN laugis.def_personen AS def ON rel.ref_funktion_id = def.id
+        WHERE ob.objekt_id = _objekt_id
+INTO _ar;
+
+RETURN _ar;
+
 END;
 $$ LANGUAGE plpgsql;

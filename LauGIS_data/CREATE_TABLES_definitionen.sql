@@ -140,6 +140,143 @@ INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES
 	('FREITEXT', 999)
 ;
 
+INSERT INTO laugis.def_datierung (bezeichnung, sortierung) VALUES 
+('Aufschluss', 31),
+('Abbau', 32),
+('Entwässerung', 33);
+
+UPDATE laugis.def_datierung
+SET sortierung = 1
+WHERE id = 33;
+
+UPDATE laugis.def_datierung
+SET sortierung = 2
+WHERE id = 1;
+
+UPDATE laugis.def_datierung
+SET sortierung = 3
+WHERE id = 2;
+
+UPDATE laugis.def_datierung
+SET sortierung = 4
+WHERE id = 32;
+
+UPDATE laugis.def_datierung
+SET sortierung = 5
+WHERE id = 3;
+
+UPDATE laugis.def_datierung
+SET sortierung = 6
+WHERE id = 4;
+
+UPDATE laugis.def_datierung
+SET sortierung = 7
+WHERE id = 5;
+
+UPDATE laugis.def_datierung
+SET sortierung = 8
+WHERE id = 6;
+
+UPDATE laugis.def_datierung
+SET sortierung = 9
+WHERE id = 7;
+
+UPDATE laugis.def_datierung
+SET sortierung = 10
+WHERE id = 34;
+
+UPDATE laugis.def_datierung
+SET sortierung = 11
+WHERE id = 8;
+
+UPDATE laugis.def_datierung
+SET sortierung = 12
+WHERE id = 9;
+
+UPDATE laugis.def_datierung
+SET sortierung = 13
+WHERE id = 10;
+
+UPDATE laugis.def_datierung
+SET sortierung = 14
+WHERE id = 11;
+
+UPDATE laugis.def_datierung
+SET sortierung = 15
+WHERE id = 12;
+
+UPDATE laugis.def_datierung
+SET sortierung = 16
+WHERE id = 13;
+
+UPDATE laugis.def_datierung
+SET sortierung = 17
+WHERE id = 14;
+
+UPDATE laugis.def_datierung
+SET sortierung = 18
+WHERE id = 15;
+
+UPDATE laugis.def_datierung
+SET sortierung = 19
+WHERE id = 16;
+
+UPDATE laugis.def_datierung
+SET sortierung = 20
+WHERE id = 17;
+
+UPDATE laugis.def_datierung
+SET sortierung = 21
+WHERE id = 18;
+
+UPDATE laugis.def_datierung
+SET sortierung = 22
+WHERE id = 19;
+
+UPDATE laugis.def_datierung
+SET sortierung = 23
+WHERE id = 20;
+
+UPDATE laugis.def_datierung
+SET sortierung = 24
+WHERE id = 21;
+
+UPDATE laugis.def_datierung
+SET sortierung = 25
+WHERE id = 22;
+
+UPDATE laugis.def_datierung
+SET sortierung = 26
+WHERE id = 24;
+
+UPDATE laugis.def_datierung
+SET sortierung = 27
+WHERE id = 23;
+
+UPDATE laugis.def_datierung
+SET sortierung = 28
+WHERE id = 25;
+
+UPDATE laugis.def_datierung
+SET sortierung = 29
+WHERE id = 26;
+
+UPDATE laugis.def_datierung
+SET sortierung = 30
+WHERE id = 27;
+
+UPDATE laugis.def_datierung
+SET sortierung = 31
+WHERE id = 28;
+
+UPDATE laugis.def_datierung
+SET sortierung = 32
+WHERE id = 29;
+
+UPDATE laugis.def_datierung
+SET sortierung = 33
+WHERE id = 30;
+
 --------------------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS laugis.def_material;
@@ -220,6 +357,274 @@ INSERT INTO laugis.def_material (bezeichnung, sortierung) VALUES
 ('FREITEXT', 999)
 ;
 
+UPDATE laugis.def_material
+SET sortierung = 1
+WHERE id = 1;
+
+UPDATE laugis.def_material
+SET sortierung = 2
+WHERE id = 62;
+
+UPDATE laugis.def_material
+SET sortierung = 3
+WHERE id = 2;
+
+UPDATE laugis.def_material
+SET sortierung = 4
+WHERE id = 3;
+
+UPDATE laugis.def_material
+SET sortierung = 5
+WHERE id = 4;
+
+UPDATE laugis.def_material
+SET sortierung = 6
+WHERE id = 5;
+
+UPDATE laugis.def_material
+SET sortierung = 7
+WHERE id = 65;
+
+UPDATE laugis.def_material
+SET sortierung = 8
+WHERE id = 6;
+
+UPDATE laugis.def_material
+SET sortierung = 9
+WHERE id = 7;
+
+UPDATE laugis.def_material
+SET sortierung = 10
+WHERE id = 66;
+
+UPDATE laugis.def_material
+SET sortierung = 11
+WHERE id = 8;
+
+UPDATE laugis.def_material
+SET sortierung = 12
+WHERE id = 9;
+
+UPDATE laugis.def_material
+SET sortierung = 999
+WHERE id = 67;
+
+UPDATE laugis.def_material
+SET sortierung = 14
+WHERE id = 59;
+
+UPDATE laugis.def_material
+SET sortierung = 15
+WHERE id = 10;
+
+UPDATE laugis.def_material
+SET sortierung = 16
+WHERE id = 11;
+
+UPDATE laugis.def_material
+SET sortierung = 17
+WHERE id = 12;
+
+UPDATE laugis.def_material
+SET sortierung = 17
+WHERE id = 13;
+
+UPDATE laugis.def_material
+SET sortierung = 18
+WHERE id = 14;
+
+UPDATE laugis.def_material
+SET sortierung = 19
+WHERE id = 15;
+
+UPDATE laugis.def_material
+SET sortierung = 20
+WHERE id = 16;
+
+UPDATE laugis.def_material
+SET sortierung = 21
+WHERE id = 17;
+
+UPDATE laugis.def_material
+SET sortierung = 22
+WHERE id = 18;
+
+UPDATE laugis.def_material
+SET sortierung = 23
+WHERE id = 19;
+
+UPDATE laugis.def_material
+SET sortierung = 24
+WHERE id = 20;
+
+UPDATE laugis.def_material
+SET sortierung = 25
+WHERE id = 21;
+
+UPDATE laugis.def_material
+SET sortierung = 26
+WHERE id = 22;
+
+UPDATE laugis.def_material
+SET sortierung = 27
+WHERE id = 23;
+
+UPDATE laugis.def_material
+SET sortierung = 28
+WHERE id = 24;
+
+UPDATE laugis.def_material
+SET sortierung = 29
+WHERE id = 63;
+
+UPDATE laugis.def_material
+SET sortierung = 30
+WHERE id = 25;
+
+UPDATE laugis.def_material
+SET sortierung = 31
+WHERE id = 26;
+
+UPDATE laugis.def_material
+SET sortierung = 32
+WHERE id = 27;
+
+UPDATE laugis.def_material
+SET sortierung = 33
+WHERE id = 28;
+
+UPDATE laugis.def_material
+SET sortierung = 34
+WHERE id = 29;
+
+UPDATE laugis.def_material
+SET sortierung = 35
+WHERE id = 30;
+
+UPDATE laugis.def_material
+SET sortierung = 36
+WHERE id = 31;
+
+UPDATE laugis.def_material
+SET sortierung = 37
+WHERE id = 32;
+
+UPDATE laugis.def_material
+SET sortierung = 38
+WHERE id = 33;
+
+UPDATE laugis.def_material
+SET sortierung = 39
+WHERE id = 34;
+
+UPDATE laugis.def_material
+SET sortierung = 40
+WHERE id = 35;
+
+UPDATE laugis.def_material
+SET sortierung = 41
+WHERE id = 36;
+
+UPDATE laugis.def_material
+SET sortierung = 42
+WHERE id = 37;
+
+UPDATE laugis.def_material
+SET sortierung = 43
+WHERE id = 38;
+
+UPDATE laugis.def_material
+SET sortierung = 44
+WHERE id = 58;
+
+UPDATE laugis.def_material
+SET sortierung = 45
+WHERE id = 39;
+
+UPDATE laugis.def_material
+SET sortierung = 46
+WHERE id = 61;
+
+UPDATE laugis.def_material
+SET sortierung = 47
+WHERE id = 40;
+
+UPDATE laugis.def_material
+SET sortierung = 48
+WHERE id = 41;
+
+UPDATE laugis.def_material
+SET sortierung = 49
+WHERE id = 42;
+
+UPDATE laugis.def_material
+SET sortierung = 50
+WHERE id = 43;
+
+UPDATE laugis.def_material
+SET sortierung = 51
+WHERE id = 44;
+
+UPDATE laugis.def_material
+SET sortierung = 52
+WHERE id = 45;
+
+UPDATE laugis.def_material
+SET sortierung = 53
+WHERE id = 46;
+
+UPDATE laugis.def_material
+SET sortierung = 54
+WHERE id = 47;
+
+UPDATE laugis.def_material
+SET sortierung = 55
+WHERE id = 48;
+
+UPDATE laugis.def_material
+SET sortierung = 56
+WHERE id = 49;
+
+UPDATE laugis.def_material
+SET sortierung = 57
+WHERE id = 50;
+
+UPDATE laugis.def_material
+SET sortierung = 58
+WHERE id = 60;
+
+UPDATE laugis.def_material
+SET sortierung = 59
+WHERE id = 51;
+
+UPDATE laugis.def_material
+SET sortierung = 60
+WHERE id = 52;
+
+UPDATE laugis.def_material
+SET sortierung = 61
+WHERE id = 53;
+
+UPDATE laugis.def_material
+SET sortierung = 62
+WHERE id = 64;
+
+UPDATE laugis.def_material
+SET sortierung = 63
+WHERE id = 54;
+
+UPDATE laugis.def_material
+SET sortierung = 64
+WHERE id = 55;
+
+UPDATE laugis.def_material
+SET sortierung = 65
+WHERE id = 56;
+
+UPDATE laugis.def_material
+SET sortierung = 66
+WHERE id = 57;
+
 --------------------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS laugis.def_personen;
@@ -253,6 +658,79 @@ INSERT INTO laugis.def_personen (bezeichnung, is_ausfuehrend, sortierung) VALUES
 ('FREITEXT', null, 999)
 ;
 
+
+UPDATE laugis.def_personen
+SET sortierung = 1
+WHERE id = 1;
+
+UPDATE laugis.def_personen
+SET sortierung = 2
+WHERE id = 2;
+
+UPDATE laugis.def_personen
+SET sortierung = 3
+WHERE id = 3;
+
+UPDATE laugis.def_personen
+SET sortierung = 4
+WHERE id = 4;
+
+UPDATE laugis.def_personen
+SET sortierung = 5
+WHERE id = 5;
+
+UPDATE laugis.def_personen
+SET sortierung = 6
+WHERE id = 6;
+
+UPDATE laugis.def_personen
+SET sortierung = 7
+WHERE id = 11;
+
+UPDATE laugis.def_personen
+SET sortierung = 8
+WHERE id = 12;
+
+UPDATE laugis.def_personen
+SET sortierung = 9
+WHERE id = 13;
+
+UPDATE laugis.def_personen
+SET sortierung = 10
+WHERE id = 15;
+
+UPDATE laugis.def_personen
+SET sortierung = 11
+WHERE id = 14;
+
+UPDATE laugis.def_personen
+SET sortierung = 12
+WHERE id = 16;
+
+UPDATE laugis.def_personen
+SET sortierung = 13
+WHERE id = 7;
+
+UPDATE laugis.def_personen
+SET sortierung = 14
+WHERE id = 9;
+
+UPDATE laugis.def_personen
+SET sortierung = 15
+WHERE id = 17;
+
+UPDATE laugis.def_personen
+SET sortierung = 16
+WHERE id = 10;
+
+UPDATE laugis.def_personen
+SET sortierung = 17
+WHERE id = 8;
+
+UPDATE laugis.def_personen
+SET sortierung = 18
+WHERE id = 18;
+
 --------------------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS laugis.def_blickbeziehung;
@@ -265,7 +743,8 @@ CREATE TABLE IF NOT EXISTS laugis.def_blickbeziehung
 
 INSERT INTO laugis.def_blickbeziehung (bezeichnung, sortierung) VALUES 
 	('gerichtet', 1),
-	('ungerichtet', 2)
+	('ungerichtet', 2),
+	('undefiniert', 3)
 ;
 
 --------------------------------------------------------------------------------------
