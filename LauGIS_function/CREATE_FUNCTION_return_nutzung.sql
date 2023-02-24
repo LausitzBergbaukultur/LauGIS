@@ -13,6 +13,7 @@ SELECT (json_agg(row_to_json(rel) ORDER BY LEFT(NULLIF(regexp_replace(rel.datier
     FROM laugis.obj_basis AS obb
         JOIN laugis.rel_nutzung AS rel ON rel.ref_objekt_id = obb.objekt_id
         WHERE obb.objekt_id = _objekt_id
+          AND rel.geloescht IS NOT TRUE
 INTO _ar;
 
 RETURN _ar;

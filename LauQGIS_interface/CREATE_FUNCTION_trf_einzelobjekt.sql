@@ -35,7 +35,73 @@ IF (TG_OP = 'DELETE') THEN
 	PERFORM laugis.delete_objekt(_obj_id);
     RETURN NULL;
     
+---------------------------------------------------------------------------------------------------------------
+-- Historisierung. Bei UPDATE wird ein Abbild des Alt-Zustandes gesichert.
+---------------------------------------------------------------------------------------------------------------
+
 ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+
+	IF (TG_OP = 'UPDATE') THEN
+		PERFORM laugis.write_obj_history(
+		  OLD.objekt_nr,  
+		  OLD.rel_objekt_nr,
+		  OLD.status_bearbeitung, 
+		  OLD.erfassungsdatum,
+		  OLD.aenderungsdatum, 
+		  OLD.return_erfasser,
+
+		  -- # Deskriptoren
+		  OLD.kategorie,  
+		  OLD.sachbegriff, 
+		  OLD.sachbegriff_alt, 
+		  OLD.beschreibung,  
+		  OLD.beschreibung_ergaenzung, 
+		  OLD.lagebeschreibung, 
+		  OLD.return_literatur,
+		  OLD.notiz_intern,   
+		  OLD.hida_nr,
+		  OLD.return_datierung,
+		  OLD.return_nutzung,
+		  OLD.return_personen,
+		  OLD.return_bilder,
+		  OLD.bilder_anmerkung,   
+
+		  -- # Stammdaten
+		  OLD.bezeichnung, 
+		  OLD.bauwerksname_eigenname, 
+		  OLD.schutzstatus,
+		  OLD.foerderfaehig, 
+		    
+		  -- # Lokalisatoren
+		  OLD.kreis, 
+		  OLD.gemeinde,  
+		  OLD.ort,  
+		  OLD.sorbisch, 
+		  OLD.strasse,  
+		  OLD.hausnummer,  
+		  OLD.gem_flur,
+		  OLD.return_blickbeziehung,
+
+		  -- # Deskriptoren allgemein
+		  OLD.techn_anlage,    
+		  OLD.return_material,
+		  OLD.material_alt,
+		  OLD.return_konstruktion,
+		  OLD.konstruktion_alt,
+
+		  -- # Deskriptoren architektonisch
+		  OLD.geschosszahl,  
+		  OLD.achsenzahl,  
+		  OLD.grundriss,
+		  OLD.return_dachform,   
+		  OLD.dachform_alt,
+		    
+		  -- # Deskriptoren technische Anlage
+		  OLD.antrieb,   
+		  OLD.abmessung, 
+		  OLD.gewicht  
+			);
+	END IF;
 
 ---------------------------------------------------------------------------------------------------------------
 -- Basis-Objekt anlegen/updaten und Objekt-Id ermitteln
@@ -310,11 +376,11 @@ ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
 --------------------------------------------------------------------------------------------------------------- 	
 
 	-- determine text[] for old relation-ids to compare against 
-   	SELECT ARRAY(SELECT json_array_elements(OLD.return_nutzung::json)->>'relation_id')
+   	SELECT ARRAY(SELECT json_array_elements(OLD.return_blickbeziehung::json)->>'relation_id')
    	INTO _rel_old_ids;
 	
 	-- determine text[] of new relation-ids to compare against 
-	SELECT ARRAY(SELECT json_array_elements(NEW.return_nutzung::json)->>'relation_id')
+	SELECT ARRAY(SELECT json_array_elements(NEW.return_blickbeziehung::json)->>'relation_id')
    	INTO _rel_new_ids;
 
 	-- delete diff old/new

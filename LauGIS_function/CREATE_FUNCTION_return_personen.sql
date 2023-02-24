@@ -15,6 +15,7 @@ SELECT (json_agg(row_to_json(rel))) AS row_value
         JOIN laugis.rel_personen AS rel ON rel.ref_objekt_id = obb.objekt_id
         JOIN laugis.def_personen AS def ON rel.ref_funktion_id = def.id
         WHERE obb.objekt_id = _objekt_id
+          AND rel.geloescht IS NOT TRUE
 INTO _ar;
 
 RETURN _ar;

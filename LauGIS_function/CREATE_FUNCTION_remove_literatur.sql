@@ -5,7 +5,8 @@ RETURNS VOID
 AS $$
 
 BEGIN
-  DELETE FROM laugis.rel_literatur
+  UPDATE laugis.rel_literatur
+  SET geloescht = TRUE, geloescht_am = NOW()
   WHERE relation_id = _rel_id;
 END;
 $$ LANGUAGE plpgsql;

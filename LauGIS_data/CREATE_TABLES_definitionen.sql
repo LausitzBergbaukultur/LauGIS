@@ -95,6 +95,30 @@ INSERT INTO laugis.def_nutzungsart (bezeichnung, sortierung) VALUES
 	('Erneuerbare Energien', 11) -- Schraffur
 ;
 
+-- Erweiterung Nutzungsart um Hierarchisierung
+ALTER TABLE IF EXISTS laugis.def_nutzungsart
+    ADD COLUMN uebergeordnet smallint,
+    ADD CONSTRAINT "fkey uebernutzungsart" FOREIGN KEY (uebergeordnet)
+    REFERENCES laugis.def_nutzungsart (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+UPDATE laugis.def_nutzungsart
+	SET uebergeordnet = id;
+
+INSERT INTO laugis.def_nutzungsart (bezeichnung, uebergeordnet) VALUES 
+	('Mischwald', 2),
+	('Laubwald', 2),
+	('Nadelwald', 2),
+	('Weidefläche', 4),
+	('Garten, Parkanlage', 4),
+	('Unland (Sümpfe, Moore)', 4),
+	('Baumschule', 5),
+	('Obtsanbau', 5),
+	('Weinbau', 5),
+	('Tagebau', 6)
+;
+
 --------------------------------------------------------------------------------------
 
 -- # Beschreibt die Ereignisarten der Datierungen

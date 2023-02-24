@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>objektbereich</class>
- <widget class="QDialog" name="objektbereich">
+ <class>einzelobjekt</class>
+ <widget class="QDialog" name="einzelobjekt">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>825</width>
-    <height>530</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>825</width>
-    <height>530</height>
+    <height>550</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -34,9 +34,6 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <property name="layoutDirection">
-   <enum>Qt::LeftToRight</enum>
-  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
@@ -49,6 +46,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>3</number>
+   </property>
+   <property name="leftMargin">
+    <number>9</number>
    </property>
    <property name="topMargin">
     <number>0</number>
@@ -110,9 +110,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_imagepreview">
+       <widget class="QToolButton" name="btn_imagepreview">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -139,7 +139,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_checkposition">
+       <widget class="QToolButton" name="btn_checkposition">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -163,7 +163,7 @@
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="TopRow" stretch="1,1">
+      <layout class="QHBoxLayout" name="TopRow">
        <property name="spacing">
         <number>6</number>
        </property>
@@ -213,7 +213,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="lblKat">
            <property name="text">
             <string>Kategorie</string>
            </property>
@@ -223,7 +223,7 @@
           <widget class="QComboBox" name="kategorie"/>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="lblName">
            <property name="font">
             <font>
              <pointsize>9</pointsize>
@@ -245,7 +245,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_24">
+          <widget class="QLabel" name="lblStatus">
            <property name="text">
             <string>Status</string>
            </property>
@@ -286,6 +286,12 @@
            </item>
            <item>
             <widget class="QToolButton" name="btn_sachbegriff">
+             <property name="toolTip">
+              <string>[in Bearbeitung]: für neu angelegte Objekte
+[zur Prüfung freigegeben]: wird in der nächsten Korrekturrunde bearbeitet
+[abgeschlossen]: kann publiziert werden
+[in Prüfung]: befindet sich aktuell in der Textkorrektur</string>
+             </property>
              <property name="text">
               <string>...</string>
              </property>
@@ -306,7 +312,7 @@
             <string>Sachbegriff</string>
            </property>
            <property name="textFormat">
-            <enum>Qt::AutoText</enum>
+            <enum>Qt::PlainText</enum>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -327,7 +333,7 @@
           <number>6</number>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_20">
+          <widget class="QLabel" name="lblUeberObj">
            <property name="text">
             <string>Übergeordnetes Objekt</string>
            </property>
@@ -345,7 +351,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="lblHIDA">
            <property name="text">
             <string>HiDA Nummer</string>
            </property>
@@ -359,7 +365,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="lbl_objnr_2">
+          <widget class="QLabel" name="lblErfDat">
            <property name="text">
             <string>Erfassungsdatum</string>
            </property>
@@ -369,7 +375,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QgsDateTimeEdit" name="erfassungsdatum"/>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="lbl_objnr_3">
+          <widget class="QLabel" name="lblAendDat">
            <property name="text">
             <string>Aenderungsdatum</string>
            </property>
@@ -379,7 +385,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QgsDateTimeEdit" name="aenderungsdatum"/>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="lblNotiz">
            <property name="text">
             <string>Notiz intern</string>
            </property>
@@ -435,7 +441,17 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
         <attribute name="title">
          <string>Beschreibung</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblBeschrErg">
+           <property name="text">
+            <string>Beschreibung (ergänzend)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QTextEdit" name="beschreibung"/>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="lbl_beschreibung">
            <property name="text">
@@ -443,16 +459,6 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QTextEdit" name="beschreibung"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Beschreibung (ergänzend)</string>
            </property>
           </widget>
          </item>
@@ -467,23 +473,40 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
         </attribute>
         <layout class="QFormLayout" name="formLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_16">
+          <widget class="QLabel" name="lbl_tech_anlage">
+           <property name="text">
+            <string>Technische Anlage</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="techn_anlage">
+           <property name="toolTip">
+            <string>Technische Anlagen benutzen den Reiter 'Technik', sonstige Einzelobjekte werden im Reiter 'Architektur' beschrieben.</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblSchutzstatus">
            <property name="text">
             <string>Schutzstatus</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="QComboBox" name="schutzstatus"/>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_17">
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblDatierung">
            <property name="text">
             <string>Datierung</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <layout class="QHBoxLayout" name="layoutDatum">
            <item>
             <widget class="QToolButton" name="btn_datierung">
@@ -494,6 +517,12 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_datierung">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -520,14 +549,14 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </item>
           </layout>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_22">
+         <item row="3" column="0">
+          <widget class="QLabel" name="lblFunktion">
            <property name="text">
             <string>Funktion / Nutzung</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <layout class="QHBoxLayout" name="layoutNutzung">
            <item>
             <widget class="QToolButton" name="btn_nutzung">
@@ -538,6 +567,12 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_nutzung">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -564,14 +599,14 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </item>
           </layout>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_21">
+         <item row="4" column="0">
+          <widget class="QLabel" name="lblPersonen">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Personen&lt;br/&gt;Unternehmen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <layout class="QHBoxLayout" name="layoutPersonen">
            <item>
             <widget class="QToolButton" name="btn_personen">
@@ -582,6 +617,12 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
            </item>
            <item>
             <widget class="QLabel" name="lbl_return_personen">
+             <property name="minimumSize">
+              <size>
+               <width>620</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -614,9 +655,9 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
         <attribute name="title">
          <string>Ortsbestimmung</string>
         </attribute>
-        <layout class="QFormLayout" name="formLayout_2">
+        <layout class="QFormLayout" name="formLayout_4">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="lblKreis">
            <property name="text">
             <string>Kreis</string>
            </property>
@@ -626,7 +667,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QLineEdit" name="kreis"/>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="lblGemeinde">
            <property name="text">
             <string>Gemeinde</string>
            </property>
@@ -636,7 +677,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QLineEdit" name="gemeinde"/>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="lblOrt">
            <property name="text">
             <string>Ort</string>
            </property>
@@ -648,7 +689,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
             <widget class="QLineEdit" name="ort"/>
            </item>
            <item>
-            <widget class="QLabel" name="label_11">
+            <widget class="QLabel" name="lblSorb">
              <property name="text">
               <string>Sorbisch</string>
              </property>
@@ -660,7 +701,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           </layout>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_12">
+          <widget class="QLabel" name="lblStr">
            <property name="text">
             <string>Straße</string>
            </property>
@@ -672,7 +713,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
             <widget class="QLineEdit" name="strasse"/>
            </item>
            <item>
-            <widget class="QLabel" name="label_13">
+            <widget class="QLabel" name="lblHNr">
              <property name="text">
               <string>Hausnummer</string>
              </property>
@@ -684,7 +725,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           </layout>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_14">
+          <widget class="QLabel" name="lblFlur">
            <property name="text">
             <string>Gemarkung / Flurstück</string>
            </property>
@@ -694,7 +735,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QLineEdit" name="gem_flur"/>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_19">
+          <widget class="QLabel" name="lblLage">
            <property name="text">
             <string>Lagebeschreibung</string>
            </property>
@@ -704,7 +745,7 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
           <widget class="QLineEdit" name="lagebeschreibung"/>
          </item>
          <item row="6" column="0">
-          <widget class="QLabel" name="label_23">
+          <widget class="QLabel" name="lblBlick">
            <property name="text">
             <string>Blickbeziehung</string>
            </property>
@@ -749,13 +790,362 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="TabArchitektur">
+        <attribute name="title">
+         <string>Architektur</string>
+        </attribute>
+        <layout class="QFormLayout" name="formLayout_5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblGeschosszahl">
+           <property name="text">
+            <string>Geschosszahl</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="hlayoutAchsenStockwerke">
+           <property name="spacing">
+            <number>12</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="geschosszahl"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblAchsenzahl">
+             <property name="text">
+              <string>Achsenzahl</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="achsenzahl"/>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblGrundriss">
+           <property name="text">
+            <string>Grundriss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="hlayoutGrundriss">
+           <item>
+            <widget class="QLineEdit" name="grundriss"/>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblMaterial">
+           <property name="text">
+            <string>Material</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="hlayoutMaterial">
+           <item>
+            <widget class="QToolButton" name="btn_material">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_return_material">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>material</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>6</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lblTechnik">
+           <property name="text">
+            <string>Konstruktion / Technik</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="hlayoutTechnik">
+           <item>
+            <widget class="QToolButton" name="btn_konstruktion">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_return_konstruktion">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>technik</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>6</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="lblDachform">
+           <property name="text">
+            <string>Dachform</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <layout class="QHBoxLayout" name="hlayoutDachform">
+           <item>
+            <widget class="QToolButton" name="btn_dachform">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_return_dachform">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>dachform</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>6</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="TabTechnik">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <attribute name="title">
+         <string>Technik</string>
+        </attribute>
+        <layout class="QFormLayout" name="formLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblAbmessung">
+           <property name="text">
+            <string>Abmessung</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="hlayoutAchsenStockwerke_2">
+           <property name="spacing">
+            <number>12</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="abmessung"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblGewicht">
+             <property name="text">
+              <string>Gewicht</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="gewicht"/>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblAntrieb">
+           <property name="text">
+            <string>Antrieb</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="hlayoutGrundriss_2">
+           <item>
+            <widget class="QLineEdit" name="antrieb"/>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblMaterial_2">
+           <property name="text">
+            <string>Material</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="hlayoutMaterial_2">
+           <item>
+            <widget class="QToolButton" name="btn_material2">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_return_material2">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>material</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>6</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lblTechnik_2">
+           <property name="text">
+            <string>Konstruktion / Technik</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="hlayoutTechnik_2">
+           <item>
+            <widget class="QToolButton" name="btn_konstruktion2">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbl_return_konstruktion2">
+             <property name="minimumSize">
+              <size>
+               <width>600</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>technik</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>6</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="TabBilder">
         <attribute name="title">
          <string>Bilder / Literatur</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_2">
+        <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_18">
+          <widget class="QLabel" name="lblBildAnm">
            <property name="text">
             <string>Anmerkungen</string>
            </property>
@@ -797,14 +1187,23 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
              <widget class="QWidget" name="scrollAreaWidgetContents">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
                 <width>635</width>
-                <height>68</height>
+                <height>78</height>
                </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <property name="spacing">
@@ -829,6 +1228,9 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
                    <pointsize>10</pointsize>
                   </font>
                  </property>
+                 <property name="lineWidth">
+                  <number>1</number>
+                 </property>
                  <property name="text">
                   <string>dateinamen</string>
                  </property>
@@ -837,6 +1239,9 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
+                 </property>
+                 <property name="margin">
+                  <number>0</number>
                  </property>
                 </widget>
                </item>
@@ -848,6 +1253,12 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
          </item>
          <item row="2" column="0" colspan="2">
           <widget class="Line" name="line">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>1</height>
+            </size>
+           </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -886,13 +1297,16 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_2">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
                 <width>635</width>
-                <height>68</height>
+                <height>78</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -917,6 +1331,9 @@ Es muss eine gültige Objekt-Nummer angegeben werden!</string>
                   <font>
                    <pointsize>10</pointsize>
                   </font>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
                  </property>
                  <property name="text">
                   <string>literatur</string>

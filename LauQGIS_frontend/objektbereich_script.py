@@ -1,16 +1,20 @@
 #!/usr/bin/env python3  
 # -*- coding: utf-8 -*- 
 # --------------------------------------------------------------------------------------------------
-# @Author:      Stefan Krug
+# @Author:      Alexandra Krug
 # @Institution: Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
-# @Date:        19.08.2022
+# @Date:        24.02.2023
 # @Links:       https://github.com/LausitzBergbaukultur/LauGIS
 # --------------------------------------------------------------------------------------------------
 
+import math
 import json
+import operator
+import requests
 import webbrowser
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QToolButton, QFormLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox, QMessageBox
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtWebKitWidgets import QWebView
+from PyQt5.QtWidgets import QDialog, QWidget, QToolButton, QFormLayout, QGridLayout, QTableWidget, QDialogButtonBox, QTableWidgetItem, QAbstractScrollArea, QErrorMessage, QLabel, QHBoxLayout, QVBoxLayout, QComboBox, QHeaderView, QLineEdit, QCheckBox, QTabWidget, QMessageBox
 
 error_dialog = QErrorMessage()
 definitionen = list()
@@ -18,7 +22,9 @@ sachbegriffe = list()
 local_feature = None
 local_layer = None
 local_dialog = None
-url_manual = 'http://lausitzcloud.ddns.net:36329/index.php/s/TNjx9nmkqZ8XrzE'
+url_manual = 'http://192.168.29.159/lauqgis/Handbuch_LauGIS.pdf'
+url_laudata = 'http://192.168.29.159/laudata/'
+url_laudata_tn = 'http://192.168.29.159/laudata_tn/'
 
 def formOpen(dialog,layer,feature):
     # Scope: Zugriff auf relevante Ressourcen ermöglichen
@@ -160,6 +166,16 @@ def formOpen(dialog,layer,feature):
             True
         btn_manual.clicked.connect(lambda: webbrowser.open(url_manual, new=0, autoraise=True)) 
 
+        dlg_preview = QDialog()
+        btn_imagepreview = dialog.findChild(QToolButton, 'btn_imagepreview')
+        btn_imagepreview.setEnabled(True if len(get_rel_bilder()) > 0 else False)
+        try:
+            btn_imagepreview.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn_imagepreview.clicked.connect(lambda: dlg_vorschau(dlg_preview))
+
 ####################################################################################################
 
 # refresh list on primary dialog
@@ -229,14 +245,16 @@ def reload_controls():
 # Feld: Bilder ################################################################
     bilder = list()
     for rel in get_rel_bilder():
+        # status = (' ✔  ' if requests.head(url_laudata + rel['dateiname']).ok else ' ❌  ')
+        status = ' '
         if rel['titelbild'] and rel['intern']:
-            bilder.append(rel['dateiname'] + ' (Titelbild, intern)')
+            bilder.append(status + rel['dateiname'] + ' (Titelbild, intern)')
         elif rel['intern']:
-            bilder.append(rel['dateiname'] + ' (intern)')
+            bilder.append(status + rel['dateiname'] + ' (intern)')
         elif rel['titelbild']:
-            bilder.append(rel['dateiname'] + ' (Titelbild)')
+            bilder.append(status + rel['dateiname'] + ' (Titelbild)')
         else:
-            bilder.append(rel['dateiname'])
+            bilder.append(status + rel['dateiname'])
     # control ermitteln und text einfügen
     lbl_return_bilder = local_dialog.findChild(QLabel, 'lbl_return_bilder')
     lbl_return_bilder.setText('\n'.join(bilder))
@@ -264,6 +282,98 @@ def changetype_object(dialog):
         local_layer.changeAttributeValue(local_feature.id(), local_layer.fields().indexOf('api'), 'CHANGE_TYPE')
         # speichern auf Featureebene, nur so werden neue Objekte aktualisiert
         local_feature['api'] = 'CHANGE_TYPE'
+
+####################################################################################################
+# Menüleiste: Bildvorschau
+####################################################################################################
+    
+# defines and opens a dialog to display thumbnails
+def dlg_vorschau(dialog):    
+    
+    # initialise layout and controls        
+    layout = QGridLayout()
+
+    # set window title
+    title = []
+    title.append('Bildvorschau:')
+    if local_feature.attribute('bezeichnung') is not None:
+        title.append(str(local_feature.attribute('bezeichnung')))
+    dialog.setWindowTitle(' '.join(title))
+
+    # define window spacing
+    layout.setHorizontalSpacing(10)
+    layout.setVerticalSpacing(30)
+
+    # iterate over interface items and add tiles to layout
+    itemNr = 0
+    if len(get_rel_bilder()) <= 6:
+        modifier = 3
+    elif len(get_rel_bilder()) <= 12:
+        modifier = 4
+    else:
+        modifier = 5
+    for rel in get_rel_bilder():
+        add_tile_preview(layout, rel, itemNr, int(modifier))
+        itemNr += 1
+
+    dialog.setLayout(layout) 
+    dialog.setModal(True)       # force clean dialog handling
+    dialog.setMinimumSize(300, 200)
+    dialog.show()
+    dialog.adjustSize()
+    
+####################################################################################################   
+
+# builds a tile (vbox) consisting of a webView (for thumbnail display) and a button (with link to original image)
+def add_tile_preview(layout, rel, itemNr, modifier):
+
+    if rel is not None:
+
+        vbox = QVBoxLayout()
+        row = 0
+        column = 0
+        webView = QWebView()
+        lbl_marker = QLabel()
+        lbl_filename = QLabel()
+        btn = QToolButton()
+
+        # arrange items on 4 columns and n rows
+        column = itemNr % modifier
+        if (itemNr % modifier == 0):
+            itemNr += 1
+        row = math.ceil(itemNr / modifier) -1        
+
+        # set image
+        webView.setUrl(QUrl(url_laudata_tn + rel['dateiname']))
+        webView.setFixedHeight(150)
+        webView.setMinimumWidth(200)
+    
+        # set lbl_marker txt and alignment
+        lbl_marker.setAlignment(QtCore.Qt.AlignCenter)
+        if rel['intern']:
+            lbl_marker.setText('intern')
+        elif rel['titelbild']:
+            lbl_marker.setText('Titelbild')
+
+        # set lbl_filename text and alignment
+        lbl_filename.setWordWrap(True)
+        lbl_filename.setText(rel['dateiname'])
+
+        # set button text and function
+        btn.setText('Originalbild')
+        try:
+            btn.disconnect()
+        except:
+            # Notwendig, da QGIS unerwartete, doppelte Aufrufe generiert
+            True
+        btn.clicked.connect(lambda: webbrowser.open(url_laudata + rel['dateiname'], new=0, autoraise=True))
+    
+        # add controls to layout
+        vbox.addWidget(lbl_marker, QtCore.Qt.AlignCenter)
+        vbox.addWidget(webView)
+        vbox.addWidget(lbl_filename)
+        vbox.addWidget(btn)    
+        layout.addLayout(vbox, row, column)      
 
 ####################################################################################################
 # Feld: Datierung
@@ -1300,12 +1410,13 @@ def dlg_edit_bilder(dialog):
     btn_box.rejected.connect(dialog.reject)
        
     # setup table
-    table.setColumnCount(4)
-    table.setHorizontalHeaderLabels(['relation_id', 'Dateiname', 'intern', 'Titelbild'])
+    table.setColumnCount(5)
+    table.setHorizontalHeaderLabels(['relation_id', 'Dateiname', 'intern', 'Titelbild', 'online'])
     header = table.horizontalHeader()
     header.setSectionResizeMode(1, QHeaderView.Stretch)
     header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
     header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+    header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
         
     # hide irrelevant columns
     table.setColumnHidden(0, True)
@@ -1349,12 +1460,17 @@ def add_row_bilder(table, rel):
     intern.setCheckState(Qt.Unchecked)
     table.setItem(row, 2, intern)  
     
-    # 2 chk titelbild (bei jeder Row vorhanden)
+    # 3 chk titelbild (bei jeder Row vorhanden)
     titel = QTableWidgetItem()
     titel.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
     titel.setCheckState(Qt.Unchecked)
     table.setItem(row, 3, titel)  
     
+    # 4 chk image is online
+    online = QTableWidgetItem()
+    online.setFlags(Qt.NoItemFlags)
+    table.setItem(row, 4, online)
+
     if rel is not None:
         # 0 relation_id
         table.setItem(row, 0, QTableWidgetItem(str(rel['relation_id'])))
@@ -1364,9 +1480,11 @@ def add_row_bilder(table, rel):
         intern.setCheckState(Qt.Checked if rel['intern'] else Qt.Unchecked) 
         # 3 kennzeichen titelbild
         titel.setCheckState(Qt.Checked if rel['titelbild'] else Qt.Unchecked) 
+        # 4 kennzeichen online
+        online.setText('✔' if requests.head(url_laudata + rel['dateiname']).ok else '✖')
     elif row == 0:
         # 3 kennzeichen titelbild in erster row
-        titel.setCheckState(Qt.Checked) 
+        titel.setCheckState(Qt.Checked)
         
 ####################################################################################################        
     

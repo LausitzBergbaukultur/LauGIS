@@ -15,6 +15,7 @@ SELECT (json_agg(row_to_json(rel) ORDER BY LEFT(NULLIF(regexp_replace(rel.datier
         JOIN laugis.rel_datierung AS rel ON rel.ref_objekt_id = obb.objekt_id
         JOIN laugis.def_datierung AS def ON rel.ref_ereignis_id = def.id
         WHERE obb.objekt_id = _objekt_id
+          AND rel.geloescht IS NOT TRUE
 INTO _ar;
 
 RETURN _ar;

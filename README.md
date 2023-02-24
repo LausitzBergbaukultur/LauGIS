@@ -1,4 +1,30 @@
-## LauGIS 2.1 release notes
+## LauGIS 2.2 changelog
+
+- Objekt-Versionierung implementiert
+  - `UPDATE` gegen die Schnittstellen-Views führt zu einem `INSERT` des Ausgangsdatensatzes in die Tabelle `laugis.obj_hist` und anschließend zum `UPDATE` auf `laugis.obj_basis`
+  - Für das Schreiben der Historie ist die Funktion `laugis.write_obj_history` verantwortlich
+  - Die Versionsgeschichte kann über die Schnittstellen-View `lauqgis.objekte_historie` eingesehen werden
+- Gelöscht-Flag für die erweiterten Objekt-Daten implementiert
+  - Die betroffenen Relations-Tabellen (Bilder, Blickbeziehung, Dachform, Datierung, Konstruktion, Literatur, Material, Nutzung, Personen) wurden um die Felder `geloescht`und `geleoscht_am` erweitert
+  - `DELETE` gegen die Schnittstellen-Views werden abgefangen und in den entsprechenden Funktionen (`laugis.remove_bilder`, `laugis.remove_datierung`, etc. ) behandelt
+  - Die betroffenen Return-Funktionen (`laugis.return_bilder`, `laugis.return_datierung`, etc.) prüfen nun gegen das Flag `geloescht`
+- View `lauqgis.objekte_gesamt` hinzugefügt
+  - Die Schnittstellen-View ist read-only und stellt die Gesamtheit aller nicht-gelöschten Objekte in einer menschenlesbarer Art dar
+- Bildvorschau implementiert
+  - Für Objekte mit hinterlegten Bildinformationen kann nun über die Menüleiste eine Bildvorschau aufgerufen werden
+  - In einem modalen Dialog werden Thumbnails der hinterlegten Bilder, der zugehörige Dateiname, ein Hinweis auf interne und Titelbilder, sowie eine Schaltfläche zum Aufrufen des originalen Bildes angezeigt
+  - Der Dialog skaliert je nach Bildanzahl zwischen 3 und 5 Spalten
+- Ressourcenprüfung 'Bilder' implementiert
+  - Der Dialog "Bilder bearbeiten" wurde um die Spalte "online" erweitert
+  - Beim Öffnen des Dialogs wird auf die eingetragenen Bilder ein HTTP-Request ausgeführt und das Ergebnis in der Spalte "online" angezeigt
+- Dokumentation erweitert
+  - Simple Schnittstellendefinition der LauQGIS-Views hinzugefügt: [20230224_Schnittstellensignatur_LauQGIS.md](.//Dokumentation/20230224_Schnittstellensignatur_LauQGIS.md)
+  - Aktualisiertes, vereinfachtes Datenbankschema hinzugefügt: [20230224_Datenbankschema_LauGIS_vereinfacht.png](.//Dokumentation/20230224_Datenbankschema_LauGIS_vereinfacht.png)
+- div. kleinere Bugfixes und Anpassungen
+
+NB: Es wurde noch kein neues Installscript für Version 2.2 erzeugt. 
+
+## LauGIS 2.1 changelog
 
 - API implementiert, um komplexere Operationen seitens QGIS auslösen zu können
 - Funktion zum Wechsel des Objekttyps implementiert
