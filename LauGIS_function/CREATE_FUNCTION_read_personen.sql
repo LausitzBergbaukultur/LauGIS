@@ -9,7 +9,8 @@ DECLARE
   _ar text;
 BEGIN
 
-SELECT (string_agg(def.bezeichnung || ': ' || COALESCE(rel.bezeichnung, ''), ' | ')) AS row_value
+-- ermittle Funktion und Person für jeden Vorfall. Im Falle von 'FREITEXT' wird alt_funktion übergeben
+SELECT (string_agg(REPLACE(def.bezeichnung, 'FREITEXT', rel.alt_funktion) || ': ' || COALESCE(rel.bezeichnung, ''), ' | ')) AS row_value
     FROM laugis.obj_basis AS ob
         JOIN laugis.rel_personen AS rel ON rel.ref_objekt_id = ob.objekt_id
         JOIN laugis.def_personen AS def ON rel.ref_funktion_id = def.id

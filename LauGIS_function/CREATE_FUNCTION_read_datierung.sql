@@ -9,9 +9,10 @@ DECLARE
   _ar text;
 BEGIN
 
+-- ermittle Bezeichnung und Datum für jeden Vorfall. Im Falle von 'FREITEXT' wird alt_ereignis übergeben
 SELECT (string_agg(subquery.bezeichnung || ': ' || COALESCE(subquery.datierung, ''), ' | ')) AS row_value
 FROM (
-  SELECT def.bezeichnung, rel.datierung
+  SELECT REPLACE(def.bezeichnung, 'FREITEXT', rel.alt_ereignis) as bezeichnung, rel.datierung
   FROM laugis.obj_basis AS ob
         JOIN laugis.rel_datierung AS rel ON rel.ref_objekt_id = ob.objekt_id
         JOIN laugis.def_datierung AS def ON rel.ref_ereignis_id = def.id

@@ -1,3 +1,10 @@
+### LauGIS 2.2.1 changelog
+
+- Angabe `FREITEXT` in diversen Ausgabeformaten in den jeweiligen Alternativ-Text übersetzt.
+  - Funktionen `read_dachform`, `read_datierung`, `read_konstruktion`, `read_material` und `read_personen` ersetzen nun den Begriff `FREITEXT` mit dem jeweiligen Alternativ-Begriff.
+  - Funktion `read_sachbegriff`hinzugefügt, um eine einheitliche Formatierung und Freitext-Auflösung der Sachbegriffe bereitzustellen.
+  - Im View `objekte_gesamt` wird das Feld `sachbegriff` nun via `read_sachbegriff` befüllt.
+
 ## LauGIS 2.2 changelog
 
 - Objekt-Versionierung implementiert
