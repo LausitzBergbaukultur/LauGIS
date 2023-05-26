@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------------------------------
 # @Author:      Alexandra Krug
 # @Institution: Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
-# @Date:        24.02.2023
+# @Date:        25.05.2023
 # @Links:       https://github.com/LausitzBergbaukultur/LauGIS
 # --------------------------------------------------------------------------------------------------
 
@@ -335,12 +335,20 @@ def reload_controls():
     lbl_return_konstruktion.setText(' | '.join(konstruktion))
     lbl_return_konstruktion2.setText(' | '.join(konstruktion))
 
-# Feld: Literatur ###############################################
+# Feld: Literatur ############################################################
     literatur = [rel['literatur']
               for rel in get_rel_literatur()] 
     # control ermitteln und text einfügen
     lbl_return_literatur = local_dialog.findChild(QLabel, 'lbl_return_literatur')
     lbl_return_literatur.setText('\n'.join(literatur))
+
+# Feld: Untergeordnete Objekte ################################################
+    untergeordnet = (local_feature.attribute('read_untergeordnet') 
+        if isinstance(local_feature.attribute('read_untergeordnet'), str)
+        else '')
+    # control ermitteln und text einfügen
+    lbl_read_untergeordnet = local_dialog.findChild(QLabel, 'lbl_read_untergeordnet')
+    lbl_read_untergeordnet.setText(untergeordnet)
 
 ####################################################################################################
 

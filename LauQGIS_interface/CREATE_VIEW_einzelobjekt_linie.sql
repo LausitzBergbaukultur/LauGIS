@@ -1,3 +1,16 @@
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-05-25
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        s.b.
+Call by:            none
+Affected tables:	none
+Used By:            Systems interfacing LauGIS via LauQGIS.
+Parameters:			none
+***************************************************************************************************/
+
 -- Die View repräsentiert die Struktur "Einzelobjekt"
 -- Die zugehörigen Geometrie ist Multiline
 -- Einzelobjekte definierenw sich über deinen zusammenhängenden Datensatz in obj_basis und obj_tech
@@ -12,6 +25,7 @@ SELECT
     	ob.objekt_id,
 		ob.objekt_nr,
 		ob.rel_objekt_nr,
+		laugis.read_untergeordnet(ob.objekt_id) AS read_untergeordnet,
 		ob.status_bearbeitung,
 		ob.erfassungsdatum, 
 		ob.aenderungsdatum, 

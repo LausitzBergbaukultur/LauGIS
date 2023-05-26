@@ -149,6 +149,14 @@ def formOpen(dialog,layer,feature):
             True
         btn_literatur.clicked.connect(lambda: dlg_edit_literatur(QDialog()))
         
+# Feld: Untergeordnete Objekte ################################################
+        read_untergeordnet = (local_feature.attribute('read_untergeordnet') 
+            if isinstance(local_feature.attribute('read_untergeordnet'), str)
+            else '')
+        # control ermitteln und text einfügen
+        lbl_read_untergeordnet = local_dialog.findChild(QLabel, 'lbl_read_untergeordnet')
+        lbl_read_untergeordnet.setText(read_untergeordnet)
+        
 # Menueleiste #################################################################
         btn_changetype = dialog.findChild(QToolButton, 'btn_changetype')
         try:

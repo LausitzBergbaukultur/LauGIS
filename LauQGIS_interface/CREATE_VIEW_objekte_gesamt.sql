@@ -1,3 +1,16 @@
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-05-12
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        Selects all valid (not deleted) objects and presents them optimized for humand readability and printability.
+Call by:            none
+Affected tables:	none
+Used By:            Systems interfacing LauGIS via LauQGIS.
+Parameters:			none
+***************************************************************************************************/
+
 DROP VIEW lauqgis.objekte_gesamt;
 CREATE VIEW lauqgis.objekte_gesamt AS
 
@@ -14,6 +27,7 @@ FROM
 		COALESCE(laugis.read_sachbegriff(ob.objekt_id), '') AS sachbegriff,
     	COALESCE(ob.sachbegriff_alt, '') AS sachbegriff_alt,
 		COALESCE(ob.rel_objekt_nr::text, '') AS objekt_uebergeordnet,
+		COALESCE(laugis.read_untergeordnet(ob.objekt_id), '') AS objekte_untergeordnet,
 
     -- # Deskriptoren
     	COALESCE(ob.bauwerksname_eigenname, '') AS bauwerksname_eigenname,		
@@ -92,6 +106,7 @@ FROM
     	COALESCE(laugis.read_sachbegriff(ob.objekt_id), '') AS sachbegriff,
     	COALESCE(ob.sachbegriff_alt, '') AS sachbegriff_alt,
 		COALESCE(ob.rel_objekt_nr::text, '') AS objekt_uebergeordnet,
+		COALESCE(laugis.read_untergeordnet(ob.objekt_id), '') AS objekte_untergeordnet,
 
     -- # Deskriptoren
     	COALESCE(ob.bauwerksname_eigenname, '') AS bauwerksname_eigenname,		
@@ -170,6 +185,7 @@ FROM
     	COALESCE(laugis.read_sachbegriff(ob.objekt_id), '') AS sachbegriff,
     	COALESCE(ob.sachbegriff_alt, '') AS sachbegriff_alt,
 		COALESCE(ob.rel_objekt_nr::text, '') AS objekt_uebergeordnet,
+		COALESCE(laugis.read_untergeordnet(ob.objekt_id), '') AS objekte_untergeordnet,
 
     -- # Deskriptoren
     	COALESCE(ob.bauwerksname_eigenname, '') AS bauwerksname_eigenname,		
@@ -248,6 +264,7 @@ FROM
     	COALESCE(laugis.read_sachbegriff(ob.objekt_id), '') AS sachbegriff,
     	COALESCE(ob.sachbegriff_alt, '') AS sachbegriff_alt,
 		COALESCE(ob.rel_objekt_nr::text, '') AS objekt_uebergeordnet,
+		COALESCE(laugis.read_untergeordnet(ob.objekt_id), '') AS objekte_untergeordnet,
 
     -- # Deskriptoren
     	COALESCE(ob.bauwerksname_eigenname, '') AS bauwerksname_eigenname,		
@@ -329,6 +346,7 @@ FROM
     	COALESCE(laugis.read_sachbegriff(ob.objekt_id), '') AS sachbegriff,
     	COALESCE(ob.sachbegriff_alt, '') AS sachbegriff_alt,
 		COALESCE(ob.rel_objekt_nr::text, '') AS objekt_uebergeordnet,
+		COALESCE(laugis.read_untergeordnet(ob.objekt_id), '') AS objekte_untergeordnet,
 
     -- # Deskriptoren
     	COALESCE(ob.bauwerksname_eigenname, '') AS bauwerksname_eigenname,		

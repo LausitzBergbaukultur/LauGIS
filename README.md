@@ -1,3 +1,19 @@
+# LauGIS
+
+PostGIS-System mit QGIS-Frontend zur Erfassung der Lausitzer Bergbau- und Industriekultur.
+
+### LauGIS 2.2.2 changelog
+
+- Funktion `read_untergeordnet` hinzugefügt, um zu jedem Objekt die untergeordneten Objekte menschenlesbar in Views, Formularen und Exports anzeigen zu können.
+  - Views `einzelobjekt_linie`. `einzelobjekt_punkt`, `einzelobjekt_poly`, `objektbereich_poly` sowie `objekte_gesamt` um Spalte `read_untergeordnet` erweitert.
+  - Die Eingabemasken `einzelobjekt_form.ui` und `objektbereich_form.ui` samt zugehöriger Python-Skripte wurden um das Feld "Untergeordnete Objekte" erweitert.
+- View `lektorat` hinzugefügt. Die View weist ein reduziertes Feldinventar der Tabelle `obj_basis` auf und dient der Textkorrektur.
+  - Trigger-Funktion `trf_lektorat` hinzugefügt. Behandelt ausschließlich UPDATE-Prozesse.
+  - Die Tabelle `def_bearbeitung` wurde um die Status "in Korrektur", "korrigiert" sowie "Rückfrage" ergänzt.
+-  Snippets hinzugefügt
+  - `CORRECT_geometries.sql`  validiert alle Geometrieeinträge und korrigiert übliche Fehler wie self-intersections und diplicates.
+  - `CREATE_ROLE_laugis_user.sql` und `CREATE_USER_default.sql` kapseln die datenbankseitige Nutzerverwaltung.
+
 ### LauGIS 2.2.1 changelog
 
 - Angabe `FREITEXT` in diversen Ausgabeformaten in den jeweiligen Alternativ-Text übersetzt.
@@ -41,7 +57,7 @@ NB: Es wurde noch kein neues Installscript für Version 2.2 erzeugt.
 - Sortierungen der geschützten Vokabulare optimiert
 - div. kleinere Bugfixes und Anpassungen
 
-## Projektbeschreibung
+## Projektbeschreibung und Aufbau
 
 Im Rahmen des [Projekts zur Erfassung der lausitzer Braunkohle- & Industriekultur](https://bldam-brandenburg.de/arbeitsbereiche/bau-und-kunstdenkmalpflege/forschungen-und-projekte/erfassungsprojekt-lausitz/) werden untersuchte Objekte in einer GIS-Datenbank verzeichnet. Durch die Nutzung eines solchen Geo-Informations-Systems ist es möglich, die örtlichen Zusammenhänge der untersuchten Objekte zusätzlich zu den objektspezifischen Informationen zu erfassen und zudem vielfältige Szenarien zur Nachnutzung und Publikation der Ergebnisse zu ermöglichen. Das hierzu notwendige System zur Erfassung und Datenhaltung trägt den Namen LauGIS und wird projektbegleitend entwickelt.
 

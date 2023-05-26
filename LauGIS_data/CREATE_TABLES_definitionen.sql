@@ -1,3 +1,15 @@
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-05-25
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        Create & insert statements for all base data tables.
+Call by:            -
+Affected tables:	
+Used By:            most tables and functions
+Parameters:			none
+***************************************************************************************************/
 -- Definitionstabellen 
 
 DROP TABLE IF EXISTS laugis.def_erfasser;
@@ -52,7 +64,7 @@ CREATE TABLE IF NOT EXISTS laugis.def_schutzstatus
 
 INSERT INTO laugis.def_schutzstatus (bezeichnung, sortierung) VALUES 
 	('Kulturdenkmal', 1),
-	('Denkmalverdacht', 2)
+	('Denkmalvermutung', 2)
 ;
 
 --------------------------------------------------------------------------------------
@@ -783,8 +795,12 @@ CREATE TABLE IF NOT EXISTS laugis.def_bearbeitung
 
 INSERT INTO laugis.def_bearbeitung (bezeichnung, sortierung) VALUES 
 	('in Bearbeitung', 1),
-	('in Prüfung', 2),
-	('abgeschlossen', 3)
+	('in Prüfung', 3),
+	('abgeschlossen', 4),
+	('zur Prüfung freigegeben', 2),
+	('in Korrektur', 5),
+	('Rückfrage', 6),
+	('korrigiert', 7);
 ;
 
 --------------------------------------------------------------------------------------
