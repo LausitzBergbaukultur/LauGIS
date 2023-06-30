@@ -1,3 +1,20 @@
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-05-31
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        s.b.
+Call by:            view lauqgis.objekte_gesamt
+					view lauqgis.objektbereich_poly
+					view lauqgis.einzelobjekt_punkt
+					view lauqgis.einzelobjekt_linie
+					view lauqgis.einzelobjekt_poly
+Affected tables:	none
+Used By:            Interface views and exports
+Parameters:			_objekt_id - primary key of a given object in lausitz.obj_basis
+***************************************************************************************************/
+
 -- Gibt für ein Objekt die aggregierten Personeneinträge zurück (read only)
 
 CREATE OR REPLACE FUNCTION laugis.read_personen(

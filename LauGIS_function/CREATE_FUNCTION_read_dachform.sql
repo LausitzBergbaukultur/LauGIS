@@ -1,3 +1,19 @@
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-05-31
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        s.b.
+Call by:            view lauqgis.objekte_gesamt
+					view lauqgis.einzelobjekt_punkt
+					view lauqgis.einzelobjekt_linie
+					view lauqgis.einzelobjekt_poly
+Affected tables:	none
+Used By:            Interface views and exports
+Parameters:			_objekt_id - primary key of a given object in lausitz.obj_basis
+***************************************************************************************************/
+
 -- Gibt für ein Objekt die aggregierten Dachformen zurück (read only)
 
 CREATE OR REPLACE FUNCTION laugis.read_dachform(
@@ -22,10 +38,13 @@ SELECT (string_agg(def.bezeichnung, ', ')) AS row_value
         JOIN laugis.rel_dachform AS rel ON rel.ref_objekt_id = ob.objekt_id
         JOIN laugis.def_dachform AS def ON rel.ref_dachform_id = def.id
         WHERE ob.objekt_id = _objekt_id
+        	AND rel.geloescht IS NOT TRUE
 INTO _ar;
 
 -- Begriff FREITEXT gegen Alternativtext austauschen
-_ar = REPLACE (_ar, 'FREITEXT', _freitext);
+IF (_freitext IS NOT NULL) THEN
+    _ar = REPLACE (_ar, 'FREITEXT', _freitext);
+END IF;
 
 RETURN _ar;
 

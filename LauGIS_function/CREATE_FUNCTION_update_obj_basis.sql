@@ -1,9 +1,25 @@
--- Setzt die Werte für ein bestehendes oder neues Basis-Objekt
--- Erzeugt eine definierte Objektnummer
--- Legt entsprechend der Geometrie-Art einen passenden verknüpften Eintrag an
--- Setzt das Flag 'geloescht' auf false
--- Fügt in 'letzte_aenderung' den aktuellen Timestamp
--- Gibt die ID des bearbeiteten Eintrags zurück
+/***************************************************************************************************
+Author:             Alexandra Krug
+Institution:		Brandenburgisches Landesamt für Denkmalpflege und Archäologisches Landesmuseum
+Date:        		2023-06-30
+Repository:			https://github.com/LausitzBergbaukultur/LauGIS
+
+Description:        Setzt die Werte für ein bestehendes oder neues Basis-Objekt
+					Erzeugt eine definierte Objektnummer
+					Legt entsprechend der Geometrie-Art einen passenden verknüpften Eintrag an
+					Setzt das Flag 'geloescht' auf false
+					Fügt in 'letzte_aenderung' den aktuellen Timestamp
+					Gibt die ID des bearbeiteten Eintrags zurück
+Call by:            trigger functions
+					- trf_einzelobjekt
+					- trf_objektbereich
+Affected tables:	objekt and geometry tables
+					- laugis.obj_basis
+					- laugis.geo_poly
+					- laugis.geo_point
+					- laugis.geo_line
+Parameters:			s.b.
+***************************************************************************************************/
 
 CREATE OR REPLACE FUNCTION laugis.update_obj_basis(
   -- # Metadaten
@@ -48,6 +64,8 @@ RETURNS INTEGER AS $$
 DECLARE
   _ob_id integer = _objekt_id;
   _is_update bool = NULL;
+  _gemarkung TEXT = '';				-- iteration variable
+  _gemflur_arr TEXT[];				-- list array
 BEGIN
 
   -- check if UPDATE or INSERT
@@ -57,6 +75,72 @@ BEGIN
     _is_update = FALSE;
   END IF;
 
+---------------------------------------------------------------------------------------------------------------
+-- determine location by geometry
+---------------------------------------------------------------------------------------------------------------
+ 	
+	-- check if source view exists AND if any of the location variables are empty
+	IF (SELECT COUNT(*) FROM pg_matviews WHERE matviewname = 'location_by_plot') > 0
+		AND (_kreis IS NULL OR _kreis = '' 
+			OR _gemeinde IS NULL OR _gemeinde = ''
+			OR _ort IS NULL OR _ort = ''
+			OR _sorbisch IS NULL OR _sorbisch = ''
+		--	OR _strasse IS NULL OR _strasse = ''
+			OR _gem_flur IS NULL OR _gem_flur = '') THEN
+	
+		-- create a set with all location data that matches (intersects) the geometry of the defined object
+		CREATE TEMPORARY TABLE dataset_loc
+		AS
+		SELECT lbp.kreis, lbp.gemeinde, lbp.ort, lbp.sorbisch, lbp.gem, lbp.flur, lbp.zaehler, lbp.nenner
+		FROM quellen.location_by_plot AS lbp
+			WHERE ST_intersects(lbp.geom, _geom)
+			ORDER BY lbp.kreis, lbp.gemeinde, lbp.ort, lbp.gem, lbp.flur, lbp.zaehler, lbp.nenner
+		;
+	
+		-- set _kreis if empty
+		IF _kreis IS NULL OR _kreis = '' THEN
+			_kreis = (SELECT string_agg(DISTINCT(dsl.kreis), ' | ') FROM dataset_loc dsl);
+		END IF;
+		
+		-- set _gemeinde if empty
+		IF _gemeinde IS NULL OR _gemeinde = '' THEN
+			_gemeinde = (SELECT string_agg(DISTINCT(dsl.gemeinde), ' | ') FROM dataset_loc dsl);
+		END IF;
+		
+		-- set _ort if empty
+		IF _ort IS NULL OR _ort = '' THEN
+			_ort = (SELECT string_agg(DISTINCT(dsl.ort), ' | ') FROM dataset_loc dsl);
+		END IF;
+
+		-- set _sorbisch if empty
+		IF _sorbisch IS NULL OR _sorbisch = '' THEN
+			_sorbisch = (SELECT string_agg(DISTINCT(dsl.sorbisch), ' | ') FROM dataset_loc dsl);
+		END IF;
+	
+	/*  -- deactivated because the data basis does not include street information
+		-- set _strasse if empty
+		IF _strasse IS NULL OR _strasse = '' THEN
+			_strasse = (SELECT string_agg(DISTINCT(dsl.strasse), ' | ') FROM dataset_loc dsl);
+		END IF;
+	*/
+		-- set _gem_flur if empty
+		IF _gem_flur IS NULL OR _gem_flur = '' THEN 
+			-- build plot notation for distinct Gemarkung (gem)
+			FOR _gemarkung IN 
+				SELECT DISTINCT(gem) FROM dataset_loc LOOP
+					-- pattern: "GEM: 'FLUR - ZAEHLER, ' OR 'FLUR - ZAEHLER/NENNER, ' | " (if nenner is not NULL)
+					_gemflur_arr := _gemflur_arr || (_gemarkung || ': ' || (SELECT string_agg(
+						(dsl.flur || ' - ' || dsl.zaehler) || COALESCE('/' || dsl.nenner, '')
+						, ', ') FROM dataset_loc AS dsl WHERE gem = _gemarkung));	
+			END LOOP;
+			_gem_flur = array_to_string(_gemflur_arr, ' | ');	
+		END IF;
+		
+		-- clean up temp table
+		DROP TABLE IF EXISTS dataset_loc;
+				
+	END IF;
+	
 ---------------------------------------------------------------------------------------------------------------
 -- Handle obj_basis entries
 ---------------------------------------------------------------------------------------------------------------

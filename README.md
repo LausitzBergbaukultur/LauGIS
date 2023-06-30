@@ -2,6 +2,18 @@
 
 PostGIS-System mit QGIS-Frontend zur Erfassung der Lausitzer Bergbau- und Industriekultur.
 
+### LauGIS 2.3 changelog
+
+- Schema `quellen` hinzugefügt, um verschiedene Arbeitsgrundlagen aufbereitet zur Verfügung stellen zu können.
+- Neue Funktion: Automatische Ortsbestimmung.
+  - Materialized View `location_by_plot` hinzugefügt. Diese fasst die Daten aus zu hinterlegenden Verwaltungskarten zusammen und projiziert die Zugehörigkeit zu Verwaltungseinheiten (Kreis, Gemeinde, Ort, sorbische Ortsnamen) auf die Flurstücksebene.
+  - Funktion `update_obj_basis` um eine Orts-Prüfung erweitert. Zu schreibende Objekte werden anhand ihrer hinterlegten Geometrie und der Materialized View `location_by_plot` verortet und die entsprechenden Werte in noch nicht gefüllten Feldern übernommen. Die Ortsbeschreibung eines Objektes wird somit automatisiert, manuelle Angaben haben jedoch Vorrang.
+- Kleine Korrekturen an den Funktionen zur Anzeige komplexer Daten: `read_dachform`, `read_datierung`, `read_konstruktion`, `read_material`, `read_personen`
+- Snippets hinzugefügt oder aktualisiert:
+  - View `laugis_definitionen_nutzung` zur Auswertung der geschützten Vokabulare und Freitexte.
+  - `doppelte_leerzeichen_entfernen.sql` entfernt doppelte Leerzeichen aus allen Fließtext-Feldern.
+  - View `laugis_statistiken` wurde um die neuen Bearbeitungsstatus erweitert.
+
 ### LauGIS 2.2.2 changelog
 
 - Funktion `read_untergeordnet` hinzugefügt, um zu jedem Objekt die untergeordneten Objekte menschenlesbar in Views, Formularen und Exports anzeigen zu können.
